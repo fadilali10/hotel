@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reports - Hotels</title>
+
+    <!-- Main Website CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Reports Page CSS -->
+    <link rel="stylesheet" href="css/reports.css">
+</head>
+
+<body>
+
+    <div class="reports-container">
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <div class="reports-header">
+
+            <div>
+                <h1>📊 Hotel Reports</h1>
+
+                <p id="hotelReportName">
+                     Hotels
+                </p>
+            </div>
+
+
+            <div class="reports-actions">
+
+                <button
+                    type="button"
+                    class="refresh-btn"
+                    id="refreshReports">
+
+                    ↻ Refresh
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="print-btn"
+                    onclick="window.print()">
+
+                    🖨 Print
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             REPORT PERIOD
+        ================================================== -->
+
+        <div class="report-period">
+
+            <label for="reportMonth">
+                Report Month:
+            </label>
+
+            <select id="reportMonth">
+
+                <option value="current">
+                    This Month
+                </option>
+
+                <option value="previous">
+                    Previous Month
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- =================================================
+             REPORT MESSAGE
+        ================================================== -->
+
+        <div
+            id="reportMessage"
+            class="report-message">
+        </div>
+
+
+        <!-- =================================================
+             MAIN REPORT CARDS
+        ================================================== -->
+
+        <div class="reports-grid">
+
+
+            <!-- MONTHLY EARNINGS -->
+
+            <div class="report-card earning-card">
+
+                <div class="report-label">
+                    Monthly Earnings
+                </div>
+
+                <div
+                    class="report-value"
+                    id="monthlyEarnings">
+
+                    ₹0.00
+
+                </div>
+
+                <div class="report-small">
+                    This month's payments received
+                </div>
+
+            </div>
+
+
+            <!-- TOTAL EARNINGS -->
+
+            <div class="report-card">
+
+                <div class="report-label">
+                    Total Earnings
+                </div>
+
+                <div
+                    class="report-value"
+                    id="totalEarnings">
+
+                    ₹0.00
+
+                </div>
+
+                <div class="report-small">
+                    All-time payments received
+                </div>
+
+            </div>
+
+
+            <!-- PENDING -->
+
+            <div class="report-card pending-card">
+
+                <div class="report-label">
+                    Pending Amount
+                </div>
+
+                <div
+                    class="report-value"
+                    id="pendingAmount">
+
+                    ₹0.00
+
+                </div>
+
+                <div class="report-small">
+                    Outstanding balance
+                </div>
+
+            </div>
+
+
+            <!-- PROFIT -->
+
+            <div class="report-card profit-card">
+
+                <div class="report-label">
+                    Monthly Profit
+                </div>
+
+                <div
+                    class="report-value"
+                    id="monthlyProfit">
+
+                    ₹0.00
+
+                </div>
+
+                <div class="report-small">
+                    Before expenses
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             REVENUE CARDS
+        ================================================== -->
+
+        <div class="reports-grid">
+
+
+            <!-- ROOM REVENUE -->
+
+            <div class="report-card">
+
+                <div class="report-label">
+                    🛏 Room Revenue
+                </div>
+
+                <div
+                    class="report-value"
+                    id="roomRevenue">
+
+                    ₹0.00
+
+                </div>
+
+                <div class="report-small">
+                    Room / stay charges
+                </div>
+
+            </div>
+
+
+            <!-- RESTAURANT REVENUE -->
+
+            <div class="report-card">
+
+                <div class="report-label">
+                    🍽 Restaurant Revenue
+                </div>
+
+                <div
+                    class="report-value"
+                    id="restaurantRevenue">
+
+                    ₹0.00
+
+                </div>
+
+                <div class="report-small">
+                    Restaurant charges
+                </div>
+
+            </div>
+
+
+            <!-- INVOICES -->
+
+            <div class="report-card">
+
+                <div class="report-label">
+                    🧾 Invoices
+                </div>
+
+                <div
+                    class="report-value"
+                    id="invoiceCount">
+
+                    0
+
+                </div>
+
+                <div class="report-small">
+                    Invoices this month
+                </div>
+
+            </div>
+
+
+            <!-- EXPENSES -->
+
+            <div class="report-card expense-card">
+
+                <div class="report-label">
+                    💸 Expenses
+                </div>
+
+                <div
+                    class="report-value"
+                    id="expenseAmount">
+
+                    ₹0.00
+
+                </div>
+
+                <div class="report-small">
+                    Expenses not configured
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             MONTHLY SUMMARY
+        ================================================== -->
+
+        <div class="report-section">
+
+            <h2>
+                Monthly Summary
+            </h2>
+
+
+            <table class="report-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Description
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    <!-- TOTAL BILLED -->
+
+                    <tr>
+
+                        <td>
+                            Total Billed
+                        </td>
+
+                        <td id="totalBilled">
+                            ₹0.00
+                        </td>
+
+                    </tr>
+
+
+                    <!-- PAYMENTS -->
+
+                    <tr>
+
+                        <td>
+                            Payments Received
+                        </td>
+
+                        <td id="monthlyPayments">
+                            ₹0.00
+                        </td>
+
+                    </tr>
+
+
+                    <!-- ROOM -->
+
+                    <tr>
+
+                        <td>
+                            Room Revenue
+                        </td>
+
+                        <td id="tableRoomRevenue">
+                            ₹0.00
+                        </td>
+
+                    </tr>
+
+
+                    <!-- RESTAURANT -->
+
+                    <tr>
+
+                        <td>
+                            Restaurant Revenue
+                        </td>
+
+                        <td id="tableRestaurantRevenue">
+                            ₹0.00
+                        </td>
+
+                    </tr>
+
+
+                    <!-- PENDING -->
+
+                    <tr>
+
+                        <td>
+                            Outstanding
+                        </td>
+
+                        <td id="tablePending">
+                            ₹0.00
+                        </td>
+
+                    </tr>
+
+
+                    <!-- PROFIT -->
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                Profit Before Expenses
+                            </strong>
+                        </td>
+
+                        <td>
+                            <strong id="tableProfit">
+                                ₹0.00
+                            </strong>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =================================================
+             REPORT INFORMATION
+        ================================================== -->
+
+        <div class="report-section">
+
+            <h2>
+                ℹ️ Report Information
+            </h2>
+
+
+            <p>
+                This report uses your hotel's
+                invoice and payment information
+                stored in Supabase.
+            </p>
+
+
+            <p>
+                <strong>
+                    Monthly Earnings
+                </strong>
+
+                = payments received during
+                the selected month.
+            </p>
+
+
+            <p>
+                <strong>
+                    Total Earnings
+                </strong>
+
+                = all payments received by
+                this hotel.
+            </p>
+
+
+            <p>
+                <strong>
+                    Profit Before Expenses
+                </strong>
+
+                is currently shown before
+                expenses because an
+                expense-management table has
+                not yet been added to the system.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         SUPABASE
+    ================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="js/config.js"></script>
+
+    <script src="js/supabase.js"></script>
+
+    <script src="js/reports.js"></script>
+
+</body>
+</html>
