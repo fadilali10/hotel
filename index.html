@@ -1,0 +1,3417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Hotel Management</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+    <link rel="stylesheet" href="css/restaurant.css">
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="sidebar">
+
+
+        <!-- LOGO -->
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ★
+            </div>
+
+            <div>
+
+                <h2>
+                    HOTEL MANAGEMENT
+                </h2>
+
+                <span>
+                    Hotel Management System
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- NAVIGATION -->
+
+        <nav class="sidebar-nav">
+
+
+            <p class="menu-title">
+                MAIN
+            </p>
+
+
+            <a
+                href="#"
+                class="nav-item active"
+                data-page="dashboard"
+            >
+                <span>▣</span>
+                Dashboard
+            </a>
+
+
+            <p class="menu-title">
+                HOTEL
+            </p>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                data-page="bookings"
+            >
+                <span>▤</span>
+                Bookings
+            </a>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                data-page="guests"
+            >
+                <span>♙</span>
+                Guests
+            </a>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                data-page="rooms"
+            >
+                <span>▥</span>
+                Rooms
+            </a>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                data-page="stays"
+            >
+                <span>🛎️</span>
+                Check-in & Stays
+            </a>
+
+
+            <p class="menu-title">
+                RESTAURANT
+            </p>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                data-page="restaurant"
+            >
+                <span>♨</span>
+                Restaurant
+            </a>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                data-page="orders"
+            >
+                <span>☷</span>
+                Orders
+            </a>
+
+
+            <p class="menu-title">
+                FINANCE
+            </p>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                data-page="billing"
+            >
+                <span>₹</span>
+                Billing
+            </a>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                data-page="invoices"
+            >
+                <span>▧</span>
+                Invoices
+            </a>
+
+
+            <p class="menu-title">
+                SYSTEM
+            </p>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                data-page="settings"
+            >
+                <span>⚙</span>
+                Settings
+            </a>
+
+
+        </nav>
+
+
+        <!-- SIDEBAR FOOTER -->
+
+        <div class="sidebar-footer">
+
+            <div class="hotel-status">
+
+                <span class="status-dot"></span>
+
+                System Online
+
+            </div>
+
+        </div>
+
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="main">
+
+
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
+
+        <header class="topbar">
+
+
+            <div>
+
+                <button
+                    id="mobileMenu"
+                    class="mobile-menu"
+                    type="button"
+                >
+                    ☰
+                </button>
+
+
+                <h1 id="pageTitle">
+                    Dashboard
+                </h1>
+
+
+                <p id="pageSubtitle">
+                    Welcome to Hotel Management
+                </p>
+
+            </div>
+
+
+
+            <div class="topbar-right">
+
+
+                <a
+    href="#"
+    class="sidebar-link"
+    data-page="stays">
+
+    <span class="sidebar-icon">🛎️</span>
+
+    <span>
+        Check-in & Stays
+    </span>
+
+</a>
+
+                <!-- PROFILE -->
+
+                <div class="user-profile">
+
+                    <div class="avatar">
+                        FA
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+                            Admin
+                        </strong>
+
+                        <small>
+                            Administrator
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- =================================================
+             CONTENT
+             ================================================= -->
+
+        <section class="content">
+
+
+            <!-- =================================================
+                 DASHBOARD
+                 ================================================= -->
+
+            <div
+                id="dashboardPage"
+                class="page active-page"
+            >
+
+
+                <div class="welcome-card">
+
+                    <div>
+
+                        <p class="welcome-small">
+                            WELCOME BACK
+                        </p>
+
+
+                        <h2>
+                            Hotel Dashboard
+                        </h2>
+
+
+                        <p>
+                            Manage bookings, rooms, guests,
+                            restaurant orders and billing
+                            from one place.
+                        </p>
+
+                    </div>
+
+
+                    <div class="welcome-icon">
+                        ★
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- STAT CARDS -->
+
+                <div class="stats-grid">
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon blue">
+                            ▤
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Total Bookings
+                            </span>
+
+                            <h3 id="totalBookings">
+                                0
+                            </h3>
+
+                            <small>
+                                This month
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon green">
+                            ▥
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Available Rooms
+                            </span>
+
+                            <h3 id="availableRooms">
+                                0
+                            </h3>
+
+                            <small>
+                                Ready for guests
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon orange">
+                            ♙
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Active Guests
+                            </span>
+
+                            <h3 id="activeGuests">
+                                0
+                            </h3>
+
+                            <small>
+                                Currently staying
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon purple">
+                            ₹
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Today's Revenue
+                            </span>
+
+                            <h3 id="todayRevenue">
+                                ₹0
+                            </h3>
+
+                            <small>
+                                Room + restaurant
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- QUICK ACTIONS -->
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>
+                            Quick Actions
+                        </h2>
+
+                        <p>
+                            Common hotel operations
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="quick-grid">
+
+
+                    <button
+                        type="button"
+                        class="quick-card"
+                        data-page="bookings"
+                    >
+
+                        <div class="quick-icon">
+                            +
+                        </div>
+
+                        <strong>
+                            New Booking
+                        </strong>
+
+                        <span>
+                            Create a new guest booking
+                        </span>
+
+                    </button>
+
+
+
+                    <button
+                        type="button"
+                        class="quick-card"
+                        data-page="rooms"
+                    >
+
+                        <div class="quick-icon">
+                            ▥
+                        </div>
+
+                        <strong>
+                            Manage Rooms
+                        </strong>
+
+                        <span>
+                            View room availability
+                        </span>
+
+                    </button>
+
+
+
+                    <button
+                        type="button"
+                        class="quick-card"
+                        data-page="restaurant"
+                    >
+
+                        <div class="quick-icon">
+                            ♨
+                        </div>
+
+                        <strong>
+                            Restaurant Order
+                        </strong>
+
+                        <span>
+                            Create a restaurant order
+                        </span>
+
+                    </button>
+
+
+
+                    <button
+                        type="button"
+                        class="quick-card"
+                        data-page="billing"
+                    >
+
+                        <div class="quick-icon">
+                            ₹
+                        </div>
+
+                        <strong>
+                            Checkout
+                        </strong>
+
+                        <span>
+                            Process guest checkout
+                        </span>
+
+                    </button>
+
+
+                </div>
+
+
+
+                <!-- RECENT BOOKINGS -->
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>
+                            Recent Bookings
+                        </h2>
+
+                        <p>
+                            Latest hotel reservations
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="view-all"
+                        data-page="bookings"
+                    >
+                        View All →
+                    </button>
+
+                </div>
+
+
+
+                <div class="table-card">
+
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Booking ID
+                                </th>
+
+                                <th>
+                                    Guest
+                                </th>
+
+                                <th>
+                                    Room
+                                </th>
+
+                                <th>
+                                    Check-in
+                                </th>
+
+                                <th>
+                                    Check-out
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="recentBookings">
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="empty-state"
+                                >
+                                    No bookings yet
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 BOOKINGS
+                 ================================================= -->
+
+           <div id="bookingsPage" class="page">
+
+    <!-- PAGE HEADER -->
+    <div class="page-card">
+
+        <div class="rooms-header">
+
+            <div>
+                <h2>Bookings</h2>
+                <p>Manage hotel reservations and guest bookings.</p>
+            </div>
+
+            <button
+                type="button"
+                class="primary-btn"
+                id="addBookingButton">
+                + New Booking
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+    <div class="room-summary-grid">
+
+        <div class="room-summary-card">
+            <span class="summary-label">Total Bookings</span>
+            <strong id="totalBookingsCount">0</strong>
+        </div>
+
+        <div class="room-summary-card">
+            <span class="summary-label">Confirmed / Pending</span>
+            <strong id="confirmedBookingsCount">0</strong>
+        </div>
+
+        <div class="room-summary-card">
+            <span class="summary-label">Today's Check-ins</span>
+            <strong id="checkInsTodayCount">0</strong>
+        </div>
+
+        <div class="room-summary-card">
+            <span class="summary-label">Today's Check-outs</span>
+            <strong id="checkOutsTodayCount">0</strong>
+        </div>
+
+    </div>
+
+
+    <!-- TOOLBAR -->
+    <div class="page-card">
+
+        <div class="room-toolbar">
+
+            <input
+                type="text"
+                id="bookingSearch"
+                class="search-input"
+                placeholder="Search booking, guest or room...">
+
+            <select
+                id="bookingStatusFilter"
+                class="filter-select">
+
+                <option value="">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="CHECKED_IN">Checked In</option>
+                <option value="CHECKED_OUT">Checked Out</option>
+                <option value="CANCELLED">Cancelled</option>
+                <option value="NO_SHOW">No Show</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- BOOKINGS TABLE -->
+    <div class="page-card table-card">
+
+        <div class="table-responsive">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Booking</th>
+                        <th>Guest</th>
+                        <th>Room</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th>Guests</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="bookingsTableBody">
+
+                    <tr>
+                        <td colspan="8" class="empty-table">
+                            Loading bookings...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+            <!-- =================================================
+                 GUESTS
+                 ================================================= -->
+
+            <div
+                id="guestsPage"
+                class="page"
+            >
+
+
+                <!-- HEADER -->
+
+                <div class="guest-page-header">
+
+                    <div>
+
+                        <h2>
+                            Guests
+                        </h2>
+
+                        <p>
+                            Manage hotel guests and their information
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="addGuestButton"
+                        class="primary-btn"
+                    >
+                        + Add Guest
+                    </button>
+
+                </div>
+
+
+
+                <!-- SUMMARY -->
+
+                <div class="guest-summary-grid">
+
+
+                    <div class="guest-summary-card">
+
+                        <span>
+                            Total Guests
+                        </span>
+
+                        <strong id="totalGuestsCount">
+                            0
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="guest-summary-card">
+
+                        <span>
+                            With Phone
+                        </span>
+
+                        <strong id="guestsWithPhoneCount">
+                            0
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="guest-summary-card">
+
+                        <span>
+                            With Email
+                        </span>
+
+                        <strong id="guestsWithEmailCount">
+                            0
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="guest-summary-card">
+
+                        <span>
+                            Indian Guests
+                        </span>
+
+                        <strong id="indianGuestsCount">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- SEARCH -->
+
+                <div class="guest-toolbar">
+
+
+                    <input
+                        type="text"
+                        id="guestSearch"
+                        placeholder="Search guest name or phone..."
+                    >
+
+
+                    <select id="guestGenderFilter">
+
+                        <option value="ALL">
+                            All Gender
+                        </option>
+
+                        <option value="Male">
+                            Male
+                        </option>
+
+                        <option value="Female">
+                            Female
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+
+                </div>
+
+
+
+                <!-- GUEST TABLE -->
+
+                <div class="table-card">
+
+
+                    <div class="table-card-header">
+
+                        <h2>
+                            Hotel Guests
+                        </h2>
+
+                        <p>
+                            Manage your registered guests
+                        </p>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+
+
+                        <table class="data-table">
+
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        GUEST
+                                    </th>
+
+                                    <th>
+                                        PHONE
+                                    </th>
+
+                                    <th>
+                                        EMAIL
+                                    </th>
+
+                                    <th>
+                                        ID TYPE
+                                    </th>
+
+                                    <th>
+                                        CITY
+                                    </th>
+
+                                    <th>
+                                        ACTIONS
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="guestsTableBody">
+
+                                <tr>
+
+                                    <td
+                                        colspan="6"
+                                        class="guest-empty"
+                                    >
+                                        Loading guests...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+
+                        </table>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 ROOMS
+                 ================================================= -->
+
+            <div
+                id="roomsPage"
+                class="page"
+            >
+
+
+                <!-- HEADER -->
+
+                <div class="rooms-header">
+
+                    <div>
+
+                        <h2>
+                            Rooms
+                        </h2>
+
+                        <p>
+                            Manage hotel rooms and availability
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="addRoomButton"
+                        class="primary-btn"
+                    >
+                        + Add Room
+                    </button>
+
+                </div>
+
+
+
+                <!-- ROOM SUMMARY -->
+
+                <div class="room-summary-grid">
+
+
+                    <div class="room-summary-card">
+
+                        <span>
+                            Total Rooms
+                        </span>
+
+                        <strong id="totalRoomsCount">
+                            0
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="room-summary-card">
+
+                        <span>
+                            Available
+                        </span>
+
+                        <strong id="availableRoomsCount">
+                            0
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="room-summary-card">
+
+                        <span>
+                            Reserved
+                        </span>
+
+                        <strong id="reservedRoomsCount">
+                            0
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="room-summary-card">
+
+                        <span>
+                            Occupied
+                        </span>
+
+                        <strong id="occupiedRoomsCount">
+                            0
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="room-summary-card">
+
+                        <span>
+                            Cleaning
+                        </span>
+
+                        <strong id="cleaningRoomsCount">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ROOM FILTER -->
+
+                <div class="room-toolbar">
+
+
+                    <input
+                        type="text"
+                        id="roomSearch"
+                        placeholder="Search room number..."
+                    >
+
+
+                    <select id="roomStatusFilter">
+
+                        <option value="ALL">
+                            All Status
+                        </option>
+
+                        <option value="AVAILABLE">
+                            Available
+                        </option>
+
+                        <option value="RESERVED">
+                            Reserved
+                        </option>
+
+                        <option value="OCCUPIED">
+                            Occupied
+                        </option>
+
+                        <option value="CLEANING">
+                            Cleaning
+                        </option>
+
+                        <option value="MAINTENANCE">
+                            Maintenance
+                        </option>
+
+                    </select>
+
+
+                    <select id="roomTypeFilter">
+
+                        <option value="ALL">
+                            All Room Types
+                        </option>
+
+                    </select>
+
+
+                </div>
+
+
+
+                <!-- ROOM TABLE -->
+
+                <div class="table-card">
+
+
+                    <div class="table-card-header">
+
+                        <h2>
+                            Hotel Rooms
+                        </h2>
+
+                        <p>
+                            Manage your hotel's rooms
+                        </p>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+
+
+                        <table class="data-table">
+
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Room
+                                    </th>
+
+                                    <th>
+                                        Type
+                                    </th>
+
+                                    <th>
+                                        Floor
+                                    </th>
+
+                                    <th>
+                                        Price / Night
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Actions
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="roomsTableBody">
+
+                                <tr>
+
+                                    <td
+                                        colspan="6"
+                                        class="room-empty"
+                                    >
+                                        Loading rooms...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+
+                        </table>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+<div id="staysPage" class="page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="page-card">
+
+        <div class="rooms-header">
+
+            <div>
+                <h2>Check-in & Stays</h2>
+
+                <p>
+                    Manage guest check-ins and active hotel stays.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="room-summary-grid">
+
+        <div class="room-summary-card">
+
+            <span class="summary-label">
+                Ready for Check-in
+            </span>
+
+            <strong id="readyCheckInCount">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="room-summary-card">
+
+            <span class="summary-label">
+                Active Stays
+            </span>
+
+            <strong id="activeStaysCount">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="room-summary-card">
+
+            <span class="summary-label">
+                Checked-in Today
+            </span>
+
+            <strong id="checkedInTodayCount">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="room-summary-card">
+
+            <span class="summary-label">
+                Occupied Rooms
+            </span>
+
+            <strong id="occupiedRoomsCount">
+                0
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH -->
+
+    <div class="page-card">
+
+        <div class="room-toolbar">
+
+            <input
+                type="text"
+                id="staySearch"
+                class="search-input"
+                placeholder="Search booking, guest, room or stay ID...">
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTIVE STAYS -->
+
+    <div class="page-card table-card">
+
+        <div class="table-responsive">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Stay ID</th>
+
+                        <th>Guest</th>
+
+                        <th>Room</th>
+
+                        <th>Check-in</th>
+
+                        <th>Expected Check-out</th>
+
+                        <th>Guests</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="staysTableBody">
+
+                    <tr>
+
+                        <td
+                            colspan="8"
+                            class="empty-table">
+
+                            Loading stays...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- READY BOOKINGS -->
+
+    <div class="page-card table-card">
+
+        <div style="padding-bottom: 15px;">
+
+            <h3>
+                Bookings Ready for Check-in
+            </h3>
+
+            <p>
+                Confirmed bookings can be checked in from here.
+            </p>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Booking</th>
+
+                        <th>Guest</th>
+
+                        <th>Room</th>
+
+                        <th>Check-in</th>
+
+                        <th>Check-out</th>
+
+                        <th>Guests</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="readyBookingsTableBody">
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="empty-table">
+
+                            Loading...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+            <!-- =================================================
+                 RESTAURANT
+                 ================================================= -->
+
+            <div id="restaurantPage" class="page">
+
+    <div class="rest-page-heading">
+        <div>
+            <h2>Restaurant Management</h2>
+            <p>Manage tables, food categories and your restaurant menu.</p>
+        </div>
+        <span class="rest-pill">RESTAURANT</span>
+    </div>
+
+    <div class="rest-stats">
+        <div class="rest-stat-card">
+            <span>Total Tables</span>
+            <strong id="restTableCount">0</strong>
+        </div>
+        <div class="rest-stat-card">
+            <span>Menu Items</span>
+            <strong id="restMenuCount">0</strong>
+        </div>
+        <div class="rest-stat-card">
+            <span>Available Items</span>
+            <strong id="restAvailableCount">0</strong>
+        </div>
+    </div>
+
+    <div class="rest-card">
+        <div class="rest-card-heading">
+            <div>
+                <h3>Restaurant Tables</h3>
+                <p>Add and manage your restaurant seating.</p>
+            </div>
+        </div>
+
+        <form id="restTableForm" class="rest-form rest-inline-form">
+            <div>
+                <label for="restTableNumber">Table number *</label>
+                <input id="restTableNumber" required maxlength="30"
+                       placeholder="e.g. T01">
+            </div>
+            <div>
+                <label for="restTableCapacity">Seating capacity *</label>
+                <input id="restTableCapacity" type="number" min="1"
+                       max="100" value="4" required>
+            </div>
+            <button type="submit" class="rest-primary-btn" id="restSaveTable">
+                Add Table
+            </button>
+        </form>
+
+        <div id="restTableMessage" class="rest-message" role="status"></div>
+        <div id="restTablesGrid" class="rest-tables-grid"></div>
+    </div>
+
+    <div class="rest-card">
+        <div class="rest-card-heading">
+            <div>
+                <h3>Menu Categories</h3>
+                <p>Organize your menu into categories.</p>
+            </div>
+        </div>
+
+        <form id="restCategoryForm" class="rest-form rest-inline-form">
+            <div>
+                <label for="restCategoryName">Category name *</label>
+                <input id="restCategoryName" required maxlength="100"
+                       placeholder="e.g. Main Course">
+            </div>
+            <div>
+                <label for="restCategoryDescription">Description</label>
+                <input id="restCategoryDescription" maxlength="250"
+                       placeholder="Optional description">
+            </div>
+            <button type="submit" class="rest-primary-btn" id="restSaveCategory">
+                Add Category
+            </button>
+        </form>
+
+        <div id="restCategoryMessage" class="rest-message" role="status"></div>
+        <div id="restCategoriesList" class="rest-categories-list"></div>
+    </div>
+
+    <div class="rest-card">
+        <div class="rest-card-heading">
+            <div>
+                <h3>Food Menu</h3>
+                <p>Add food items and manage their availability.</p>
+            </div>
+        </div>
+
+        <form id="restMenuForm" class="rest-form">
+            <div class="rest-form-grid">
+                <div>
+                    <label for="restMenuName">Food name *</label>
+                    <input id="restMenuName" required maxlength="150"
+                           placeholder="e.g. Chicken Biryani">
+                </div>
+                <div>
+                    <label for="restMenuCategory">Category *</label>
+                    <select id="restMenuCategory" required>
+                        <option value="">Select category</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="restMenuPrice">Price (₹) *</label>
+                    <input id="restMenuPrice" type="number" min="0"
+                           step="0.01" required placeholder="0.00">
+                </div>
+                <div>
+                    <label for="restMenuDescription">Description</label>
+                    <input id="restMenuDescription" maxlength="250"
+                           placeholder="Optional description">
+                </div>
+            </div>
+
+            <button type="submit" class="rest-primary-btn" id="restSaveMenu">
+                Add Menu Item
+            </button>
+        </form>
+
+        <div id="restMenuMessage" class="rest-message" role="status"></div>
+
+        <div class="rest-table-wrap">
+            <table class="rest-table">
+                <thead>
+                    <tr>
+                        <th>Food Item</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Availability</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="restMenuTableBody">
+                    <tr><td colspan="5">Loading menu...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+            <!-- =================================================
+                 ORDERS
+                 ================================================= -->
+
+            <div id="ordersPage" class="page">
+
+    <div class="rest-page-heading">
+        <div>
+            <h2>Restaurant Orders</h2>
+            <p>Create food orders, track their status and bill charges to guest stays.</p>
+        </div>
+        <button type="button" class="rest-primary-btn" id="ordersRefresh">
+            Refresh Orders
+        </button>
+    </div>
+
+    <div class="rest-stats">
+        <div class="rest-stat-card">
+            <span>Total Orders</span>
+            <strong id="ordersTotalCount">0</strong>
+        </div>
+        <div class="rest-stat-card">
+            <span>Open Orders</span>
+            <strong id="ordersOpenCount">0</strong>
+        </div>
+        <div class="rest-stat-card">
+            <span>Unbilled Orders</span>
+            <strong id="ordersUnbilledCount">0</strong>
+        </div>
+        <div class="rest-stat-card">
+            <span>Today's Sales</span>
+            <strong id="ordersTodaySales">₹0.00</strong>
+        </div>
+    </div>
+
+    <div class="rest-card">
+        <div class="rest-card-heading">
+            <div>
+                <h3>Create New Order</h3>
+                <p>Select an active hotel stay, then add food items.</p>
+            </div>
+        </div>
+
+        <form id="restOrderForm" class="rest-form">
+            <div class="rest-form-grid">
+                <div>
+                    <label for="restOrderStay">Guest / Active Stay *</label>
+                    <select id="restOrderStay" required>
+                        <option value="">Select active stay</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="restOrderTable">Restaurant Table</label>
+                    <select id="restOrderTable">
+                        <option value="">No table selected</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="restOrderMenuItem">Food Item *</label>
+                    <select id="restOrderMenuItem">
+                        <option value="">Select food item</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="restOrderQuantity">Quantity</label>
+                    <input id="restOrderQuantity" type="number" min="1"
+                           max="100" step="1" value="1">
+                </div>
+            </div>
+
+            <button type="button" id="restAddOrderItem" class="rest-secondary-btn">
+                + Add Food Item
+            </button>
+
+            <div id="restOrderItems" class="rest-order-items">
+                <p class="rest-muted">No food items added yet.</p>
+            </div>
+
+            <div>
+                <label for="restOrderNotes">Order Notes</label>
+                <textarea id="restOrderNotes" rows="2" maxlength="500"
+                          placeholder="Optional notes"></textarea>
+            </div>
+
+            <div class="rest-totals">
+                <div><span>Subtotal</span><strong id="restOrderSubtotal">₹0.00</strong></div>
+                <div><span>Tax (5%)</span><strong id="restOrderTax">₹0.00</strong></div>
+                <div class="rest-grand-total">
+                    <span>Order Total</span><strong id="restOrderTotal">₹0.00</strong>
+                </div>
+            </div>
+
+            <div id="restOrderMessage" class="rest-message" role="status"></div>
+
+            <button type="submit" class="rest-primary-btn" id="restSaveOrder">
+                Save Restaurant Order
+            </button>
+        </form>
+    </div>
+
+    <div class="rest-card">
+        <div class="rest-card-heading">
+            <div>
+                <h3>Order History</h3>
+                <p>Review orders and update their preparation status.</p>
+            </div>
+        </div>
+
+        <div class="rest-table-wrap">
+            <table class="rest-table">
+                <thead>
+                    <tr>
+                        <th>Order Number</th>
+                        <th>Guest / Stay</th>
+                        <th>Room</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Billing</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="restOrdersTableBody">
+                    <tr><td colspan="8">Loading orders...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+            <!-- =================================================
+                 BILLING
+                 ================================================= -->
+                 
+<!-- CHECKOUT & BILLING PAGE -->
+<section id="billingPage" class="page">
+    <div class="page-header">
+        <div>
+            <h1>Checkout &amp; Billing</h1>
+            <p>Review the guest's bill, record payments, and complete checkout.</p>
+        </div>
+    </div>
+
+    <div class="checkout-layout">
+        <div class="checkout-panel">
+            <h2>Select Active Stay</h2>
+
+            <label for="checkoutStaySelect">Guest / Stay</label>
+            <select id="checkoutStaySelect">
+                <option value="">Loading active stays...</option>
+            </select>
+
+            <div id="checkoutGuestDetails" class="checkout-details">
+                Select an active stay to view guest details.
+            </div>
+
+            <div class="checkout-fields">
+                <div>
+                    <label for="checkoutDate">Checkout date</label>
+                    <input type="date" id="checkoutDate">
+                </div>
+                <div>
+                    <label for="checkoutDiscount">Discount (₹)</label>
+                    <input type="number" id="checkoutDiscount"
+                           min="0" step="0.01" value="0">
+                </div>
+            </div>
+
+            <button type="button" id="refreshCheckoutBillButton">
+                Refresh Bill
+            </button>
+        </div>
+
+        <div class="checkout-panel">
+            <h2>Bill Summary</h2>
+
+            <div class="checkout-total-row">
+                <span>Room charges</span>
+                <strong id="checkoutRoomTotal">₹0.00</strong>
+            </div>
+            <div class="checkout-total-row">
+                <span>Restaurant orders</span>
+                <strong id="checkoutRestaurantTotal">₹0.00</strong>
+            </div>
+            <div class="checkout-total-row">
+                <span>Extra charges</span>
+                <strong id="checkoutExtraTotal">₹0.00</strong>
+            </div>
+            <div class="checkout-total-row">
+                <span>Discount</span>
+                <strong id="checkoutDiscountTotal">− ₹0.00</strong>
+            </div>
+
+            <div class="checkout-grand-total">
+                <span>Grand Total</span>
+                <strong id="checkoutGrandTotal">₹0.00</strong>
+            </div>
+
+            <label for="checkoutPaymentAmount">Payment received (₹)</label>
+            <input type="number" id="checkoutPaymentAmount"
+                   min="0" step="0.01" value="0">
+
+            <label for="checkoutPaymentMethod">Payment method</label>
+            <select id="checkoutPaymentMethod">
+                <option value="CASH">Cash</option>
+                <option value="UPI">UPI</option>
+                <option value="CARD">Card</option>
+                <option value="BANK_TRANSFER">Bank transfer</option>
+                <option value="OTHER">Other</option>
+            </select>
+
+            <label for="checkoutPaymentReference">Payment reference (optional)</label>
+            <input type="text" id="checkoutPaymentReference"
+                   placeholder="UPI transaction ID / reference">
+
+            <label for="checkoutPaymentNotes">Payment notes (optional)</label>
+            <textarea id="checkoutPaymentNotes" rows="2"
+                      placeholder="Notes about this payment"></textarea>
+
+            <div class="checkout-total-row">
+                <span>Balance after payment</span>
+                <strong id="checkoutBalanceDue">₹0.00</strong>
+            </div>
+
+            <button type="button" id="generateCheckoutInvoiceButton">
+                Generate Invoice
+            </button>
+            <button type="button" id="completeCheckoutButton">
+                Complete Checkout
+            </button>
+            <button type="button" id="printCheckoutInvoiceButton">
+                Print Invoice
+            </button>
+
+            <p id="checkoutMessage" role="status"></p>
+        </div>
+    </div>
+
+    <div id="checkoutInvoicePreview" class="checkout-invoice-preview"></div>
+    
+</section>
+
+
+
+
+
+
+            <!-- =================================================
+                 INVOICES
+                 ================================================= -->
+
+            
+<!-- INVOICES PAGE -->
+<section id="invoicesPage" class="page">
+    <div class="page-header">
+        <div>
+            <h1>Invoices</h1>
+            <p>View, search, and manage your hotel invoices.</p>
+        </div>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="invoice-stats">
+        <div class="invoice-stat-card">
+            <span>Total Invoices</span>
+            <h2 id="invoiceCount">0</h2>
+        </div>
+
+        <div class="invoice-stat-card">
+            <span>Paid Invoices</span>
+            <h2 id="paidInvoiceCount">0</h2>
+        </div>
+
+        <div class="invoice-stat-card">
+            <span>Pending Payments</span>
+            <h2 id="pendingInvoiceCount">0</h2>
+        </div>
+
+        <div class="invoice-stat-card">
+            <span>Total Outstanding</span>
+            <h2 id="outstandingInvoiceAmount">₹0.00</h2>
+        </div>
+    </div>
+
+    <!-- Search and filters -->
+    <div class="invoice-toolbar">
+        <input
+            type="search"
+            id="invoiceSearch"
+            placeholder="Search invoice number or guest..."
+        />
+
+        <select id="invoiceStatusFilter">
+            <option value="">All payment statuses</option>
+            <option value="paid">Paid</option>
+            <option value="partial">Partially Paid</option>
+            <option value="unpaid">Unpaid</option>
+        </select>
+
+        <input type="date" id="invoiceFromDate" aria-label="From date" />
+        <input type="date" id="invoiceToDate" aria-label="To date" />
+
+        <button type="button" id="filterInvoicesButton">
+            Apply Filters
+        </button>
+
+        <button type="button" id="resetInvoiceFiltersButton">
+            Reset
+        </button>
+    </div>
+
+    <!-- Invoice list -->
+    <div class="invoice-table-card">
+        <div class="invoice-table-header">
+            <h2>Invoice History</h2>
+            <button type="button" id="refreshInvoicesButton">
+                Refresh
+            </button>
+        </div>
+
+        <div id="invoiceMessage" role="status"></div>
+
+        <div class="invoice-table-wrapper">
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Invoice No.</th>
+                        <th>Guest</th>
+                        <th>Invoice Date</th>
+                        <th>Total</th>
+                        <th>Paid</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="invoicesTableBody">
+                    <tr>
+                        <td colspan="8">Invoices will appear here.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+
+            <!-- =================================================
+                 SETTINGS
+                 ================================================= -->
+
+            
+<!-- SETTINGS PAGE -->
+<div id="settingsPage" class="page">
+
+    <div class="settings-heading">
+        <div>
+            <h2>Settings</h2>
+            <p>Manage your hotel's profile and preferences.</p>
+        </div>
+        <span class="settings-label">HOTEL SETTINGS</span>
+    </div>
+
+    <div class="settings-layout">
+
+        <!-- SETTINGS NAVIGATION -->
+        <aside class="settings-menu">
+            <button type="button" class="settings-tab active"
+                    data-settings-tab="hotel">
+                🏨 Hotel Profile
+            </button>
+            <button type="button" class="settings-tab"
+                    data-settings-tab="regional">
+                🌐 Regional Preferences
+            </button>
+            <button type="button" class="settings-tab"
+                    data-settings-tab="account">
+                👤 Account Information
+            </button>
+        </aside>
+
+        <div class="settings-content">
+
+            <!-- HOTEL PROFILE -->
+            <section class="settings-panel active"
+                     id="hotelSettingsPanel">
+
+                <div class="settings-panel-heading">
+                    <h3>Hotel Profile</h3>
+                    <p>These details can be used on your invoices.</p>
+                </div>
+
+                <form id="hotelSettingsForm">
+
+                    <div class="settings-form-grid">
+
+                        <div class="settings-field full">
+                            <label for="settingHotelName">Hotel Name *</label>
+                            <input id="settingHotelName" type="text"
+                                   required maxlength="150"
+                                   placeholder="Enter hotel name">
+                        </div>
+
+                        <div class="settings-field">
+                            <label for="settingHotelPhone">Phone</label>
+                            <input id="settingHotelPhone" type="tel"
+                                   maxlength="30"
+                                   placeholder="+91...">
+                        </div>
+
+                        <div class="settings-field">
+                            <label for="settingHotelEmail">Email</label>
+                            <input id="settingHotelEmail" type="email"
+                                   maxlength="254"
+                                   placeholder="hotel@example.com">
+                        </div>
+
+                        <div class="settings-field full">
+                            <label for="settingHotelWebsite">Website</label>
+                            <input id="settingHotelWebsite" type="url"
+                                   maxlength="255"
+                                   placeholder="https://example.com">
+                        </div>
+
+                        <div class="settings-field full">
+                            <label for="settingHotelAddress">Address</label>
+                            <textarea id="settingHotelAddress"
+                                      rows="3" maxlength="500"
+                                      placeholder="Street address"></textarea>
+                        </div>
+
+                        <div class="settings-field">
+                            <label for="settingHotelCity">City</label>
+                            <input id="settingHotelCity" type="text"
+                                   maxlength="100">
+                        </div>
+
+                        <div class="settings-field">
+                            <label for="settingHotelState">State</label>
+                            <input id="settingHotelState" type="text"
+                                   maxlength="100">
+                        </div>
+
+                        <div class="settings-field">
+                            <label for="settingHotelCountry">Country</label>
+                            <input id="settingHotelCountry" type="text"
+                                   maxlength="100">
+                        </div>
+
+                        <div class="settings-field">
+                            <label for="settingHotelTax">Tax / GST Number</label>
+                            <input id="settingHotelTax" type="text"
+                                   maxlength="50">
+                        </div>
+
+                    </div>
+
+                    <div id="hotelSettingsMessage"
+                         class="settings-message"
+                         role="status"></div>
+
+                    <div class="settings-actions">
+                        <button type="reset" class="settings-cancel">
+                            Reset
+                        </button>
+                        <button type="submit" id="saveHotelSettings"
+                                class="settings-save">
+                            Save Changes
+                        </button>
+                    </div>
+
+                </form>
+            </section>
+
+            <!-- REGIONAL PREFERENCES -->
+            <section class="settings-panel" id="regionalSettingsPanel">
+
+                <div class="settings-panel-heading">
+                    <h3>Regional Preferences</h3>
+                    <p>Choose the currency displayed in hotel settings.</p>
+                </div>
+
+                <form id="regionalSettingsForm">
+
+                    <div class="settings-form-grid">
+
+                        <div class="settings-field full">
+                            <label for="settingCurrency">Hotel Currency</label>
+                            <select id="settingCurrency">
+                                <option value="INR">INR — Indian Rupee (₹)</option>
+                                <option value="USD">USD — US Dollar ($)</option>
+                                <option value="EUR">EUR — Euro (€)</option>
+                                <option value="GBP">GBP — British Pound (£)</option>
+                                <option value="AED">AED — UAE Dirham</option>
+                                <option value="SAR">SAR — Saudi Riyal</option>
+                            </select>
+                            <small>Changing this setting does not convert existing invoice amounts.</small>
+                        </div>
+
+                    </div>
+
+                    <div id="regionalSettingsMessage"
+                         class="settings-message"
+                         role="status"></div>
+
+                    <div class="settings-actions">
+                        <button type="submit" id="saveRegionalSettings"
+                                class="settings-save">
+                            Save Preferences
+                        </button>
+                    </div>
+
+                </form>
+            </section>
+
+            <!-- ACCOUNT INFORMATION -->
+            <section class="settings-panel" id="accountSettingsPanel">
+
+                <div class="settings-panel-heading">
+                    <h3>Account Information</h3>
+                    <p>Details for the account currently signed in.</p>
+                </div>
+
+                <div class="settings-form-grid">
+
+                    <div class="settings-field full">
+                        <label>Login Email</label>
+                        <input id="settingAccountEmail" type="email"
+                               readonly>
+                    </div>
+
+                    <div class="settings-field">
+                        <label for="settingAccountName">Full Name</label>
+                        <input id="settingAccountName" type="text" readonly>
+                    </div>
+
+                    <div class="settings-field">
+                        <label for="settingAccountRole">Role</label>
+                        <input id="settingAccountRole" type="text" readonly>
+                    </div>
+
+                </div>
+
+                <p class="settings-note">
+                    Account details are read-only here. Password changes
+                    should use your authentication password-reset flow.
+                </p>
+
+                <button type="button" id="settingsLogoutButton"
+                        class="settings-cancel">
+                    Log Out
+                </button>
+
+            </section>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- =========================================================
+     GUEST SIDE DRAWER
+     ========================================================= -->
+
+<div
+    id="guestDrawerOverlay"
+    class="guest-drawer-overlay"
+></div>
+
+
+<aside
+    id="guestDrawer"
+    class="guest-drawer"
+>
+
+
+    <!-- HEADER -->
+
+    <div class="guest-drawer-header">
+
+        <div>
+
+            <h2 id="guestDrawerTitle">
+                Add Guest
+            </h2>
+
+            <p>
+                Enter guest information
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="closeGuestDrawer"
+            class="guest-close-button"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+
+    <!-- BODY -->
+
+    <div class="guest-drawer-body">
+
+
+        <input
+            type="hidden"
+            id="guestId"
+        >
+
+
+        <!-- BASIC INFORMATION -->
+
+        <div class="guest-form-section">
+
+            <h3>
+                Basic Information
+            </h3>
+
+
+            <label for="guestName">
+                Full Name *
+            </label>
+
+            <input
+                type="text"
+                id="guestName"
+                placeholder="Enter guest full name"
+                autocomplete="name"
+            >
+
+
+            <div class="guest-two-columns">
+
+
+                <div>
+
+                    <label for="guestPhone">
+                        Phone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="guestPhone"
+                        placeholder="+91..."
+                        autocomplete="tel"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label for="guestGender">
+                        Gender
+                    </label>
+
+                    <select id="guestGender">
+
+                        <option value="">
+                            Select
+                        </option>
+
+                        <option value="Male">
+                            Male
+                        </option>
+
+                        <option value="Female">
+                            Female
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+            </div>
+
+
+            <label for="guestEmail">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="guestEmail"
+                placeholder="guest@example.com"
+                autocomplete="email"
+            >
+
+
+            <label for="guestDateOfBirth">
+                Date of Birth
+            </label>
+
+            <input
+                type="date"
+                id="guestDateOfBirth"
+            >
+
+        </div>
+
+
+
+        <!-- ID INFORMATION -->
+
+        <div class="guest-form-section">
+
+            <h3>
+                Identification
+            </h3>
+
+
+            <div class="guest-two-columns">
+
+
+                <div>
+
+                    <label for="guestIdType">
+                        ID Type
+                    </label>
+
+                    <select id="guestIdType">
+
+                        <option value="">
+                            Select ID
+                        </option>
+
+                        <option value="Aadhaar">
+                            Aadhaar
+                        </option>
+
+                        <option value="Passport">
+                            Passport
+                        </option>
+
+                        <option value="Driving License">
+                            Driving License
+                        </option>
+
+                        <option value="Voter ID">
+                            Voter ID
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div>
+
+                    <label for="guestIdNumber">
+                        ID Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="guestIdNumber"
+                        placeholder="ID number"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <label for="guestNationality">
+                Nationality
+            </label>
+
+            <input
+                type="text"
+                id="guestNationality"
+                value="Indian"
+            >
+
+        </div>
+
+
+
+        <!-- ADDRESS -->
+
+        <div class="guest-form-section">
+
+            <h3>
+                Address
+            </h3>
+
+
+            <label for="guestAddress">
+                Address
+            </label>
+
+            <textarea
+                id="guestAddress"
+                placeholder="Guest address"
+            ></textarea>
+
+
+            <div class="guest-two-columns">
+
+
+                <div>
+
+                    <label for="guestCity">
+                        City
+                    </label>
+
+                    <input
+                        type="text"
+                        id="guestCity"
+                        placeholder="City"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label for="guestState">
+                        State
+                    </label>
+
+                    <input
+                        type="text"
+                        id="guestState"
+                        placeholder="State"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <label for="guestCountry">
+                Country
+            </label>
+
+            <input
+                type="text"
+                id="guestCountry"
+                value="India"
+            >
+
+        </div>
+
+
+
+        <!-- NOTES -->
+
+        <div class="guest-form-section">
+
+            <h3>
+                Notes
+            </h3>
+
+
+            <textarea
+                id="guestNotes"
+                placeholder="Additional guest notes..."
+            ></textarea>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- FOOTER -->
+
+    <div class="guest-drawer-footer">
+
+
+        <button
+            type="button"
+            id="cancelGuestButton"
+            class="guest-cancel-button"
+        >
+            Cancel
+        </button>
+
+
+        <button
+            type="button"
+            id="saveGuestButton"
+            class="guest-save-button"
+        >
+            Save Guest
+        </button>
+
+
+    </div>
+
+
+</aside>
+
+
+
+<!-- =========================================================
+     ROOM SIDE DRAWER
+     ========================================================= -->
+
+<div
+    id="roomDrawerOverlay"
+    class="room-drawer-overlay"
+></div>
+
+
+<aside
+    id="roomDrawer"
+    class="room-drawer"
+>
+
+
+    <!-- HEADER -->
+
+    <div class="room-drawer-header">
+
+        <div>
+
+            <h2 id="roomDrawerTitle">
+                Add Room
+            </h2>
+
+            <p>
+                Enter room information
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="closeRoomDrawer"
+            class="room-close-button"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+
+    <!-- BODY -->
+
+    <div class="room-drawer-body">
+
+
+        <input
+            type="hidden"
+            id="roomId"
+        >
+
+
+        <label for="roomNumber">
+            Room Number
+        </label>
+
+        <input
+            type="text"
+            id="roomNumber"
+            placeholder="Example: 101"
+        >
+
+
+        <label for="roomType">
+            Room Type
+        </label>
+
+        <select id="roomType">
+
+            <option value="">
+                Select Room Type
+            </option>
+
+        </select>
+
+
+        <label for="roomFloor">
+            Floor
+        </label>
+
+        <input
+            type="number"
+            id="roomFloor"
+            value="1"
+            min="0"
+        >
+
+
+        <label for="roomPrice">
+            Price Per Night
+        </label>
+
+        <input
+            type="number"
+            id="roomPrice"
+            placeholder="1500"
+            min="0"
+            step="0.01"
+        >
+
+
+        <label for="roomStatus">
+            Status
+        </label>
+
+        <select id="roomStatus">
+
+            <option value="AVAILABLE">
+                Available
+            </option>
+
+            <option value="RESERVED">
+                Reserved
+            </option>
+
+            <option value="OCCUPIED">
+                Occupied
+            </option>
+
+            <option value="CLEANING">
+                Cleaning
+            </option>
+
+            <option value="MAINTENANCE">
+                Maintenance
+            </option>
+
+        </select>
+
+
+        <label for="roomNotes">
+            Notes
+        </label>
+
+        <textarea
+            id="roomNotes"
+            placeholder="Optional notes"
+        ></textarea>
+
+
+    </div>
+
+
+
+    <!-- FOOTER -->
+
+    <div class="room-drawer-footer">
+
+
+        <button
+            type="button"
+            id="saveRoomButton"
+            class="room-save-button"
+        >
+            Save Room
+        </button>
+
+
+        <button
+            type="button"
+            id="cancelRoomButton"
+            class="room-cancel-button"
+        >
+            Cancel
+        </button>
+
+
+    </div>
+
+
+</aside>
+
+
+
+<!-- =========================================================
+     PROFILE SIDE DRAWER
+     ========================================================= -->
+
+<div
+    id="profileOverlay"
+    class="profile-overlay"
+></div>
+
+
+<aside
+    id="profileDrawer"
+    class="profile-drawer"
+>
+
+
+    <div class="profile-drawer-header">
+
+
+        <div>
+
+            <h2>
+                My Profile
+            </h2>
+
+            <p>
+                Account and hotel information
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="closeProfileDrawer"
+            class="profile-close"
+        >
+            ×
+        </button>
+
+
+    </div>
+
+
+
+    <div class="profile-drawer-body">
+
+
+        <!-- USER CARD -->
+
+        <div class="profile-user-card">
+
+
+            <div
+                id="drawerAvatar"
+                class="drawer-avatar"
+            >
+                U
+            </div>
+
+
+            <div>
+
+                <h3 id="drawerUserName">
+                    Guest
+                </h3>
+
+                <p id="drawerUserEmail">
+                    Please login
+                </p>
+
+                <span id="drawerUserRole">
+                    GUEST
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- HOTEL INFORMATION -->
+
+        <div class="drawer-section">
+
+
+            <h3>
+                Hotel Information
+            </h3>
+
+
+            <label for="profileHotelName">
+                Hotel Name
+            </label>
+
+            <input
+                type="text"
+                id="profileHotelName"
+                placeholder="Hotel name"
+            >
+
+
+            <label for="profilePhone">
+                Phone
+            </label>
+
+            <input
+                type="text"
+                id="profilePhone"
+                placeholder="+91..."
+            >
+
+
+            <label for="profileHotelEmail">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="profileHotelEmail"
+                placeholder="hotel@email.com"
+            >
+
+
+            <label for="profileWebsite">
+                Website
+            </label>
+
+            <input
+                type="text"
+                id="profileWebsite"
+                placeholder="https://..."
+            >
+
+
+            <label for="profileAddress">
+                Address
+            </label>
+
+            <textarea
+                id="profileAddress"
+                placeholder="Hotel address"
+            ></textarea>
+
+
+            <div class="drawer-two-columns">
+
+
+                <div>
+
+                    <label for="profileCity">
+                        City
+                    </label>
+
+                    <input
+                        type="text"
+                        id="profileCity"
+                        placeholder="City"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label for="profileState">
+                        State
+                    </label>
+
+                    <input
+                        type="text"
+                        id="profileState"
+                        placeholder="State"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <label for="profileCountry">
+                Country
+            </label>
+
+            <input
+                type="text"
+                id="profileCountry"
+                value="India"
+            >
+
+
+            <label for="profileTaxNumber">
+                Tax / GST Number
+            </label>
+
+            <input
+                type="text"
+                id="profileTaxNumber"
+                placeholder="GST / Tax number"
+            >
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <div class="profile-drawer-footer">
+
+
+        <button
+            type="button"
+            id="saveProfileButton"
+            class="profile-save-btn"
+        >
+            Save Changes
+        </button>
+
+
+        <button
+            type="button"
+            id="drawerLogoutButton"
+            class="profile-logout-btn"
+        >
+            Logout
+        </button>
+
+
+    </div>
+
+
+</aside>
+
+<!-- ============================= -->
+<!-- BOOKING DRAWER -->
+<!-- ============================= -->
+
+<div
+    id="bookingDrawerOverlay"
+    class="booking-drawer-overlay">
+</div>
+
+
+<div
+    id="bookingDrawer"
+    class="booking-drawer">
+
+    <div class="booking-drawer-header">
+
+        <div>
+            <h3 id="bookingDrawerTitle">
+                New Booking
+            </h3>
+
+            <p>
+                Create or update a room reservation.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            id="closeBookingDrawer"
+            class="drawer-close">
+            ×
+        </button>
+
+    </div>
+
+
+    <div class="booking-drawer-body">
+
+        <form id="bookingForm">
+
+            <input
+                type="hidden"
+                id="bookingId">
+
+
+            <!-- BOOKING NUMBER -->
+
+            <div class="form-group">
+
+                <label>Booking Number</label>
+
+                <input
+                    type="text"
+                    id="bookingNumber"
+                    readonly
+                    placeholder="Auto generated">
+
+            </div>
+
+
+            <!-- GUEST -->
+
+            <div class="form-group">
+
+                <label>
+                    Guest <span class="required">*</span>
+                </label>
+
+                <select id="bookingGuest" required>
+
+                    <option value="">
+                        Select Guest
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ROOM -->
+
+            <div class="form-group">
+
+                <label>
+                    Room <span class="required">*</span>
+                </label>
+
+                <select id="bookingRoom" required>
+
+                    <option value="">
+                        Select Room
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- DATES -->
+
+            <div class="booking-form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Check-in <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="date"
+                        id="bookingCheckIn"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Check-out <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="date"
+                        id="bookingCheckOut"
+                        required>
+
+                </div>
+
+            </div>
+
+
+            <!-- GUEST COUNT -->
+
+            <div class="booking-form-grid">
+
+                <div class="form-group">
+
+                    <label>Adults</label>
+
+                    <input
+                        type="number"
+                        id="bookingAdults"
+                        min="1"
+                        value="1"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Children</label>
+
+                    <input
+                        type="number"
+                        id="bookingChildren"
+                        min="0"
+                        value="0">
+
+                </div>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="booking-form-grid">
+
+                <div class="form-group">
+
+                    <label>Status</label>
+
+                    <select id="bookingStatus">
+
+                        <option value="PENDING">
+                            Pending
+                        </option>
+
+                        <option value="CONFIRMED" selected>
+                            Confirmed
+                        </option>
+
+                        <option value="CHECKED_IN">
+                            Checked In
+                        </option>
+
+                        <option value="CHECKED_OUT">
+                            Checked Out
+                        </option>
+
+                        <option value="CANCELLED">
+                            Cancelled
+                        </option>
+
+                        <option value="NO_SHOW">
+                            No Show
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Booking Source</label>
+
+                    <select id="bookingSource">
+
+                        <option value="DIRECT">
+                            Direct
+                        </option>
+
+                        <option value="PHONE">
+                            Phone
+                        </option>
+
+                        <option value="WALK_IN">
+                            Walk-in
+                        </option>
+
+                        <option value="WEBSITE">
+                            Website
+                        </option>
+
+                        <option value="OTA">
+                            OTA
+                        </option>
+
+                        <option value="OTHER">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- SPECIAL REQUEST -->
+
+            <div class="form-group">
+
+                <label>Special Requests</label>
+
+                <textarea
+                    id="bookingSpecialRequests"
+                    rows="3"
+                    placeholder="Example: Extra bed, early check-in..."></textarea>
+
+            </div>
+
+
+            <!-- NOTES -->
+
+            <div class="form-group">
+
+                <label>Internal Notes</label>
+
+                <textarea
+                    id="bookingNotes"
+                    rows="3"
+                    placeholder="Internal booking notes..."></textarea>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="booking-drawer-footer">
+
+        <button
+            type="button"
+            id="cancelBookingButton"
+            class="secondary-btn">
+            Cancel
+        </button>
+
+        <button
+            type="button"
+            id="saveBookingButton"
+            class="primary-btn">
+            Save Booking
+        </button>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     RESTAURANT TABLE DRAWER
+     ========================================================= -->
+
+<div
+    id="restaurantTableDrawerOverlay"
+    class="booking-drawer-overlay"
+></div>
+
+<div
+    id="restaurantTableDrawer"
+    class="booking-drawer"
+>
+
+    <div class="booking-drawer-header">
+
+        <div>
+            <h3 id="restaurantTableDrawerTitle">
+                Add Restaurant Table
+            </h3>
+
+            <p>
+                Create or edit a restaurant table.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            id="closeRestaurantTableDrawer"
+            class="drawer-close"
+        >
+            ×
+        </button>
+
+    </div>
+
+    <div class="booking-drawer-body">
+
+        <input
+            type="hidden"
+            id="restaurantTableId"
+        >
+
+        <div class="form-group">
+            <label for="restaurantTableNumber">
+                Table Number
+            </label>
+
+            <input
+                type="text"
+                id="restaurantTableNumber"
+                placeholder="Example: T1"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="restaurantTableCapacity">
+                Capacity
+            </label>
+
+            <input
+                type="number"
+                id="restaurantTableCapacity"
+                min="1"
+                value="4"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="restaurantTableStatus">
+                Status
+            </label>
+
+            <select id="restaurantTableStatus">
+                <option value="AVAILABLE">Available</option>
+                <option value="OCCUPIED">Occupied</option>
+                <option value="RESERVED">Reserved</option>
+                <option value="CLEANING">Cleaning</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="restaurantTableNotes">
+                Notes
+            </label>
+
+            <textarea
+                id="restaurantTableNotes"
+                rows="4"
+                placeholder="Optional notes"
+            ></textarea>
+        </div>
+
+    </div>
+
+    <div class="booking-drawer-footer">
+
+        <button
+            type="button"
+            id="cancelRestaurantTableButton"
+            class="secondary-btn"
+        >
+            Cancel
+        </button>
+
+        <button
+            type="button"
+            id="saveRestaurantTableButton"
+            class="primary-btn"
+        >
+            Save Table
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+     IMPORTANT: ORDER MATTERS
+     ========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/config.js"></script>
+
+<script src="js/supabase.js"></script>
+
+<script src="js/app.js"></script>
+
+<script src="js/rooms.js"></script>
+
+<script src="js/guests.js"></script>
+
+<script src="js/bookings.js"></script>
+
+<script src="js/stays.js"></script>
+
+<script src="js/restaurant.js"></script>
+
+<script src="js/orders.js"></script>
+
+<script src="js/checkout.js"></script>
+
+<script src="js/invoices.js"></script>
+
+<script src="js/settings.js"></script>
+
+</body>
+
+</html>
