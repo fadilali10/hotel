@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Settings - Hotels</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* =========================================================
+           STAR HOTELS - SETTINGS PAGE
+           ALL CSS IS EMBEDDED IN THIS FILE
+        ========================================================= */
+
+        :root {
+            --primary: #6d4aff;
+            --primary-dark: #5436d6;
+            --primary-light: #eeeaff;
+
+            --dark: #17151f;
+            --dark-2: #24212f;
+
+            --text: #24212f;
+            --text-light: #747181;
+            --muted: #96929f;
+
+            --white: #ffffff;
+            --background: #f7f7fb;
+            --border: #e9e7ef;
+
+            --green: #21a366;
+            --red: #ef4444;
+            --orange: #f59e0b;
+
+            --shadow: 0 8px 25px rgba(30, 25, 50, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--background);
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* =========================================================
+           APP
+        ========================================================= */
+
+        .app {
+            min-height: 100vh;
+        }
+
+        /* =========================================================
+           SIDEBAR
+        ========================================================= */
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 255px;
+            height: 100vh;
+
+            background: var(--dark);
+            color: #fff;
+
+            display: flex;
+            flex-direction: column;
+
+            z-index: 1000;
+        }
+
+        .logo {
+            height: 76px;
+            padding: 0 22px;
+
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+
+            border-radius: 10px;
+
+            background: var(--primary);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #fff;
+            font-size: 20px;
+
+            box-shadow: 0 5px 18px rgba(109, 74, 255, 0.35);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+
+        .logo-text strong {
+            font-size: 16px;
+            letter-spacing: 1.5px;
+        }
+
+        .logo-text span {
+            margin-top: 5px;
+            font-size: 8px;
+            letter-spacing: 3px;
+            color: #aaa6b5;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 12px;
+            overflow-y: auto;
+        }
+
+        .menu-title {
+            padding: 12px 12px 8px;
+
+            font-size: 9px;
+            font-weight: 700;
+
+            color: #777384;
+            letter-spacing: 1.4px;
+        }
+
+        .nav-item {
+            min-height: 42px;
+            padding: 0 13px;
+            margin-bottom: 4px;
+
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            border-radius: 8px;
+
+            color: #aaa7b5;
+
+            font-size: 12px;
+            font-weight: 500;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .nav-item.active {
+            color: #fff;
+            background: var(--primary);
+            box-shadow: 0 6px 15px rgba(109, 74, 255, 0.22);
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .hotel-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            padding: 11px;
+
+            border-radius: 9px;
+
+            background: rgba(255, 255, 255, 0.045);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+            background: var(--green);
+
+            box-shadow: 0 0 0 4px rgba(33, 163, 102, 0.12);
+        }
+
+        .hotel-status strong {
+            display: block;
+            font-size: 10px;
+            color: #fff;
+        }
+
+        .hotel-status small {
+            display: block;
+            margin-top: 3px;
+
+            color: #858190;
+            font-size: 8px;
+        }
+
+        /* =========================================================
+           MAIN
+        ========================================================= */
+
+        .main {
+            min-height: 100vh;
+            margin-left: 255px;
+        }
+
+        /* =========================================================
+           TOPBAR
+        ========================================================= */
+
+        .topbar {
+            height: 76px;
+
+            padding: 0 28px;
+
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            position: sticky;
+            top: 0;
+            z-index: 500;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .topbar-left h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .topbar-left p {
+            margin-top: 3px;
+
+            color: var(--text-light);
+            font-size: 10px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sidebar-link {
+            width: 36px;
+            height: 36px;
+
+            border: 1px solid var(--border);
+            border-radius: 9px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: var(--text-light);
+            background: #fff;
+
+            transition: 0.2s;
+        }
+
+        .sidebar-link:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+
+            border-radius: 50%;
+
+            background: var(--primary-light);
+            color: var(--primary);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .user-info strong {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .user-info span {
+            display: block;
+
+            margin-top: 2px;
+
+            color: var(--text-light);
+            font-size: 9px;
+        }
+
+        .mobile-menu {
+            display: none;
+
+            width: 36px;
+            height: 36px;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            background: #fff;
+            color: var(--text);
+
+            font-size: 18px;
+        }
+
+        /* =========================================================
+           CONTENT
+        ========================================================= */
+
+        .content {
+            padding: 28px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .section-header p {
+            margin-top: 5px;
+
+            color: var(--text-light);
+            font-size: 10px;
+        }
+
+        /* =========================================================
+           SETTINGS LAYOUT
+        ========================================================= */
+
+        .settings-layout {
+            display: grid;
+            grid-template-columns: 215px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* =========================================================
+           SETTINGS NAVIGATION
+        ========================================================= */
+
+        .settings-nav {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px;
+
+            box-shadow: var(--shadow);
+        }
+
+        .settings-tab {
+            width: 100%;
+
+            border: 0;
+            background: transparent;
+
+            padding: 12px 13px;
+
+            border-radius: 8px;
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            color: var(--text-light);
+
+            font-size: 11px;
+            font-weight: 500;
+
+            text-align: left;
+
+            transition: 0.2s;
+        }
+
+        .settings-tab:hover {
+            background: #f7f6fb;
+            color: var(--text);
+        }
+
+        .settings-tab.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .settings-tab-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        /* =========================================================
+           PANELS
+        ========================================================= */
+
+        .settings-content {
+            min-width: 0;
+        }
+
+        .settings-panel {
+            display: none;
+        }
+
+        .settings-panel.active {
+            display: block;
+            animation: fadeIn 0.18s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(3px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-card {
+            background: #fff;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            box-shadow: var(--shadow);
+
+            margin-bottom: 18px;
+        }
+
+        .card-header {
+            padding: 20px 22px;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h3 {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .card-header p {
+            margin-top: 5px;
+
+            color: var(--text-light);
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .card-body {
+            padding: 22px;
+        }
+
+        /* =========================================================
+           FORM
+        ========================================================= */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 17px;
+        }
+
+        .form-group {
+            margin-bottom: 17px;
+        }
+
+        .form-grid .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-size: 10px;
+            font-weight: 600;
+            color: #4e4a58;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            padding: 10px 11px;
+
+            background: #fff;
+            color: var(--text);
+
+            font-size: 11px;
+
+            outline: none;
+
+            transition:
+                border-color 0.2s,
+                box-shadow 0.2s;
+        }
+
+        .form-group input {
+            height: 40px;
+        }
+
+        .form-group textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(109, 74, 255, 0.09);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #aaa6b3;
+        }
+
+        .form-help {
+            margin-top: 5px;
+
+            color: var(--muted);
+            font-size: 9px;
+            line-height: 1.4;
+        }
+
+        /* =========================================================
+           BUTTONS
+        ========================================================= */
+
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 10px;
+
+            margin-top: 20px;
+            padding-top: 18px;
+
+            border-top: 1px solid var(--border);
+        }
+
+        .action-left,
+        .action-right {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .primary-btn,
+        .secondary-btn,
+        .danger-btn {
+            min-height: 38px;
+
+            border-radius: 8px;
+
+            padding: 0 15px;
+
+            font-size: 10px;
+            font-weight: 600;
+
+            border: 1px solid transparent;
+
+            transition: 0.2s;
+        }
+
+        .primary-btn {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .primary-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .secondary-btn {
+            background: #fff;
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .secondary-btn:hover {
+            background: #f8f7fb;
+        }
+
+        .danger-btn {
+            background: #fff;
+            color: var(--red);
+            border-color: #f3caca;
+        }
+
+        .danger-btn:hover {
+            background: #fff4f4;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* =========================================================
+           MESSAGES
+        ========================================================= */
+
+        .settings-message {
+            display: none;
+
+            margin-bottom: 18px;
+
+            padding: 11px 13px;
+
+            border-radius: 8px;
+
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .settings-message.success {
+            display: block;
+
+            background: #ecfdf3;
+            color: #147a47;
+
+            border: 1px solid #c7f0d9;
+        }
+
+        .settings-message.error {
+            display: block;
+
+            background: #fff1f2;
+            color: #c53030;
+
+            border: 1px solid #fecdd3;
+        }
+
+        /* =========================================================
+           HOTEL PREVIEW
+        ========================================================= */
+
+        .hotel-preview {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+
+            padding: 15px;
+
+            margin-bottom: 20px;
+
+            border-radius: 10px;
+
+            background: #f8f7fb;
+            border: 1px solid #eeeaf6;
+        }
+
+        .hotel-preview-icon {
+            width: 44px;
+            height: 44px;
+
+            flex-shrink: 0;
+
+            border-radius: 10px;
+
+            background: var(--primary);
+            color: #fff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 20px;
+        }
+
+        .hotel-preview-info strong {
+            display: block;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .hotel-preview-info span {
+            display: block;
+
+            margin-top: 4px;
+
+            color: var(--text-light);
+            font-size: 9px;
+        }
+
+        /* =========================================================
+           ACCOUNT
+        ========================================================= */
+
+        .account-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .account-item {
+            padding: 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 9px;
+
+            background: #fafafd;
+        }
+
+        .account-item label {
+            display: block;
+
+            margin-bottom: 6px;
+
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        .account-item strong {
+            display: block;
+
+            font-size: 11px;
+            font-weight: 600;
+
+            word-break: break-word;
+        }
+
+        /* =========================================================
+           INFO BOX
+        ========================================================= */
+
+        .info-box {
+            display: flex;
+            gap: 12px;
+
+            padding: 14px;
+
+            margin-top: 18px;
+
+            background: #f6f4ff;
+            border: 1px solid #e7e1ff;
+            border-radius: 9px;
+        }
+
+        .info-icon {
+            width: 25px;
+            height: 25px;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            background: var(--primary);
+            color: #fff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .info-box strong {
+            display: block;
+
+            margin-bottom: 3px;
+
+            font-size: 10px;
+        }
+
+        .info-box p {
+            color: var(--text-light);
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        /* =========================================================
+           SIDEBAR MOBILE BACKDROP
+        ========================================================= */
+
+        .sidebar-backdrop {
+            display: none;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 1000px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .mobile-menu {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .sidebar-backdrop {
+                position: fixed;
+                inset: 0;
+
+                background: rgba(0, 0, 0, 0.35);
+
+                z-index: 900;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+
+            .settings-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-nav {
+                display: flex;
+                gap: 5px;
+
+                overflow-x: auto;
+            }
+
+            .settings-tab {
+                width: auto;
+                min-width: 125px;
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .topbar-left h1 {
+                font-size: 16px;
+            }
+
+            .topbar-left p {
+                display: none;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .content {
+                padding: 18px 15px;
+            }
+
+            .form-grid,
+            .account-info {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-left,
+            .action-right {
+                width: 100%;
+            }
+
+            .action-left button,
+            .action-right button {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 450px) {
+
+            .topbar-right .sidebar-link {
+                display: none;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 17px;
+            }
+
+            .settings-tab {
+                min-width: 110px;
+                padding: 10px;
+            }
+
+            .settings-tab-icon {
+                display: none;
+            }
+        }
+
+        /* =========================================================
+           PRINT
+        ========================================================= */
+
+        @media print {
+
+            body {
+                background: #fff;
+            }
+
+            .sidebar,
+            .topbar,
+            .settings-nav,
+            .form-actions,
+            .settings-message {
+                display: none !important;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .content {
+                padding: 0;
+                max-width: none;
+            }
+
+            .page-card {
+                border: 1px solid #ddd;
+                box-shadow: none;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">★</div>
+
+            <div class="logo-text">
+                <strong>HOTELS</strong>
+                <span></span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <div class="menu-title">MAIN</div>
+
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
+
+            <a href="bookings.html" class="nav-item">
+                <span class="nav-icon">▣</span>
+                Bookings
+            </a>
+
+            <a href="guests.html" class="nav-item">
+                <span class="nav-icon">♙</span>
+                Guests
+            </a>
+
+            <a href="rooms.html" class="nav-item">
+                <span class="nav-icon">▤</span>
+                Rooms
+            </a>
+
+            <a href="stays.html" class="nav-item">
+                <span class="nav-icon">⌂</span>
+                Check-in & Stays
+            </a>
+
+            <div class="menu-title">SERVICES</div>
+
+            <a href="restaurant.html" class="nav-item">
+                <span class="nav-icon">♨</span>
+                Restaurant
+            </a>
+
+            <a href="orders.html" class="nav-item">
+                <span class="nav-icon">☷</span>
+                Orders
+            </a>
+
+            <a href="billing.html" class="nav-item">
+                <span class="nav-icon">▤</span>
+                Billing
+            </a>
+
+            <a href="invoices.html" class="nav-item">
+                <span class="nav-icon">▥</span>
+                Invoices
+            </a>
+
+            <div class="menu-title">MANAGEMENT</div>
+
+            <a href="reports.html" class="nav-item">
+                <span class="nav-icon">▥</span>
+                Reports
+            </a>
+
+            <a href="settings.html" class="nav-item active">
+                <span class="nav-icon">⚙</span>
+                Settings
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <div class="hotel-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>System Online</strong>
+                    <small>All services running</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <div
+        class="sidebar-backdrop"
+        id="sidebarBackdrop"
+    ></div>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button
+                    type="button"
+                    id="mobileMenu"
+                    class="mobile-menu"
+                    aria-label="Open menu"
+                >
+                    ☰
+                </button>
+
+                <div>
+                    <h1>Settings</h1>
+                    <p>Manage hotel and account settings</p>
+                </div>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <a
+                    href="settings.html"
+                    class="sidebar-link"
+                    title="Settings"
+                >
+                    ⚙
+                </a>
+
+                <div class="user-profile">
+
+                    <div
+                        class="avatar"
+                        id="topUserAvatar"
+                    >
+                        U
+                    </div>
+
+                    <div class="user-info">
+                        <strong id="topUserName">
+                            User
+                        </strong>
+
+                        <span>
+                            Hotel Manager
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             CONTENT
+        ================================================== -->
+
+        <section class="content">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Hotel Settings</h2>
+
+                    <p>
+                        Customize your hotel information,
+                        regional preferences and account.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="settings-layout">
+
+
+                <!-- =================================================
+                     SETTINGS NAVIGATION
+                ================================================== -->
+
+                <div class="settings-nav">
+
+                    <button
+                        type="button"
+                        class="settings-tab active"
+                        data-settings-tab="hotel"
+                    >
+                        <span class="settings-tab-icon">🏨</span>
+                        Hotel Profile
+                    </button>
+
+                    <button
+                        type="button"
+                        class="settings-tab"
+                        data-settings-tab="regional"
+                    >
+                        <span class="settings-tab-icon">🌐</span>
+                        Regional
+                    </button>
+
+                    <button
+                        type="button"
+                        class="settings-tab"
+                        data-settings-tab="account"
+                    >
+                        <span class="settings-tab-icon">👤</span>
+                        Account
+                    </button>
+
+                </div>
+
+
+                <!-- =================================================
+                     PANELS
+                ================================================== -->
+
+                <div class="settings-content">
+
+
+                    <!-- HOTEL PROFILE -->
+
+                    <div
+                        class="settings-panel active"
+                        id="hotelSettingsPanel"
+                    >
+
+                        <div
+                            id="hotelSettingsMessage"
+                            class="settings-message"
+                        ></div>
+
+
+                        <div class="page-card">
+
+                            <div class="card-header">
+
+                                <h3>Hotel Profile</h3>
+
+                                <p>
+                                    Update the information displayed
+                                    throughout your hotel management
+                                    system.
+                                </p>
+
+                            </div>
+
+
+                            <div class="card-body">
+
+                                <div class="hotel-preview">
+
+                                    <div class="hotel-preview-icon">
+                                        ★
+                                    </div>
+
+                                    <div class="hotel-preview-info">
+
+                                        <strong
+                                            id="settingsHotelPreviewName"
+                                            data-hotel-name
+                                        >
+                                            Loading hotel...
+                                        </strong>
+
+                                        <span>
+                                            Hotel profile
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <form id="hotelSettingsForm">
+
+                                    <div class="form-grid">
+
+
+                                        <div class="form-group">
+
+                                            <label for="settingHotelName">
+                                                Hotel Name *
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="settingHotelName"
+                                                placeholder="Enter hotel name"
+                                                required
+                                            >
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label for="settingHotelPhone">
+                                                Phone
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="settingHotelPhone"
+                                                placeholder="Hotel phone number"
+                                            >
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label for="settingHotelEmail">
+                                                Email
+                                            </label>
+
+                                            <input
+                                                type="email"
+                                                id="settingHotelEmail"
+                                                placeholder="hotel@example.com"
+                                            >
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label for="settingHotelWebsite">
+                                                Website
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="settingHotelWebsite"
+                                                placeholder="https://example.com"
+                                            >
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label for="settingHotelCity">
+                                                City
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="settingHotelCity"
+                                                placeholder="City"
+                                            >
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label for="settingHotelState">
+                                                State
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="settingHotelState"
+                                                placeholder="State"
+                                            >
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label for="settingHotelCountry">
+                                                Country
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="settingHotelCountry"
+                                                placeholder="Country"
+                                            >
+
+                                        </div>
+
+
+                                        <div class="form-group">
+
+                                            <label for="settingHotelTax">
+                                                Tax Number
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="settingHotelTax"
+                                                placeholder="GST / Tax number"
+                                            >
+
+                                        </div>
+
+
+                                        <div class="form-group full">
+
+                                            <label for="settingHotelAddress">
+                                                Address
+                                            </label>
+
+                                            <textarea
+                                                id="settingHotelAddress"
+                                                placeholder="Full hotel address"
+                                            ></textarea>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="form-actions">
+
+                                        <div class="action-left">
+
+                                            <button
+                                                type="button"
+                                                id="settingsLogoutButton"
+                                                class="danger-btn"
+                                            >
+                                                Logout
+                                            </button>
+
+                                        </div>
+
+
+                                        <div class="action-right">
+
+                                            <button
+                                                type="reset"
+                                                class="secondary-btn"
+                                            >
+                                                Reset
+                                            </button>
+
+                                            <button
+                                                type="submit"
+                                                id="saveHotelSettings"
+                                                class="primary-btn"
+                                            >
+                                                Save Changes
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-box">
+
+                            <div class="info-icon">i</div>
+
+                            <div>
+
+                                <strong>
+                                    Hotel profile information
+                                </strong>
+
+                                <p>
+                                    Changes made here are saved to
+                                    your hotel's profile and can be
+                                    used by bookings, invoices,
+                                    reports and other modules.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REGIONAL SETTINGS -->
+
+                    <div
+                        class="settings-panel"
+                        id="regionalSettingsPanel"
+                    >
+
+                        <div
+                            id="regionalSettingsMessage"
+                            class="settings-message"
+                        ></div>
+
+
+                        <div class="page-card">
+
+                            <div class="card-header">
+
+                                <h3>Regional Preferences</h3>
+
+                                <p>
+                                    Configure currency used by
+                                    billing, invoices and reports.
+                                </p>
+
+                            </div>
+
+
+                            <div class="card-body">
+
+                                <form id="regionalSettingsForm">
+
+                                    <div class="form-group">
+
+                                        <label for="settingCurrency">
+                                            Currency *
+                                        </label>
+
+                                        <select id="settingCurrency">
+
+                                            <option value="INR">
+                                                INR - Indian Rupee
+                                            </option>
+
+                                            <option value="USD">
+                                                USD - US Dollar
+                                            </option>
+
+                                            <option value="EUR">
+                                                EUR - Euro
+                                            </option>
+
+                                            <option value="GBP">
+                                                GBP - British Pound
+                                            </option>
+
+                                            <option value="AED">
+                                                AED - UAE Dirham
+                                            </option>
+
+                                            <option value="SAR">
+                                                SAR - Saudi Riyal
+                                            </option>
+
+                                            <option value="QAR">
+                                                QAR - Qatari Riyal
+                                            </option>
+
+                                            <option value="OMR">
+                                                OMR - Omani Rial
+                                            </option>
+
+                                        </select>
+
+                                        <div class="form-help">
+                                            This currency will be used
+                                            when displaying prices,
+                                            invoices and reports.
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="form-actions">
+
+                                        <div></div>
+
+                                        <div class="action-right">
+
+                                            <button
+                                                type="submit"
+                                                id="saveRegionalSettings"
+                                                class="primary-btn"
+                                            >
+                                                Save Preferences
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACCOUNT -->
+
+                    <div
+                        class="settings-panel"
+                        id="accountSettingsPanel"
+                    >
+
+                        <div class="page-card">
+
+                            <div class="card-header">
+
+                                <h3>Account Information</h3>
+
+                                <p>
+                                    Information about the account
+                                    currently signed in.
+                                </p>
+
+                            </div>
+
+
+                            <div class="card-body">
+
+                                <div class="account-info">
+
+                                    <div class="account-item">
+
+                                        <label>
+                                            Full Name
+                                        </label>
+
+                                        <strong
+                                            id="settingAccountName"
+                                        >
+                                            Loading...
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="account-item">
+
+                                        <label>
+                                            Email
+                                        </label>
+
+                                        <strong
+                                            id="settingAccountEmail"
+                                        >
+                                            Loading...
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="account-item">
+
+                                        <label>
+                                            Role
+                                        </label>
+
+                                        <strong
+                                            id="settingAccountRole"
+                                        >
+                                            Loading...
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="account-item">
+
+                                        <label>
+                                            Hotel
+                                        </label>
+
+                                        <strong
+                                            id="settingAccountHotel"
+                                            data-hotel-name
+                                        >
+                                            Loading...
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="info-box">
+
+                                    <div class="info-icon">
+                                        ✓
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            Account security
+                                        </strong>
+
+                                        <p>
+                                            Your account authentication
+                                            is handled securely through
+                                            Supabase Authentication.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="page-card">
+
+                            <div class="card-header">
+
+                                <h3>Session</h3>
+
+                                <p>
+                                    Sign out from this hotel
+                                    management account.
+                                </p>
+
+                            </div>
+
+
+                            <div class="card-body">
+
+                                <button
+                                    type="button"
+                                    id="settingsLogoutButtonAccount"
+                                    class="danger-btn"
+                                >
+                                    Logout
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================== -->
+
+<script src="./js/config.js"></script>
+<script src="./js/supabase.js"></script>
+<script src="./js/settings.js"></script>
+
+</body>
+</html>

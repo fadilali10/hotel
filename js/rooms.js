@@ -1,8 +1,11 @@
 /* =========================================================
+   STAR HOTELS
    ROOM MANAGEMENT
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    "use strict";
 
     const supabase = window.supabaseClient;
 
@@ -21,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let rooms = [];
     let roomTypes = [];
     let currentHotelId = null;
+    let isSaving = false;
 
 
     /* =====================================================
@@ -28,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
        ===================================================== */
 
     const addRoomButton =
-        document.getElementById("addRoomButton");
+        document.getElementById("addRoomBtn");
 
     const roomDrawer =
         document.getElementById("roomDrawer");
@@ -81,9 +85,66 @@ document.addEventListener("DOMContentLoaded", () => {
     const roomsTableBody =
         document.getElementById("roomsTableBody");
 
+    const mobileMenu =
+        document.getElementById("mobileMenu");
+
+    const sidebar =
+        document.querySelector(".sidebar");
+
 
     /* =====================================================
-       GET CURRENT USER / HOTEL
+       MOBILE SIDEBAR
+       ===================================================== */
+
+    function setupMobileMenu() {
+
+        if (!mobileMenu || !sidebar) {
+            return;
+        }
+
+        mobileMenu.addEventListener("click", () => {
+
+            sidebar.classList.toggle("show");
+
+        });
+
+
+        document
+            .querySelectorAll(".sidebar .nav-item")
+            .forEach(link => {
+
+                link.addEventListener("click", () => {
+
+                    sidebar.classList.remove("show");
+
+                });
+
+            });
+
+
+        document.addEventListener("click", event => {
+
+            if (
+                window.innerWidth <= 768 &&
+                sidebar.classList.contains("show") &&
+                !sidebar.contains(event.target) &&
+                !mobileMenu.contains(event.target)
+            ) {
+
+                sidebar.classList.remove("show");
+
+            }
+
+        });
+
+    }
+
+
+    setupMobileMenu();
+
+
+    /* =====================================================
+       GET CURRENT HOTEL
        ===================================================== */
 
     async function loadCurrentHotel() {
@@ -118,7 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 error: profileError
             } = await supabase
                 .from("profiles")
-                .select("hotel_id")
+                .select("hotel_id, full_name")
                 .eq("id", user.id)
                 .maybeSingle();
 
@@ -149,7 +210,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             currentHotelId =
-                profile.hotel_id;
+                Number(profile.hotel_id);
+
+
+            const topUserName =
+                document.getElementById("topUserName");
+
+
+            if (topUserName) {
+
+                topUserName.textContent =
+                    profile.full_name ||
+                    user.email?.split("@")[0] ||
+                    "User";
+
+            }
 
 
             console.log(
@@ -160,6 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return currentHotelId;
 
+
         } catch (error) {
 
             console.error(
@@ -169,6 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return null;
         }
+
     }
 
 
@@ -188,9 +265,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        /* ---------------------------------------------
+        /* =================================================
            ADD ROOM
-        --------------------------------------------- */
+           ================================================= */
 
         if (!room) {
 
@@ -237,9 +314,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         }
 
-        /* ---------------------------------------------
+
+        /* =================================================
            EDIT ROOM
-        --------------------------------------------- */
+           ================================================= */
 
         else {
 
@@ -251,7 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (roomIdInput) {
                 roomIdInput.value =
-                    room.id || "";
+                    room.id ?? "";
             }
 
 
@@ -281,13 +359,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (roomNotesInput) {
                 roomNotesInput.value =
-                    room.notes || "";
+                    room.notes ?? "";
             }
 
 
             if (roomTypeSelect) {
                 roomTypeSelect.value =
-                    String(room.room_type_id || "");
+                    room.room_type_id != null
+                        ? String(room.room_type_id)
+                        : "";
             }
 
         }
@@ -305,15 +385,25 @@ document.addEventListener("DOMContentLoaded", () => {
             "hidden";
 
 
+        setTimeout(() => {
+
+            if (roomNumberInput) {
+                roomNumberInput.focus();
+            }
+
+        }, 100);
+
+
         console.log(
-            "✓ Room drawer opened",
+            "✓ Room drawer opened:",
             room ? room.id : "new room"
         );
+
     }
 
 
     /* =====================================================
-       CLOSE ROOM DRAWER
+       CLOSE DRAWER
        ===================================================== */
 
     function closeDrawer() {
@@ -328,11 +418,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        document.body.style.overflow =
-            "";
+        document.body.style.overflow = "";
 
 
         resetRoomForm();
+
     }
 
 
@@ -346,35 +436,43 @@ document.addEventListener("DOMContentLoaded", () => {
             roomIdInput.value = "";
         }
 
+
         if (roomNumberInput) {
             roomNumberInput.value = "";
         }
+
 
         if (roomFloorInput) {
             roomFloorInput.value = "1";
         }
 
+
         if (roomPriceInput) {
             roomPriceInput.value = "";
         }
+
 
         if (roomStatusInput) {
             roomStatusInput.value =
                 "AVAILABLE";
         }
 
+
         if (roomNotesInput) {
             roomNotesInput.value = "";
         }
+
 
         if (roomTypeSelect) {
             roomTypeSelect.value = "";
         }
 
+
         if (roomDrawerTitle) {
             roomDrawerTitle.textContent =
                 "Add Room";
         }
+
     }
 
 
@@ -385,16 +483,6 @@ document.addEventListener("DOMContentLoaded", () => {
     async function loadRoomTypes() {
 
         if (!currentHotelId) {
-            return;
-        }
-
-
-        if (!roomTypeSelect) {
-
-            console.error(
-                "ROOMS.JS: roomType select not found."
-            );
-
             return;
         }
 
@@ -435,20 +523,45 @@ document.addEventListener("DOMContentLoaded", () => {
                 data || [];
 
 
-            /* -----------------------------------------
+            /* =================================================
                ROOM TYPE SELECT
-            ----------------------------------------- */
+               ================================================= */
 
-            roomTypeSelect.innerHTML = `
-                <option value="">
-                    Select room type
-                </option>
-            `;
+            if (roomTypeSelect) {
+
+                roomTypeSelect.innerHTML = `
+                    <option value="">
+                        Select room type
+                    </option>
+                `;
 
 
-            /* -----------------------------------------
+                roomTypes.forEach(type => {
+
+                    const option =
+                        document.createElement("option");
+
+
+                    option.value =
+                        String(type.id);
+
+
+                    option.textContent =
+                        type.name || "Unnamed";
+
+
+                    roomTypeSelect.appendChild(
+                        option
+                    );
+
+                });
+
+            }
+
+
+            /* =================================================
                ROOM TYPE FILTER
-            ----------------------------------------- */
+               ================================================= */
 
             if (roomTypeFilter) {
 
@@ -457,33 +570,35 @@ document.addEventListener("DOMContentLoaded", () => {
                         All Room Types
                     </option>
                 `;
+
+
+                roomTypes.forEach(type => {
+
+                    const option =
+                        document.createElement("option");
+
+
+                    option.value =
+                        String(type.id);
+
+
+                    option.textContent =
+                        type.name || "Unnamed";
+
+
+                    roomTypeFilter.appendChild(
+                        option
+                    );
+
+                });
+
             }
-
-
-            roomTypes.forEach(type => {
-
-                roomTypeSelect.innerHTML += `
-                    <option value="${type.id}">
-                        ${escapeHtml(type.name)}
-                    </option>
-                `;
-
-
-                if (roomTypeFilter) {
-
-                    roomTypeFilter.innerHTML += `
-                        <option value="${type.id}">
-                            ${escapeHtml(type.name)}
-                        </option>
-                    `;
-                }
-
-            });
 
 
             console.log(
                 `✓ Loaded ${roomTypes.length} room types`
             );
+
 
         } catch (error) {
 
@@ -492,11 +607,36 @@ document.addEventListener("DOMContentLoaded", () => {
                 error
             );
 
+
+            if (roomTypeSelect) {
+
+                roomTypeSelect.innerHTML = `
+                    <option value="">
+                        Unable to load room types
+                    </option>
+                `;
+
+            }
+
+
+            if (roomTypeFilter) {
+
+                roomTypeFilter.innerHTML = `
+                    <option value="ALL">
+                        All Room Types
+                    </option>
+                `;
+
+            }
+
+
             showRoomMessage(
                 "Unable to load room types.",
                 "error"
             );
+
         }
+
     }
 
 
@@ -506,8 +646,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updatePriceFromRoomType() {
 
-        if (!roomTypeSelect ||
-            !roomPriceInput) {
+        if (
+            !roomTypeSelect ||
+            !roomPriceInput
+        ) {
             return;
         }
 
@@ -524,7 +666,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const selectedType =
             roomTypes.find(
                 type =>
-                    Number(type.id) === selectedId
+                    Number(type.id) ===
+                    selectedId
             );
 
 
@@ -533,14 +676,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        const currentPrice =
-            roomPriceInput.value.trim();
+        if (
+            roomPriceInput.value.trim() === ""
+        ) {
+
+            const basePrice =
+                selectedType.base_price;
 
 
-        if (!currentPrice) {
+            if (
+                basePrice !== null &&
+                basePrice !== undefined
+            ) {
 
-            roomPriceInput.value =
-                selectedType.base_price ?? "";
+                roomPriceInput.value =
+                    basePrice;
+
+            }
+
         }
 
     }
@@ -564,6 +717,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
 
+            /*
+             * Load rooms first.
+             * Room type names are mapped locally.
+             *
+             * This avoids dependency on a Supabase
+             * foreign-key relationship named exactly
+             * "room_types".
+             */
+
             const {
                 data,
                 error
@@ -575,16 +737,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     room_type_id,
                     room_number,
                     floor,
-                    price,
                     status,
-                    notes,
                     created_at,
-                    updated_at,
-                    room_types (
-                        id,
-                        name,
-                        capacity
-                    )
+                    notes,
+                    price,
+                    updated_at
                 `)
                 .eq(
                     "hotel_id",
@@ -616,6 +773,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 `✓ Loaded ${rooms.length} rooms`
             );
 
+
         } catch (error) {
 
             console.error(
@@ -636,6 +794,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         </td>
                     </tr>
                 `;
+
             }
 
 
@@ -643,7 +802,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Unable to load rooms.",
                 "error"
             );
+
         }
+
     }
 
 
@@ -653,18 +814,83 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateRoomSummary() {
 
+        /*
+         * Supports the IDs from the current rooms.html:
+         *
+         * totalRooms
+         * availableRooms
+         * occupiedRooms
+         * maintenanceRooms
+         */
+
+        const total =
+            rooms.length;
+
+
+        const available =
+            rooms.filter(
+                room =>
+                    room.status === "AVAILABLE"
+            ).length;
+
+
+        const occupied =
+            rooms.filter(
+                room =>
+                    room.status === "OCCUPIED"
+            ).length;
+
+
+        const maintenance =
+            rooms.filter(
+                room =>
+                    room.status === "MAINTENANCE"
+            ).length;
+
+
+        setText(
+            "totalRooms",
+            total
+        );
+
+
+        setText(
+            "availableRooms",
+            available
+        );
+
+
+        setText(
+            "occupiedRooms",
+            occupied
+        );
+
+
+        setText(
+            "maintenanceRooms",
+            maintenance
+        );
+
+
+        /*
+         * Compatibility with older IDs.
+         */
+
         setText(
             "totalRoomsCount",
-            rooms.length
+            total
         );
 
 
         setText(
             "availableRoomsCount",
-            rooms.filter(
-                room =>
-                    room.status === "AVAILABLE"
-            ).length
+            available
+        );
+
+
+        setText(
+            "occupiedRoomsCount",
+            occupied
         );
 
 
@@ -673,15 +899,6 @@ document.addEventListener("DOMContentLoaded", () => {
             rooms.filter(
                 room =>
                     room.status === "RESERVED"
-            ).length
-        );
-
-
-        setText(
-            "occupiedRoomsCount",
-            rooms.filter(
-                room =>
-                    room.status === "OCCUPIED"
             ).length
         );
 
@@ -724,7 +941,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const status =
             roomStatusFilter
                 ? roomStatusFilter.value
-                : "ALL";
+                : "";
 
 
         const type =
@@ -743,11 +960,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                 const roomTypeName =
-                    room.room_types
-                        ? String(
-                            room.room_types.name || ""
-                        ).toLowerCase()
-                        : "";
+                    getRoomTypeName(
+                        room.room_type_id
+                    ).toLowerCase();
 
 
                 const matchesSearch =
@@ -757,12 +972,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                 const matchesStatus =
+                    !status ||
                     status === "ALL" ||
                     room.status === status;
 
 
                 const matchesType =
                     type === "ALL" ||
+                    !type ||
                     String(
                         room.room_type_id
                     ) === String(type);
@@ -777,9 +994,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
 
-        /* -----------------------------------------
-           NO RESULTS
-        ----------------------------------------- */
+        /* =================================================
+           EMPTY
+           ================================================= */
 
         if (!filteredRooms.length) {
 
@@ -798,114 +1015,150 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        /* -----------------------------------------
+        /* =================================================
            TABLE
-        ----------------------------------------- */
+           ================================================= */
 
         roomsTableBody.innerHTML =
-            filteredRooms.map(room => {
+            filteredRooms
+                .map(room => {
 
-                const typeName =
-                    room.room_types
-                        ? room.room_types.name
-                        : "Unknown";
-
-
-                const statusClass =
-                    String(
-                        room.status || ""
-                    ).toLowerCase();
+                    const typeName =
+                        getRoomTypeName(
+                            room.room_type_id
+                        ) ||
+                        "Unknown";
 
 
-                const price =
-                    Number(room.price || 0);
+                    const statusClass =
+                        String(
+                            room.status ||
+                            "unknown"
+                        )
+                        .toLowerCase()
+                        .replace(
+                            /[^a-z0-9_-]/g,
+                            ""
+                        );
 
 
-                return `
-                    <tr>
+                    const price =
+                        Number(
+                            room.price || 0
+                        );
 
-                        <td>
-                            <strong>
+
+                    return `
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    ${escapeHtml(
+                                        room.room_number
+                                    )}
+                                </strong>
+                            </td>
+
+                            <td>
                                 ${escapeHtml(
-                                    room.room_number
+                                    typeName
                                 )}
-                            </strong>
-                        </td>
+                            </td>
 
-
-                        <td>
-                            ${escapeHtml(typeName)}
-                        </td>
-
-
-                        <td>
-                            Floor ${escapeHtml(
-                                room.floor ?? "-"
-                            )}
-                        </td>
-
-
-                        <td>
-                            ₹${price.toLocaleString(
-                                "en-IN",
-                                {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                }
-                            )}
-                        </td>
-
-
-                        <td>
-                            <span
-                                class="room-status ${statusClass}"
-                            >
-                                ${formatStatus(
-                                    room.status
+                            <td>
+                                Floor
+                                ${escapeHtml(
+                                    room.floor ?? "-"
                                 )}
-                            </span>
-                        </td>
+                            </td>
 
+                            <td>
+                                ₹${price.toLocaleString(
+                                    "en-IN",
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                )}
+                            </td>
 
-                        <td>
-
-                            <div
-                                class="room-action-buttons"
-                            >
-
-                                <button
-                                    type="button"
-                                    class="room-action-btn"
-                                    data-edit-room="${room.id}"
+                            <td>
+                                <span
+                                    class="room-status ${statusClass}"
                                 >
-                                    Edit
-                                </button>
+                                    ${escapeHtml(
+                                        formatStatus(
+                                            room.status
+                                        )
+                                    )}
+                                </span>
+                            </td>
 
+                            <td>
 
-                                <button
-                                    type="button"
-                                    class="room-action-btn room-delete-btn"
-                                    data-delete-room="${room.id}"
+                                <div
+                                    class="room-action-buttons"
                                 >
-                                    Delete
-                                </button>
 
-                            </div>
+                                    <button
+                                        type="button"
+                                        class="room-action-btn"
+                                        data-edit-room="${escapeHtml(
+                                            room.id
+                                        )}"
+                                    >
+                                        Edit
+                                    </button>
 
-                        </td>
+                                    <button
+                                        type="button"
+                                        class="room-action-btn room-delete-btn"
+                                        data-delete-room="${escapeHtml(
+                                            room.id
+                                        )}"
+                                    >
+                                        Delete
+                                    </button>
 
-                    </tr>
-                `;
+                                </div>
 
-            }).join("");
+                            </td>
+
+                        </tr>
+                    `;
+
+                })
+                .join("");
 
 
         attachRoomActionEvents();
+
     }
 
 
     /* =====================================================
-       ROOM ACTION BUTTONS
+       GET ROOM TYPE NAME
+       ===================================================== */
+
+    function getRoomTypeName(roomTypeId) {
+
+        const type =
+            roomTypes.find(
+                item =>
+                    Number(item.id) ===
+                    Number(roomTypeId)
+            );
+
+
+        return type
+            ? type.name || ""
+            : "";
+
+    }
+
+
+    /* =====================================================
+       ROOM ACTION EVENTS
        ===================================================== */
 
     function attachRoomActionEvents() {
@@ -929,7 +1182,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         const room =
                             rooms.find(
                                 item =>
-                                    Number(item.id) === id
+                                    Number(item.id) ===
+                                    id
                             );
 
 
@@ -978,6 +1232,11 @@ document.addEventListener("DOMContentLoaded", () => {
         excludeId = null
     ) {
 
+        if (!currentHotelId) {
+            return false;
+        }
+
+
         let query =
             supabase
                 .from("rooms")
@@ -999,6 +1258,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     "id",
                     Number(excludeId)
                 );
+
         }
 
 
@@ -1013,10 +1273,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        return (
+        return Boolean(
             data &&
             data.length > 0
         );
+
     }
 
 
@@ -1025,6 +1286,11 @@ document.addEventListener("DOMContentLoaded", () => {
        ===================================================== */
 
     async function saveRoom() {
+
+        if (isSaving) {
+            return;
+        }
+
 
         if (!currentHotelId) {
 
@@ -1056,13 +1322,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const floorValue =
             roomFloorInput
-                ? roomFloorInput.value
+                ? roomFloorInput.value.trim()
                 : "";
 
 
         const priceValue =
             roomPriceInput
-                ? roomPriceInput.value
+                ? roomPriceInput.value.trim()
                 : "";
 
 
@@ -1078,9 +1344,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 : "";
 
 
-        /* -----------------------------------------
+        /* =================================================
            VALIDATION
-        ----------------------------------------- */
+           ================================================= */
 
         if (!roomNumber) {
 
@@ -1157,25 +1423,59 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        /* -----------------------------------------
-           BUTTON STATE
-        ----------------------------------------- */
+        /* =================================================
+           PROTECT OCCUPIED ROOM
+           ================================================= */
+
+        if (
+            id &&
+            status === "AVAILABLE"
+        ) {
+
+            const currentRoom =
+                rooms.find(
+                    room =>
+                        Number(room.id) ===
+                        Number(id)
+                );
+
+
+            if (
+                currentRoom &&
+                currentRoom.status ===
+                    "OCCUPIED"
+            ) {
+
+                alert(
+                    "This room is currently occupied. Complete the stay/check-out before changing it to Available."
+                );
+
+                return;
+            }
+
+        }
+
+
+        isSaving = true;
+
 
         if (saveRoomButton) {
 
             saveRoomButton.disabled =
                 true;
 
+
             saveRoomButton.textContent =
                 "Saving...";
+
         }
 
 
         try {
 
-            /* -------------------------------------
+            /* =================================================
                DUPLICATE CHECK
-            ------------------------------------- */
+               ================================================= */
 
             const exists =
                 await roomNumberExists(
@@ -1194,9 +1494,31 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
 
-            /* -------------------------------------
+            /* =================================================
+               VERIFY ROOM TYPE
+               ================================================= */
+
+            const selectedRoomType =
+                roomTypes.find(
+                    type =>
+                        Number(type.id) ===
+                        Number(roomTypeId)
+                );
+
+
+            if (!selectedRoomType) {
+
+                alert(
+                    "Selected room type is not valid."
+                );
+
+                return;
+            }
+
+
+            /* =================================================
                ROOM DATA
-            ------------------------------------- */
+               ================================================= */
 
             const roomData = {
 
@@ -1227,9 +1549,9 @@ document.addEventListener("DOMContentLoaded", () => {
             let error = null;
 
 
-            /* -------------------------------------
+            /* =================================================
                UPDATE
-            ------------------------------------- */
+               ================================================= */
 
             if (id) {
 
@@ -1252,9 +1574,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             }
 
-            /* -------------------------------------
+
+            /* =================================================
                INSERT
-            ------------------------------------- */
+               ================================================= */
 
             else {
 
@@ -1268,6 +1591,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 error =
                     result.error;
+
             }
 
 
@@ -1298,6 +1622,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             if (
+                error &&
                 error.code === "23505"
             ) {
 
@@ -1308,43 +1633,55 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
 
                 alert(
-                    error.message ||
+                    error?.message ||
                     "Unable to save room."
                 );
+
             }
 
         } finally {
+
+            isSaving = false;
+
 
             if (saveRoomButton) {
 
                 saveRoomButton.disabled =
                     false;
 
+
                 saveRoomButton.textContent =
                     "Save Room";
+
             }
+
         }
+
     }
 
 
     /* =====================================================
-       CHECK ROOM BOOKING HISTORY
+       GET ROOM HISTORY
        ===================================================== */
 
     async function getRoomHistory(roomId) {
 
-        if (!currentHotelId || !roomId) {
+        if (
+            !currentHotelId ||
+            !roomId
+        ) {
 
             return {
                 bookings: [],
                 stays: []
             };
+
         }
 
 
-        /* ---------------------------------------------
-           CHECK BOOKINGS
-        --------------------------------------------- */
+        /* =================================================
+           BOOKINGS
+           ================================================= */
 
         const {
             data: bookings,
@@ -1370,13 +1707,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         if (bookingsError) {
+
+            /*
+             * If bookings table exists but there
+             * is an error, don't silently allow
+             * deletion.
+             */
+
             throw bookingsError;
         }
 
 
-        /* ---------------------------------------------
-           CHECK STAYS
-        --------------------------------------------- */
+        /* =================================================
+           STAYS
+           ================================================= */
 
         const {
             data: stays,
@@ -1403,12 +1747,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /*
-         * If the stays table is not yet available,
-         * don't stop the normal room page from working.
-         *
-         * However, if the error is something other
-         * than a missing table/schema situation,
-         * throw it so we know about it.
+         * Stays may not exist in some older
+         * installations.
          */
 
         if (staysError) {
@@ -1418,17 +1758,27 @@ document.addEventListener("DOMContentLoaded", () => {
                 staysError
             );
 
+
             return {
-                bookings: bookings || [],
+                bookings:
+                    bookings || [],
+
                 stays: []
             };
+
         }
 
 
         return {
-            bookings: bookings || [],
-            stays: stays || []
+
+            bookings:
+                bookings || [],
+
+            stays:
+                stays || []
+
         };
+
     }
 
 
@@ -1441,7 +1791,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const room =
             rooms.find(
                 item =>
-                    Number(item.id) === Number(id)
+                    Number(item.id) ===
+                    Number(id)
             );
 
 
@@ -1449,10 +1800,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-
-        /* ---------------------------------------------
-           CHECK CURRENT HOTEL
-        --------------------------------------------- */
 
         if (!currentHotelId) {
 
@@ -1464,11 +1811,31 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
+        /* =================================================
+           DO NOT DELETE ACTIVE ROOMS
+           ================================================= */
+
+        if (
+            [
+                "OCCUPIED",
+                "RESERVED",
+                "CLEANING"
+            ].includes(room.status)
+        ) {
+
+            alert(
+                `Room ${room.room_number} cannot be deleted while its status is ${formatStatus(room.status)}.`
+            );
+
+            return;
+        }
+
+
         try {
 
-            /* -----------------------------------------
-               CHECK ROOM HISTORY FIRST
-            ----------------------------------------- */
+            /* =================================================
+               CHECK HISTORY
+               ================================================= */
 
             const history =
                 await getRoomHistory(id);
@@ -1481,10 +1848,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const stayCount =
                 history.stays.length;
 
-
-            /* -----------------------------------------
-               HAS HISTORY
-            ----------------------------------------- */
 
             if (
                 bookingCount > 0 ||
@@ -1499,6 +1862,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     message +=
                         `This room has ${bookingCount} existing booking${bookingCount === 1 ? "" : "s"}.\n`;
+
                 }
 
 
@@ -1506,22 +1870,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     message +=
                         `This room has ${stayCount} existing stay${stayCount === 1 ? "" : "s"}.\n`;
+
                 }
 
 
                 message +=
-                    `\nThe room record is kept so that booking, stay, restaurant and billing history remains valid.`;
+                    "\nThe room record is kept so booking, stay, restaurant and billing history remains valid.";
 
 
                 alert(message);
+
 
                 return;
             }
 
 
-            /* -----------------------------------------
-               CONFIRM DELETE
-            ----------------------------------------- */
+            /* =================================================
+               CONFIRM
+               ================================================= */
 
             const confirmed =
                 confirm(
@@ -1534,9 +1900,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
 
-            /* -----------------------------------------
+            /* =================================================
                DELETE
-            ----------------------------------------- */
+               ================================================= */
 
             const {
                 error
@@ -1556,19 +1922,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (error) {
 
-                /*
-                 * PostgreSQL foreign-key protection.
-                 * This is an additional safety net in case
-                 * history was created between our check
-                 * and the delete request.
-                 */
-
                 if (
                     error.code === "23503"
                 ) {
 
                     alert(
-                        `Room ${room.room_number} cannot be deleted because it is already linked to booking or stay history.`
+                        `Room ${room.room_number} cannot be deleted because it is linked to booking, stay, billing or other history.`
                     );
 
                     return;
@@ -1576,6 +1935,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                 throw error;
+
             }
 
 
@@ -1597,10 +1957,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             alert(
-                error.message ||
+                error?.message ||
                 "Unable to delete room."
             );
+
         }
+
     }
 
 
@@ -1608,7 +1970,9 @@ document.addEventListener("DOMContentLoaded", () => {
        EVENT LISTENERS
        ===================================================== */
 
-    /* ADD ROOM */
+    /* =====================================================
+       ADD ROOM
+       ===================================================== */
 
     if (addRoomButton) {
 
@@ -1624,12 +1988,15 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
 
         console.warn(
-            "ROOMS.JS: addRoomButton not found."
+            "ROOMS.JS: addRoomBtn not found."
         );
+
     }
 
 
-    /* CLOSE */
+    /* =====================================================
+       CLOSE DRAWER
+       ===================================================== */
 
     if (closeRoomDrawer) {
 
@@ -1637,10 +2004,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "click",
             closeDrawer
         );
+
     }
 
 
-    /* CANCEL */
+    /* =====================================================
+       CANCEL
+       ===================================================== */
 
     if (cancelRoomButton) {
 
@@ -1648,10 +2018,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "click",
             closeDrawer
         );
+
     }
 
 
-    /* OVERLAY */
+    /* =====================================================
+       OVERLAY
+       ===================================================== */
 
     if (roomDrawerOverlay) {
 
@@ -1659,10 +2032,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "click",
             closeDrawer
         );
+
     }
 
 
-    /* SAVE */
+    /* =====================================================
+       SAVE
+       ===================================================== */
 
     if (saveRoomButton) {
 
@@ -1670,10 +2046,37 @@ document.addEventListener("DOMContentLoaded", () => {
             "click",
             saveRoom
         );
+
     }
 
 
-    /* SEARCH */
+    /* =====================================================
+       FORM SUBMIT
+       ===================================================== */
+
+    const roomForm =
+        document.getElementById("roomForm");
+
+
+    if (roomForm) {
+
+        roomForm.addEventListener(
+            "submit",
+            event => {
+
+                event.preventDefault();
+
+                saveRoom();
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       SEARCH
+       ===================================================== */
 
     if (roomSearch) {
 
@@ -1681,10 +2084,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "input",
             renderRooms
         );
+
     }
 
 
-    /* STATUS FILTER */
+    /* =====================================================
+       STATUS FILTER
+       ===================================================== */
 
     if (roomStatusFilter) {
 
@@ -1692,10 +2098,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "change",
             renderRooms
         );
+
     }
 
 
-    /* ROOM TYPE FILTER */
+    /* =====================================================
+       ROOM TYPE FILTER
+       ===================================================== */
 
     if (roomTypeFilter) {
 
@@ -1703,10 +2112,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "change",
             renderRooms
         );
+
     }
 
 
-    /* ROOM TYPE CHANGE */
+    /* =====================================================
+       ROOM TYPE CHANGE
+       ===================================================== */
 
     if (roomTypeSelect) {
 
@@ -1714,10 +2126,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "change",
             updatePriceFromRoomType
         );
+
     }
 
 
-    /* ESCAPE KEY */
+    /* =====================================================
+       ESCAPE
+       ===================================================== */
 
     document.addEventListener(
         "keydown",
@@ -1730,6 +2145,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ) {
 
                 closeDrawer();
+
             }
 
         }
@@ -1795,6 +2211,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(
             "✓ ROOMS.JS INITIALIZED"
         );
+
     }
 
 
@@ -1817,10 +2234,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         if (element) {
-
             element.textContent =
                 value;
         }
+
     }
 
 
@@ -1851,6 +2268,7 @@ document.addEventListener("DOMContentLoaded", () => {
             status ||
             "Unknown"
         );
+
     }
 
 
@@ -1862,35 +2280,32 @@ document.addEventListener("DOMContentLoaded", () => {
         ) {
 
             return "";
+
         }
 
 
         return String(value)
-
             .replace(
                 /&/g,
                 "&amp;"
             )
-
             .replace(
                 /</g,
                 "&lt;"
             )
-
             .replace(
                 />/g,
                 "&gt;"
             )
-
             .replace(
                 /"/g,
                 "&quot;"
             )
-
             .replace(
                 /'/g,
                 "&#039;"
             );
+
     }
 
 
@@ -1902,6 +2317,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(
             `[ROOMS ${type}] ${message}`
         );
+
     }
 
 });

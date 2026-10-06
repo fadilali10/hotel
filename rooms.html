@@ -1,0 +1,2756 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Rooms - Hotels</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+
+        /* =====================================================
+           STAR HOTELS - ROOMS PAGE
+           ===================================================== */
+
+        :root {
+
+            --primary: #6d4aff;
+            --primary-dark: #5436d6;
+            --primary-light: #eeeaff;
+
+            --dark: #17151f;
+            --dark-2: #24212f;
+            --dark-3: #312d3e;
+
+            --text: #24212f;
+            --text-light: #747181;
+            --muted: #96929f;
+
+            --white: #ffffff;
+            --background: #f7f7fb;
+
+            --border: #e9e7ef;
+
+            --green: #21a366;
+            --blue: #3d7eff;
+            --orange: #f59e0b;
+            --red: #ef4444;
+
+            --shadow:
+                0 4px 20px rgba(20, 15, 40, 0.06);
+
+            --shadow-large:
+                0 15px 50px rgba(20, 15, 40, 0.16);
+
+        }
+
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+
+            font-family: "Inter", sans-serif;
+
+            background: var(--background);
+
+            color: var(--text);
+
+            font-size: 14px;
+
+            min-height: 100vh;
+
+        }
+
+
+        button,
+        input,
+        select,
+        textarea {
+
+            font-family: inherit;
+
+        }
+
+
+        button {
+            cursor: pointer;
+        }
+
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+
+        /* =====================================================
+           APP
+           ===================================================== */
+
+        .app {
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+           ===================================================== */
+
+        .sidebar {
+
+            position: fixed;
+
+            left: 0;
+            top: 0;
+            bottom: 0;
+
+            width: 255px;
+
+            background: var(--dark);
+
+            color: #ffffff;
+
+            display: flex;
+
+            flex-direction: column;
+
+            z-index: 1000;
+
+            overflow-y: auto;
+
+        }
+
+
+        .logo {
+
+            height: 76px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 0 22px;
+
+            border-bottom:
+                1px solid rgba(255,255,255,0.07);
+
+        }
+
+
+        .logo-icon {
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 10px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            background: var(--primary);
+
+            color: #ffffff;
+
+            font-size: 20px;
+
+        }
+
+
+        .logo-text {
+
+            display: flex;
+
+            flex-direction: column;
+
+            line-height: 1.1;
+
+        }
+
+
+        .logo-text strong {
+
+            font-size: 16px;
+
+            letter-spacing: 1px;
+
+        }
+
+
+        .logo-text span {
+
+            font-size: 9px;
+
+            letter-spacing: 2px;
+
+            color: #a9a5b3;
+
+            margin-top: 3px;
+
+        }
+
+
+        .sidebar-nav {
+
+            padding: 20px 12px;
+
+            flex: 1;
+
+        }
+
+
+        .menu-title {
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            letter-spacing: 1.4px;
+
+            color: #777280;
+
+            padding: 15px 12px 8px;
+
+        }
+
+
+        .nav-item {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            min-height: 42px;
+
+            padding: 0 13px;
+
+            border-radius: 8px;
+
+            color: #b8b4c2;
+
+            font-size: 12px;
+
+            font-weight: 500;
+
+            margin-bottom: 3px;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease;
+
+        }
+
+
+        .nav-item:hover {
+
+            background: rgba(255,255,255,0.06);
+
+            color: #ffffff;
+
+        }
+
+
+        .nav-item.active {
+
+            background: var(--primary);
+
+            color: #ffffff;
+
+        }
+
+
+        .nav-icon {
+
+            width: 22px;
+
+            text-align: center;
+
+            font-size: 15px;
+
+            opacity: 0.95;
+
+        }
+
+
+        .sidebar-footer {
+
+            padding: 15px;
+
+            border-top:
+                1px solid rgba(255,255,255,0.07);
+
+        }
+
+
+        .hotel-status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 10px;
+
+            background:
+                rgba(255,255,255,0.04);
+
+            border-radius: 8px;
+
+        }
+
+
+        .status-dot {
+
+            width: 8px;
+            height: 8px;
+
+            background: #21a366;
+
+            border-radius: 50%;
+
+            box-shadow:
+                0 0 0 4px rgba(33,163,102,0.12);
+
+        }
+
+
+        .hotel-status div {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 2px;
+
+        }
+
+
+        .hotel-status strong {
+
+            font-size: 10px;
+
+            color: #ffffff;
+
+        }
+
+
+        .hotel-status small {
+
+            font-size: 8px;
+
+            color: #85818f;
+
+        }
+
+
+        /* =====================================================
+           MAIN
+           ===================================================== */
+
+        .main {
+
+            margin-left: 255px;
+
+            min-height: 100vh;
+
+        }
+
+
+        /* =====================================================
+           TOPBAR
+           ===================================================== */
+
+        .topbar {
+
+            height: 76px;
+
+            background: #ffffff;
+
+            border-bottom:
+                1px solid var(--border);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 30px;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 100;
+
+        }
+
+
+        .topbar-left {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+
+        }
+
+
+        .topbar-left h1 {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            margin-bottom: 3px;
+
+        }
+
+
+        .topbar-left p {
+
+            font-size: 11px;
+
+            color: var(--text-light);
+
+        }
+
+
+        .topbar-right {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 15px;
+
+        }
+
+
+        .sidebar-link {
+
+            width: 36px;
+            height: 36px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 8px;
+
+            color: var(--text-light);
+
+            transition: 0.2s;
+
+        }
+
+
+        .sidebar-link:hover {
+
+            background: var(--primary-light);
+
+            color: var(--primary);
+
+        }
+
+
+        .user-profile {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 4px 8px;
+
+            border-radius: 8px;
+
+        }
+
+
+        .user-profile:hover {
+
+            background: #f6f5fa;
+
+        }
+
+
+        .avatar {
+
+            width: 34px;
+            height: 34px;
+
+            border-radius: 50%;
+
+            background: var(--primary);
+
+            color: #ffffff;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+        }
+
+
+        .user-info {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 2px;
+
+        }
+
+
+        .user-info strong {
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+        }
+
+
+        .user-info span {
+
+            font-size: 9px;
+
+            color: var(--muted);
+
+        }
+
+
+        .mobile-menu {
+
+            display: none;
+
+            border: 0;
+
+            background: transparent;
+
+            font-size: 22px;
+
+            color: var(--text);
+
+            padding: 5px;
+
+        }
+
+
+        /* =====================================================
+           CONTENT
+           ===================================================== */
+
+        .content {
+
+            padding: 30px;
+
+        }
+
+
+        .section-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .section-header h2 {
+
+            font-size: 20px;
+
+            font-weight: 700;
+
+            margin-bottom: 4px;
+
+        }
+
+
+        .section-header p {
+
+            font-size: 11px;
+
+            color: var(--text-light);
+
+        }
+
+
+        /* =====================================================
+           BUTTONS
+           ===================================================== */
+
+        .primary-btn {
+
+            border: none;
+
+            background: var(--primary);
+
+            color: #ffffff;
+
+            min-height: 40px;
+
+            padding: 0 17px;
+
+            border-radius: 8px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            transition: 0.2s;
+
+            box-shadow:
+                0 4px 10px rgba(109,74,255,0.20);
+
+        }
+
+
+        .primary-btn:hover {
+
+            background: var(--primary-dark);
+
+            transform: translateY(-1px);
+
+        }
+
+
+        .primary-btn:disabled {
+
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+        }
+
+
+        .secondary-btn {
+
+            min-height: 40px;
+
+            padding: 0 16px;
+
+            border: 1px solid var(--border);
+
+            background: #ffffff;
+
+            color: var(--text);
+
+            border-radius: 8px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+        }
+
+
+        .secondary-btn:hover {
+
+            background: #f7f6fa;
+
+        }
+
+
+        /* =====================================================
+           STATS
+           ===================================================== */
+
+        .stats-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 15px;
+
+            margin-bottom: 22px;
+
+        }
+
+
+        .stat-card {
+
+            background: #ffffff;
+
+            border: 1px solid var(--border);
+
+            border-radius: 10px;
+
+            min-height: 92px;
+
+            padding: 17px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            box-shadow: var(--shadow);
+
+        }
+
+
+        .stat-icon {
+
+            width: 42px;
+            height: 42px;
+
+            border-radius: 9px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 17px;
+
+            font-weight: 700;
+
+        }
+
+
+        .stat-icon.blue {
+
+            background: #edf3ff;
+
+            color: var(--blue);
+
+        }
+
+
+        .stat-icon.green {
+
+            background: #eaf8f0;
+
+            color: var(--green);
+
+        }
+
+
+        .stat-icon.orange {
+
+            background: #fff6e5;
+
+            color: var(--orange);
+
+        }
+
+
+        .stat-icon.red {
+
+            background: #ffeded;
+
+            color: var(--red);
+
+        }
+
+
+        .stat-content {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 5px;
+
+        }
+
+
+        .stat-content span {
+
+            color: var(--text-light);
+
+            font-size: 10px;
+
+            font-weight: 500;
+
+        }
+
+
+        .stat-content strong {
+
+            font-size: 21px;
+
+            line-height: 1;
+
+        }
+
+
+        /* =====================================================
+           TABLE CARD
+           ===================================================== */
+
+        .table-card {
+
+            background: #ffffff;
+
+            border: 1px solid var(--border);
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            box-shadow: var(--shadow);
+
+        }
+
+
+        .table-toolbar {
+
+            padding: 17px 20px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            border-bottom:
+                1px solid var(--border);
+
+        }
+
+
+        .search-input {
+
+            flex: 1;
+
+            min-width: 180px;
+
+            height: 40px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 8px;
+
+            padding: 0 13px;
+
+            outline: none;
+
+            color: var(--text);
+
+            background: #ffffff;
+
+            font-size: 12px;
+
+        }
+
+
+        .search-input:focus {
+
+            border-color: var(--primary);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(109,74,255,0.08);
+
+        }
+
+
+        .filter-select {
+
+            min-width: 160px;
+
+            height: 40px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 8px;
+
+            padding: 0 12px;
+
+            background: #ffffff;
+
+            color: var(--text);
+
+            outline: none;
+
+            font-size: 11px;
+
+        }
+
+
+        .filter-select:focus {
+
+            border-color: var(--primary);
+
+        }
+
+
+        .table-responsive {
+
+            width: 100%;
+
+            overflow-x: auto;
+
+        }
+
+
+        .data-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 760px;
+
+        }
+
+
+        .data-table th {
+
+            text-align: left;
+
+            padding: 13px 20px;
+
+            background: #fafafd;
+
+            border-bottom:
+                1px solid var(--border);
+
+            color: var(--text-light);
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.7px;
+
+        }
+
+
+        .data-table td {
+
+            padding: 15px 20px;
+
+            border-bottom:
+                1px solid #f0eef4;
+
+            font-size: 11px;
+
+            color: var(--text-light);
+
+            vertical-align: middle;
+
+        }
+
+
+        .data-table tbody tr {
+
+            transition: background 0.15s;
+
+        }
+
+
+        .data-table tbody tr:hover {
+
+            background: #fbfaff;
+
+        }
+
+
+        .data-table tbody tr:last-child td {
+
+            border-bottom: none;
+
+        }
+
+
+        .data-table td strong {
+
+            color: var(--text);
+
+            font-size: 12px;
+
+        }
+
+
+        .empty-table {
+
+            text-align: center;
+
+            padding: 45px 20px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+        }
+
+
+        .room-empty {
+
+            text-align: center;
+
+            padding: 45px 20px !important;
+
+            color: var(--muted) !important;
+
+            font-size: 12px !important;
+
+        }
+
+
+        /* =====================================================
+           ROOM STATUS
+           ===================================================== */
+
+        .room-status {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            min-height: 25px;
+
+            padding: 0 9px;
+
+            border-radius: 20px;
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+        }
+
+
+        .room-status.available {
+
+            color: #16814b;
+
+            background: #e8f8ef;
+
+        }
+
+
+        .room-status.reserved {
+
+            color: #a56a00;
+
+            background: #fff4da;
+
+        }
+
+
+        .room-status.occupied {
+
+            color: #b42318;
+
+            background: #ffebeb;
+
+        }
+
+
+        .room-status.cleaning {
+
+            color: #6b4bd9;
+
+            background: #f0ebff;
+
+        }
+
+
+        .room-status.maintenance {
+
+            color: #b42318;
+
+            background: #ffe9e9;
+
+        }
+
+
+        .room-status.unknown {
+
+            color: #666;
+
+            background: #eeeeee;
+
+        }
+
+
+        /* =====================================================
+           ROOM ACTION BUTTONS
+           ===================================================== */
+
+        .room-action-buttons {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+        }
+
+
+        .room-action-btn {
+
+            border: 1px solid var(--border);
+
+            background: #ffffff;
+
+            color: var(--text-light);
+
+            border-radius: 6px;
+
+            padding: 6px 9px;
+
+            font-size: 9px;
+
+            font-weight: 600;
+
+            transition: 0.2s;
+
+        }
+
+
+        .room-action-btn:hover {
+
+            color: var(--primary);
+
+            border-color: #d6ceff;
+
+            background: var(--primary-light);
+
+        }
+
+
+        .room-delete-btn:hover {
+
+            color: var(--red);
+
+            border-color: #ffd0d0;
+
+            background: #fff3f3;
+
+        }
+
+
+        /* =====================================================
+           DRAWER OVERLAY
+           ===================================================== */
+
+        .drawer-overlay {
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(15, 12, 25, 0.45);
+
+            z-index: 1100;
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transition:
+                opacity 0.25s ease,
+                visibility 0.25s ease;
+
+        }
+
+
+        .drawer-overlay.show {
+
+            opacity: 1;
+
+            visibility: visible;
+
+        }
+
+
+        /* =====================================================
+           ROOM DRAWER
+           ===================================================== */
+
+        .room-drawer {
+
+            position: fixed;
+
+            top: 0;
+
+            right: 0;
+
+            bottom: 0;
+
+            width: 460px;
+
+            max-width: 100%;
+
+            background: #ffffff;
+
+            z-index: 1200;
+
+            box-shadow:
+                -10px 0 40px
+                rgba(20,15,40,0.14);
+
+            transform: translateX(100%);
+
+            transition:
+                transform 0.28s ease;
+
+            display: flex;
+
+            flex-direction: column;
+
+        }
+
+
+        .room-drawer.show {
+
+            transform: translateX(0);
+
+        }
+
+
+        .room-drawer-header {
+
+            min-height: 72px;
+
+            padding: 0 24px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            border-bottom:
+                1px solid var(--border);
+
+            flex-shrink: 0;
+
+        }
+
+
+        .room-drawer-title {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 4px;
+
+        }
+
+
+        .room-drawer-title h3 {
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+        }
+
+
+        .room-drawer-title p {
+
+            font-size: 10px;
+
+            color: var(--text-light);
+
+        }
+
+
+        .close-drawer {
+
+            width: 34px;
+            height: 34px;
+
+            border: none;
+
+            background: #f5f4f8;
+
+            border-radius: 8px;
+
+            color: var(--text-light);
+
+            font-size: 18px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+        }
+
+
+        .close-drawer:hover {
+
+            background: #eceaf0;
+
+            color: var(--text);
+
+        }
+
+
+        .room-drawer-body {
+
+            flex: 1;
+
+            overflow-y: auto;
+
+            padding: 24px;
+
+        }
+
+
+        /* =====================================================
+           FORM
+           ===================================================== */
+
+        .form-group {
+
+            margin-bottom: 17px;
+
+        }
+
+
+        .form-label {
+
+            display: block;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+            color: var(--text);
+
+            margin-bottom: 7px;
+
+        }
+
+
+        .form-label span {
+
+            color: var(--red);
+
+        }
+
+
+        .form-control {
+
+            width: 100%;
+
+            height: 42px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 8px;
+
+            background: #ffffff;
+
+            color: var(--text);
+
+            outline: none;
+
+            padding: 0 12px;
+
+            font-size: 11px;
+
+            transition: 0.2s;
+
+        }
+
+
+        textarea.form-control {
+
+            height: 90px;
+
+            padding-top: 11px;
+
+            padding-bottom: 11px;
+
+            resize: vertical;
+
+        }
+
+
+        .form-control:focus {
+
+            border-color: var(--primary);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(109,74,255,0.08);
+
+        }
+
+
+        .form-control::placeholder {
+
+            color: #aaa6b3;
+
+        }
+
+
+        .form-help {
+
+            font-size: 9px;
+
+            color: var(--muted);
+
+            margin-top: 5px;
+
+            line-height: 1.5;
+
+        }
+
+
+        .form-row {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 12px;
+
+        }
+
+
+        /* =====================================================
+           DRAWER FOOTER
+           ===================================================== */
+
+        .room-drawer-footer {
+
+            min-height: 72px;
+
+            padding: 14px 24px;
+
+            border-top:
+                1px solid var(--border);
+
+            display: flex;
+
+            justify-content: flex-end;
+
+            align-items: center;
+
+            gap: 10px;
+
+            flex-shrink: 0;
+
+            background: #ffffff;
+
+        }
+
+
+        .cancel-btn {
+
+            height: 40px;
+
+            padding: 0 16px;
+
+            border-radius: 8px;
+
+            border: 1px solid var(--border);
+
+            background: #ffffff;
+
+            color: var(--text);
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+        }
+
+
+        .cancel-btn:hover {
+
+            background: #f7f6fa;
+
+        }
+
+
+        .save-btn {
+
+            height: 40px;
+
+            padding: 0 18px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: var(--primary);
+
+            color: #ffffff;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+        }
+
+
+        .save-btn:hover {
+
+            background: var(--primary-dark);
+
+        }
+
+
+        .save-btn:disabled {
+
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+        }
+
+
+        /* =====================================================
+           SIDEBAR MOBILE BACKDROP
+           ===================================================== */
+
+        .sidebar-backdrop {
+
+            display: none;
+
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        @media (max-width: 1200px) {
+
+            .stats-grid {
+
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+
+            }
+
+        }
+
+
+        @media (max-width: 992px) {
+
+            .sidebar {
+
+                transform:
+                    translateX(-100%);
+
+                transition:
+                    transform 0.25s ease;
+
+            }
+
+
+            .sidebar.show {
+
+                transform:
+                    translateX(0);
+
+            }
+
+
+            .main {
+
+                margin-left: 0;
+
+            }
+
+
+            .mobile-menu {
+
+                display: block;
+
+            }
+
+
+            .topbar {
+
+                padding:
+                    0 20px;
+
+            }
+
+
+            .content {
+
+                padding:
+                    22px 20px;
+
+            }
+
+        }
+
+
+        @media (max-width: 768px) {
+
+            .topbar {
+
+                height: 68px;
+
+            }
+
+
+            .topbar-left h1 {
+
+                font-size: 16px;
+
+            }
+
+
+            .topbar-left p {
+
+                display: none;
+
+            }
+
+
+            .user-info {
+
+                display: none;
+
+            }
+
+
+            .section-header {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+
+            }
+
+
+            .section-header .primary-btn {
+
+                width: 100%;
+
+            }
+
+
+            .stats-grid {
+
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+
+                gap: 10px;
+
+            }
+
+
+            .stat-card {
+
+                padding: 13px;
+
+            }
+
+
+            .stat-icon {
+
+                width: 36px;
+                height: 36px;
+
+                font-size: 14px;
+
+            }
+
+
+            .stat-content strong {
+
+                font-size: 18px;
+
+            }
+
+
+            .table-toolbar {
+
+                flex-direction: column;
+
+                align-items: stretch;
+
+            }
+
+
+            .search-input,
+            .filter-select {
+
+                width: 100%;
+
+            }
+
+
+            .room-drawer {
+
+                width: 100%;
+
+            }
+
+        }
+
+
+        @media (max-width: 480px) {
+
+            .content {
+
+                padding: 18px 13px;
+
+            }
+
+
+            .topbar {
+
+                padding: 0 13px;
+
+            }
+
+
+            .topbar-right {
+
+                gap: 4px;
+
+            }
+
+
+            .sidebar-link {
+
+                display: none;
+
+            }
+
+
+            .stats-grid {
+
+                grid-template-columns:
+                    1fr 1fr;
+
+            }
+
+
+            .stat-card {
+
+                min-height: 80px;
+
+                padding: 10px;
+
+                gap: 8px;
+
+            }
+
+
+            .stat-icon {
+
+                width: 32px;
+                height: 32px;
+
+                font-size: 12px;
+
+            }
+
+
+            .stat-content span {
+
+                font-size: 8px;
+
+            }
+
+
+            .stat-content strong {
+
+                font-size: 16px;
+
+            }
+
+
+            .room-drawer-header {
+
+                padding:
+                    0 17px;
+
+            }
+
+
+            .room-drawer-body {
+
+                padding:
+                    18px;
+
+            }
+
+
+            .room-drawer-footer {
+
+                padding:
+                    12px 18px;
+
+            }
+
+
+            .form-row {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           SCROLLBAR
+           ===================================================== */
+
+        ::-webkit-scrollbar {
+
+            width: 7px;
+            height: 7px;
+
+        }
+
+
+        ::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+
+        ::-webkit-scrollbar-thumb {
+
+            background: #d8d5df;
+
+            border-radius: 10px;
+
+        }
+
+
+        ::-webkit-scrollbar-thumb:hover {
+
+            background: #bbb7c5;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ★
+            </div>
+
+            <div class="logo-text">
+
+                <strong>HOTELS</strong>
+
+                <span></span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+
+            <a href="index.html" class="nav-item">
+
+                <span class="nav-icon">
+                    ▦
+                </span>
+
+                Dashboard
+
+            </a>
+
+
+            <a href="bookings.html" class="nav-item">
+
+                <span class="nav-icon">
+                    ▣
+                </span>
+
+                Bookings
+
+            </a>
+
+
+            <a href="guests.html" class="nav-item">
+
+                <span class="nav-icon">
+                    ♙
+                </span>
+
+                Guests
+
+            </a>
+
+
+            <a href="rooms.html" class="nav-item active">
+
+                <span class="nav-icon">
+                    ▤
+                </span>
+
+                Rooms
+
+            </a>
+
+
+            <a href="stays.html" class="nav-item">
+
+                <span class="nav-icon">
+                    ⌂
+                </span>
+
+                Check-in & Stays
+
+            </a>
+
+
+            <div class="menu-title">
+                SERVICES
+            </div>
+
+
+            <a href="restaurant.html" class="nav-item">
+
+                <span class="nav-icon">
+                    ♨
+                </span>
+
+                Restaurant
+
+            </a>
+
+
+            <a href="orders.html" class="nav-item">
+
+                <span class="nav-icon">
+                    ☷
+                </span>
+
+                Orders
+
+            </a>
+
+
+            <a href="billing.html" class="nav-item">
+
+                <span class="nav-icon">
+                    ▤
+                </span>
+
+                Billing
+
+            </a>
+
+
+            <a href="invoices.html" class="nav-item">
+
+                <span class="nav-icon">
+                    ▥
+                </span>
+
+                Invoices
+
+            </a>
+
+
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+
+            <a href="reports.html" class="nav-item">
+
+                <span class="nav-icon">
+                    ▥
+                </span>
+
+                Reports
+
+            </a>
+
+
+            <a href="settings.html" class="nav-item">
+
+                <span class="nav-icon">
+                    ⚙
+                </span>
+
+                Settings
+
+            </a>
+
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+
+            <div class="hotel-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+
+                    <strong>
+                        System Online
+                    </strong>
+
+                    <small>
+                        All services running
+                    </small>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="main">
+
+
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
+
+        <header class="topbar">
+
+
+            <div class="topbar-left">
+
+
+                <button
+                    id="mobileMenu"
+                    class="mobile-menu"
+                    type="button"
+                    aria-label="Open menu"
+                >
+                    ☰
+                </button>
+
+
+                <div>
+
+                    <h1>
+                        Rooms
+                    </h1>
+
+                    <p>
+                        Manage rooms and room types
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="topbar-right">
+
+
+                <a
+                    href="settings.html"
+                    class="sidebar-link"
+                    title="Settings"
+                >
+                    ⚙
+                </a>
+
+
+                <a
+                    href="settings.html"
+                    class="user-profile"
+                >
+
+
+                    <div
+                        class="avatar"
+                        id="topUserInitial"
+                    >
+                        U
+                    </div>
+
+
+                    <div class="user-info">
+
+                        <strong id="topUserName">
+                            User
+                        </strong>
+
+                        <span>
+                            Hotel Manager
+                        </span>
+
+                    </div>
+
+
+                </a>
+
+
+            </div>
+
+
+        </header>
+
+
+        <!-- =================================================
+             CONTENT
+             ================================================= -->
+
+        <section class="content">
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="section-header">
+
+
+                <div>
+
+                    <h2>
+                        Rooms
+                    </h2>
+
+                    <p>
+                        Manage your hotel rooms
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="addRoomBtn"
+                    class="primary-btn"
+                    type="button"
+                >
+                    + Add Room
+                </button>
+
+
+            </div>
+
+
+            <!-- =================================================
+                 ROOM SUMMARY
+                 ================================================= -->
+
+            <div class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon blue">
+                        🏨
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Total Rooms
+                        </span>
+
+                        <strong id="totalRooms">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon green">
+                        ✓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Available
+                        </span>
+
+                        <strong id="availableRooms">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon orange">
+                        ◷
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Occupied
+                        </span>
+
+                        <strong id="occupiedRooms">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon red">
+                        !
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Maintenance
+                        </span>
+
+                        <strong id="maintenanceRooms">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =================================================
+                 ROOM TABLE
+                 ================================================= -->
+
+            <div class="table-card">
+
+
+                <div class="table-toolbar">
+
+
+                    <input
+                        type="text"
+                        id="roomSearch"
+                        class="search-input"
+                        placeholder="Search room number or room type..."
+                        autocomplete="off"
+                    >
+
+
+                    <select
+                        id="roomStatusFilter"
+                        class="filter-select"
+                    >
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option value="AVAILABLE">
+                            Available
+                        </option>
+
+                        <option value="RESERVED">
+                            Reserved
+                        </option>
+
+                        <option value="OCCUPIED">
+                            Occupied
+                        </option>
+
+                        <option value="CLEANING">
+                            Cleaning
+                        </option>
+
+                        <option value="MAINTENANCE">
+                            Maintenance
+                        </option>
+
+                    </select>
+
+
+                    <select
+                        id="roomTypeFilter"
+                        class="filter-select"
+                    >
+
+                        <option value="ALL">
+                            All Room Types
+                        </option>
+
+                    </select>
+
+
+                </div>
+
+
+                <div class="table-responsive">
+
+
+                    <table class="data-table">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Room
+                                </th>
+
+                                <th>
+                                    Type
+                                </th>
+
+                                <th>
+                                    Floor
+                                </th>
+
+                                <th>
+                                    Price
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="roomsTableBody">
+
+
+                            <tr>
+
+                                <td colspan="6">
+
+                                    <div class="empty-table">
+                                        Loading rooms...
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+
+                        </tbody>
+
+
+                    </table>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+<!-- =========================================================
+     DRAWER OVERLAY
+     ========================================================= -->
+
+<div
+    id="roomDrawerOverlay"
+    class="drawer-overlay"
+></div>
+
+
+<!-- =========================================================
+     ROOM DRAWER
+     ========================================================= -->
+
+<aside
+    id="roomDrawer"
+    class="room-drawer"
+    aria-hidden="true"
+>
+
+
+    <!-- DRAWER HEADER -->
+
+    <div class="room-drawer-header">
+
+
+        <div class="room-drawer-title">
+
+            <h3 id="roomDrawerTitle">
+                Add Room
+            </h3>
+
+            <p>
+                Enter room information below
+            </p>
+
+        </div>
+
+
+        <button
+            id="closeRoomDrawer"
+            class="close-drawer"
+            type="button"
+            aria-label="Close"
+        >
+            ×
+        </button>
+
+
+    </div>
+
+
+    <!-- DRAWER BODY -->
+
+    <div class="room-drawer-body">
+
+
+        <form id="roomForm">
+
+
+            <!-- Hidden ID -->
+
+            <input
+                type="hidden"
+                id="roomId"
+            >
+
+
+            <!-- ROOM NUMBER -->
+
+            <div class="form-group">
+
+                <label
+                    class="form-label"
+                    for="roomNumber"
+                >
+                    Room Number
+                    <span>*</span>
+                </label>
+
+
+                <input
+                    type="text"
+                    id="roomNumber"
+                    class="form-control"
+                    placeholder="Example: 101"
+                    maxlength="30"
+                    autocomplete="off"
+                    required
+                >
+
+
+                <div class="form-help">
+                    Room number must be unique within your hotel.
+                </div>
+
+            </div>
+
+
+            <!-- ROOM TYPE -->
+
+            <div class="form-group">
+
+                <label
+                    class="form-label"
+                    for="roomType"
+                >
+                    Room Type
+                    <span>*</span>
+                </label>
+
+
+                <select
+                    id="roomType"
+                    class="form-control"
+                    required
+                >
+
+                    <option value="">
+                        Select room type
+                    </option>
+
+                </select>
+
+
+                <div class="form-help">
+                    Select the room type for this room.
+                </div>
+
+            </div>
+
+
+            <!-- FLOOR + PRICE -->
+
+            <div class="form-row">
+
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="roomFloor"
+                    >
+                        Floor
+                        <span>*</span>
+                    </label>
+
+
+                    <input
+                        type="number"
+                        id="roomFloor"
+                        class="form-control"
+                        value="1"
+                        min="0"
+                        step="1"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="roomPrice"
+                    >
+                        Price / Night
+                        <span>*</span>
+                    </label>
+
+
+                    <input
+                        type="number"
+                        id="roomPrice"
+                        class="form-control"
+                        placeholder="0.00"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="form-group">
+
+                <label
+                    class="form-label"
+                    for="roomStatus"
+                >
+                    Room Status
+                    <span>*</span>
+                </label>
+
+
+                <select
+                    id="roomStatus"
+                    class="form-control"
+                    required
+                >
+
+                    <option value="AVAILABLE">
+                        Available
+                    </option>
+
+                    <option value="RESERVED">
+                        Reserved
+                    </option>
+
+                    <option value="OCCUPIED">
+                        Occupied
+                    </option>
+
+                    <option value="CLEANING">
+                        Cleaning
+                    </option>
+
+                    <option value="MAINTENANCE">
+                        Maintenance
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- NOTES -->
+
+            <div class="form-group">
+
+                <label
+                    class="form-label"
+                    for="roomNotes"
+                >
+                    Notes
+                </label>
+
+
+                <textarea
+                    id="roomNotes"
+                    class="form-control"
+                    placeholder="Optional notes about this room..."
+                    maxlength="1000"
+                ></textarea>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+    <!-- DRAWER FOOTER -->
+
+    <div class="room-drawer-footer">
+
+
+        <button
+            id="cancelRoomButton"
+            class="cancel-btn"
+            type="button"
+        >
+            Cancel
+        </button>
+
+
+        <button
+            id="saveRoomButton"
+            class="save-btn"
+            type="button"
+        >
+            Save Room
+        </button>
+
+
+    </div>
+
+
+</aside>
+
+
+<!-- =========================================================
+     SCRIPTS
+     ========================================================= -->
+
+<script src="./js/config.js"></script>
+
+<script src="./js/supabase.js"></script>
+
+<script src="./js/rooms.js"></script>
+
+
+</body>
+
+</html>

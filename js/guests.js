@@ -1,30 +1,36 @@
 /* =========================================================
-   HOTEL MANAGEMENT - GUEST MANAGEMENT
+   STAR HOTELS
+   Guest Management
+   Separate Page Module
    ========================================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+
+    "use strict";
 
     console.log("=================================");
-    console.log("GUESTS.JS STARTED");
+    console.log("STAR HOTELS - GUESTS.JS");
     console.log("=================================");
+
+
+    /* =====================================================
+       SUPABASE
+       ===================================================== */
 
     const supabase = window.supabaseClient;
 
     if (!supabase) {
-        console.error(
-            "GUESTS.JS: Supabase client not available."
+        console.error("Supabase client is not available.");
+        showPageMessage(
+            "Supabase connection is not available. Please refresh the page."
         );
         return;
     }
 
-    console.log(
-        "GUESTS.JS: Supabase client available"
-    );
-
 
     /* =====================================================
-       GLOBAL DATA
-    ===================================================== */
+       STATE
+       ===================================================== */
 
     let guests = [];
     let currentHotelId = null;
@@ -32,312 +38,151 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* =====================================================
        ELEMENTS
-    ===================================================== */
+       ===================================================== */
 
-    const addGuestButton =
-        document.getElementById("addGuestButton");
+    const sidebar = document.getElementById("sidebar");
+    const mobileMenu = document.getElementById("mobileMenu");
+    const sidebarBackdrop = document.getElementById("sidebarBackdrop");
 
-    const guestDrawer =
-        document.getElementById("guestDrawer");
+    const topUserName = document.getElementById("topUserName");
+    const topHotelName = document.getElementById("topHotelName");
+    const topUserInitial = document.getElementById("topUserInitial");
 
-    const guestDrawerOverlay =
-        document.getElementById("guestDrawerOverlay");
+    const addGuestBtn = document.getElementById("addGuestBtn");
+    const emptyAddGuestBtn = document.getElementById("emptyAddGuestBtn");
 
-    const closeGuestDrawer =
-        document.getElementById("closeGuestDrawer");
+    const guestSearch = document.getElementById("guestSearch");
+    const guestGenderFilter = document.getElementById("guestGenderFilter");
+    const clearGuestFilters = document.getElementById("clearGuestFilters");
 
-    const cancelGuestButton =
-        document.getElementById("cancelGuestButton");
+    const guestsTableBody = document.getElementById("guestsTableBody");
+    const guestResultCount = document.getElementById("guestResultCount");
+    const guestEmptyState = document.getElementById("guestEmptyState");
 
-    const saveGuestButton =
-        document.getElementById("saveGuestButton");
+    const guestDrawer = document.getElementById("guestDrawer");
+    const guestDrawerOverlay = document.getElementById("guestDrawerOverlay");
+    const closeGuestDrawer = document.getElementById("closeGuestDrawer");
+    const cancelGuestButton = document.getElementById("cancelGuestButton");
+    const saveGuestButton = document.getElementById("saveGuestButton");
 
-    const guestSearch =
-        document.getElementById("guestSearch");
+    const guestDrawerTitle = document.getElementById("guestDrawerTitle");
 
-    const guestGenderFilter =
-        document.getElementById("guestGenderFilter");
-
-    const guestsTableBody =
-        document.getElementById("guestsTableBody");
+    const guestId = document.getElementById("guestId");
+    const guestName = document.getElementById("guestName");
+    const guestPhone = document.getElementById("guestPhone");
+    const guestEmail = document.getElementById("guestEmail");
+    const guestGender = document.getElementById("guestGender");
+    const guestDateOfBirth = document.getElementById("guestDateOfBirth");
+    const guestIdType = document.getElementById("guestIdType");
+    const guestIdNumber = document.getElementById("guestIdNumber");
+    const guestNationality = document.getElementById("guestNationality");
+    const guestAddress = document.getElementById("guestAddress");
+    const guestCity = document.getElementById("guestCity");
+    const guestState = document.getElementById("guestState");
+    const guestCountry = document.getElementById("guestCountry");
+    const guestNotes = document.getElementById("guestNotes");
 
 
     /* =====================================================
-       OPEN GUEST DRAWER
-    ===================================================== */
+       PAGE MESSAGE
+       ===================================================== */
 
-    function openGuestDrawer(guest = null) {
+    function showPageMessage(message) {
 
-        console.log(
-            "OPEN GUEST DRAWER",
-            guest
-        );
-
-        if (!guestDrawer) {
-            console.error(
-                "#guestDrawer not found."
-            );
+        if (!guestsTableBody) {
             return;
         }
 
-        const title =
-            document.getElementById("guestDrawerTitle");
+        guestsTableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="guest-empty">
+                    ${escapeHtml(message)}
+                </td>
+            </tr>
+        `;
 
-        const guestId =
-            document.getElementById("guestId");
-
-        const guestName =
-            document.getElementById("guestName");
-
-        const guestPhone =
-            document.getElementById("guestPhone");
-
-        const guestEmail =
-            document.getElementById("guestEmail");
-
-        const guestGender =
-            document.getElementById("guestGender");
-
-        const guestDateOfBirth =
-            document.getElementById("guestDateOfBirth");
-
-        const guestIdType =
-            document.getElementById("guestIdType");
-
-        const guestIdNumber =
-            document.getElementById("guestIdNumber");
-
-        const guestNationality =
-            document.getElementById("guestNationality");
-
-        const guestAddress =
-            document.getElementById("guestAddress");
-
-        const guestCity =
-            document.getElementById("guestCity");
-
-        const guestState =
-            document.getElementById("guestState");
-
-        const guestCountry =
-            document.getElementById("guestCountry");
-
-        const guestNotes =
-            document.getElementById("guestNotes");
-
-
-        /* =================================================
-           ADD MODE
-        ================================================= */
-
-        if (!guest) {
-
-            if (title) {
-                title.textContent = "Add Guest";
-            }
-
-            if (guestId) {
-                guestId.value = "";
-            }
-
-            if (guestName) {
-                guestName.value = "";
-            }
-
-            if (guestPhone) {
-                guestPhone.value = "";
-            }
-
-            if (guestEmail) {
-                guestEmail.value = "";
-            }
-
-            if (guestGender) {
-                guestGender.value = "";
-            }
-
-            if (guestDateOfBirth) {
-                guestDateOfBirth.value = "";
-            }
-
-            if (guestIdType) {
-                guestIdType.value = "";
-            }
-
-            if (guestIdNumber) {
-                guestIdNumber.value = "";
-            }
-
-            if (guestNationality) {
-                guestNationality.value = "Indian";
-            }
-
-            if (guestAddress) {
-                guestAddress.value = "";
-            }
-
-            if (guestCity) {
-                guestCity.value = "";
-            }
-
-            if (guestState) {
-                guestState.value = "";
-            }
-
-            if (guestCountry) {
-                guestCountry.value = "India";
-            }
-
-            if (guestNotes) {
-                guestNotes.value = "";
-            }
-
+        if (guestResultCount) {
+            guestResultCount.textContent = "0 guests";
         }
 
-
-        /* =================================================
-           EDIT MODE
-        ================================================= */
-
-        else {
-
-            if (title) {
-                title.textContent = "Edit Guest";
-            }
-
-            if (guestId) {
-                guestId.value = guest.id;
-            }
-
-
-            let displayName =
-                guest.full_name || "";
-
-            if (!displayName) {
-
-                displayName =
-                    [
-                        guest.first_name,
-                        guest.last_name
-                    ]
-                    .filter(Boolean)
-                    .join(" ");
-
-            }
-
-            if (guestName) {
-                guestName.value = displayName;
-            }
-
-            if (guestPhone) {
-                guestPhone.value =
-                    guest.phone || "";
-            }
-
-            if (guestEmail) {
-                guestEmail.value =
-                    guest.email || "";
-            }
-
-            if (guestGender) {
-                guestGender.value =
-                    guest.gender || "";
-            }
-
-            if (guestDateOfBirth) {
-                guestDateOfBirth.value =
-                    guest.date_of_birth || "";
-            }
-
-            if (guestIdType) {
-                guestIdType.value =
-                    guest.id_type || "";
-            }
-
-            if (guestIdNumber) {
-                guestIdNumber.value =
-                    guest.id_number || "";
-            }
-
-            if (guestNationality) {
-                guestNationality.value =
-                    guest.nationality || "Indian";
-            }
-
-            if (guestAddress) {
-                guestAddress.value =
-                    guest.address || "";
-            }
-
-            if (guestCity) {
-                guestCity.value =
-                    guest.city || "";
-            }
-
-            if (guestState) {
-                guestState.value =
-                    guest.state || "";
-            }
-
-            if (guestCountry) {
-                guestCountry.value =
-                    guest.country || "India";
-            }
-
-            if (guestNotes) {
-                guestNotes.value =
-                    guest.notes || "";
-            }
-
+        if (guestEmptyState) {
+            guestEmptyState.classList.add("hidden");
         }
-
-
-        /* =================================================
-           SHOW DRAWER
-        ================================================= */
-
-        guestDrawer.classList.add("show");
-
-        if (guestDrawerOverlay) {
-            guestDrawerOverlay.classList.add("show");
-        }
-
-        document.body.style.overflow = "hidden";
-
-
-        setTimeout(function () {
-
-            if (guestName) {
-                guestName.focus();
-            }
-
-        }, 150);
-
     }
 
 
     /* =====================================================
-       CLOSE DRAWER
-    ===================================================== */
+       MOBILE SIDEBAR
+       ===================================================== */
 
-    function closeDrawer() {
+    function openSidebar() {
 
-        if (guestDrawer) {
-            guestDrawer.classList.remove("show");
+        if (sidebar) {
+            sidebar.classList.add("show");
+            sidebar.classList.add("open");
         }
 
-        if (guestDrawerOverlay) {
-            guestDrawerOverlay.classList.remove("show");
+        if (sidebarBackdrop) {
+            sidebarBackdrop.classList.add("show");
         }
-
-        document.body.style.overflow = "";
-
     }
+
+
+    function closeSidebar() {
+
+        if (sidebar) {
+            sidebar.classList.remove("show");
+            sidebar.classList.remove("open");
+        }
+
+        if (sidebarBackdrop) {
+            sidebarBackdrop.classList.remove("show");
+        }
+    }
+
+
+    if (mobileMenu) {
+        mobileMenu.addEventListener("click", function () {
+
+            if (
+                sidebar &&
+                sidebar.classList.contains("show")
+            ) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+
+        });
+    }
+
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener(
+            "click",
+            closeSidebar
+        );
+    }
+
+
+    document.querySelectorAll(".sidebar .nav-item").forEach(
+        function (item) {
+
+            item.addEventListener("click", function () {
+
+                if (window.innerWidth <= 900) {
+                    closeSidebar();
+                }
+
+            });
+
+        }
+    );
 
 
     /* =====================================================
        LOAD CURRENT HOTEL
-    ===================================================== */
+       ===================================================== */
 
     async function loadCurrentHotel() {
 
@@ -348,8 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     user
                 },
                 error: userError
-            } =
-                await supabase.auth.getUser();
+            } = await supabase.auth.getUser();
 
 
             if (userError) {
@@ -359,8 +203,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!user) {
 
-                console.warn(
-                    "No logged-in user."
+                showPageMessage(
+                    "Please login to view guests."
                 );
 
                 return null;
@@ -370,12 +214,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const {
                 data: profile,
                 error: profileError
-            } =
-                await supabase
-                    .from("profiles")
-                    .select("hotel_id")
-                    .eq("id", user.id)
-                    .maybeSingle();
+            } = await supabase
+                .from("profiles")
+                .select("hotel_id, full_name")
+                .eq("id", user.id)
+                .maybeSingle();
 
 
             if (profileError) {
@@ -383,24 +226,65 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
 
-            if (!profile) {
+            if (!profile || !profile.hotel_id) {
 
-                console.error(
-                    "Profile not found."
+                showPageMessage(
+                    "Your hotel profile could not be found."
                 );
 
                 return null;
             }
 
 
-            currentHotelId =
-                profile.hotel_id;
+            currentHotelId = profile.hotel_id;
 
 
-            console.log(
-                "Current Hotel ID:",
-                currentHotelId
-            );
+            /* USER NAME */
+
+            const userName =
+                profile.full_name ||
+                user.user_metadata?.full_name ||
+                user.email?.split("@")[0] ||
+                "User";
+
+
+            if (topUserName) {
+                topUserName.textContent = userName;
+            }
+
+
+            if (topUserInitial) {
+                topUserInitial.textContent =
+                    getInitials(userName).charAt(0);
+            }
+
+
+            /* HOTEL NAME */
+
+            try {
+
+                const {
+                    data: hotel
+                } = await supabase
+                    .from("hotels")
+                    .select("name")
+                    .eq("id", currentHotelId)
+                    .maybeSingle();
+
+
+                if (topHotelName) {
+                    topHotelName.textContent =
+                        hotel?.name || "Hotel";
+                }
+
+            } catch (hotelError) {
+
+                console.warn(
+                    "Unable to load hotel name:",
+                    hotelError
+                );
+
+            }
 
 
             return currentHotelId;
@@ -412,57 +296,45 @@ document.addEventListener("DOMContentLoaded", function () {
                 error
             );
 
+            showPageMessage(
+                "Unable to load hotel information."
+            );
+
             return null;
         }
-
     }
 
 
     /* =====================================================
        LOAD GUESTS
-    ===================================================== */
+       ===================================================== */
 
     async function loadGuests() {
 
-        if (!guestsTableBody) {
-            return;
-        }
-
-
         if (!currentHotelId) {
-
-            guestsTableBody.innerHTML = `
-                <tr>
-                    <td
-                        colspan="6"
-                        class="guest-empty"
-                    >
-                        Please login to view guests.
-                    </td>
-                </tr>
-            `;
-
+            showPageMessage(
+                "Please login to view guests."
+            );
             return;
         }
 
 
         guestsTableBody.innerHTML = `
             <tr>
-                <td
-                    colspan="6"
-                    class="guest-empty"
-                >
+                <td colspan="6" class="table-loading">
+                    <div class="loading-spinner"></div>
                     Loading guests...
                 </td>
             </tr>
         `;
 
 
-        const {
-            data,
-            error
-        } =
-            await supabase
+        try {
+
+            const {
+                data,
+                error
+            } = await supabase
                 .from("guests")
                 .select(`
                     id,
@@ -482,142 +354,129 @@ document.addEventListener("DOMContentLoaded", function () {
                     state,
                     country,
                     notes,
-                    created_at
+                    created_at,
+                    updated_at
                 `)
-                .eq(
-                    "hotel_id",
-                    currentHotelId
-                )
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                );
+                .eq("hotel_id", currentHotelId)
+                .order("created_at", {
+                    ascending: false
+                });
 
 
-        if (error) {
+            if (error) {
+                throw error;
+            }
+
+
+            guests = Array.isArray(data)
+                ? data
+                : [];
+
+
+            updateGuestSummary();
+            renderGuests();
+
+
+        } catch (error) {
 
             console.error(
                 "Guest loading error:",
                 error
             );
 
+            guests = [];
+
+            updateGuestSummary();
 
             guestsTableBody.innerHTML = `
                 <tr>
-                    <td
-                        colspan="6"
-                        class="guest-empty"
-                    >
+                    <td colspan="6" class="guest-empty">
                         Unable to load guests.
                         <br>
                         <small>
                             ${escapeHtml(
-                                error.message
+                                error?.message ||
+                                "Unknown error"
                             )}
                         </small>
                     </td>
                 </tr>
             `;
-
-            return;
         }
-
-
-        guests =
-            data || [];
-
-
-        console.log(
-            "Guests loaded:",
-            guests.length
-        );
-
-
-        updateGuestSummary();
-
-        renderGuests();
-
     }
 
 
     /* =====================================================
        SUMMARY
-    ===================================================== */
+       ===================================================== */
 
     function updateGuestSummary() {
 
         const total =
-            document.getElementById(
-                "totalGuestsCount"
-            );
+            document.getElementById("totalGuestsCount");
 
         const phone =
-            document.getElementById(
-                "guestsWithPhoneCount"
-            );
+            document.getElementById("guestsWithPhoneCount");
 
         const email =
-            document.getElementById(
-                "guestsWithEmailCount"
-            );
+            document.getElementById("guestsWithEmailCount");
 
         const indian =
-            document.getElementById(
-                "indianGuestsCount"
-            );
+            document.getElementById("indianGuestsCount");
 
 
         if (total) {
-            total.textContent =
-                guests.length;
+            total.textContent = guests.length;
         }
 
 
         if (phone) {
 
             phone.textContent =
-                guests.filter(
-                    guest =>
-                        guest.phone &&
-                        guest.phone.trim()
-                ).length;
+                guests.filter(function (guest) {
 
+                    return Boolean(
+                        guest.phone &&
+                        String(guest.phone).trim()
+                    );
+
+                }).length;
         }
 
 
         if (email) {
 
             email.textContent =
-                guests.filter(
-                    guest =>
-                        guest.email &&
-                        guest.email.trim()
-                ).length;
+                guests.filter(function (guest) {
 
+                    return Boolean(
+                        guest.email &&
+                        String(guest.email).trim()
+                    );
+
+                }).length;
         }
 
 
         if (indian) {
 
             indian.textContent =
-                guests.filter(
-                    guest =>
-                        String(
-                            guest.nationality || ""
-                        ).toLowerCase() ===
-                        "indian"
-                ).length;
+                guests.filter(function (guest) {
 
+                    return String(
+                        guest.nationality || ""
+                    )
+                        .trim()
+                        .toLowerCase() === "indian";
+
+                }).length;
         }
-
     }
 
 
     /* =====================================================
-       GET DISPLAY NAME
-    ===================================================== */
+       GUEST DISPLAY NAME
+       ===================================================== */
 
     function getGuestDisplayName(guest) {
 
@@ -625,23 +484,41 @@ document.addEventListener("DOMContentLoaded", function () {
             return "Guest";
         }
 
-        if (guest.full_name) {
-            return guest.full_name;
+
+        if (
+            guest.full_name &&
+            String(guest.full_name).trim()
+        ) {
+            return String(
+                guest.full_name
+            ).trim();
         }
 
-        return [
+
+        const name = [
             guest.first_name,
             guest.last_name
         ]
-            .filter(Boolean)
-            .join(" ") || "Guest";
+            .filter(function (value) {
 
+                return (
+                    value !== null &&
+                    value !== undefined &&
+                    String(value).trim()
+                );
+
+            })
+            .join(" ")
+            .trim();
+
+
+        return name || "Guest";
     }
 
 
     /* =====================================================
        RENDER GUESTS
-    ===================================================== */
+       ===================================================== */
 
     function renderGuests() {
 
@@ -651,66 +528,96 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         const search =
-            guestSearch
-                ? guestSearch.value
-                    .trim()
-                    .toLowerCase()
-                : "";
+            String(
+                guestSearch?.value || ""
+            )
+                .trim()
+                .toLowerCase();
 
 
         const gender =
-            guestGenderFilter
-                ? guestGenderFilter.value
-                : "ALL";
+            guestGenderFilter?.value || "";
 
 
         const filteredGuests =
-            guests.filter(
-                function (guest) {
+            guests.filter(function (guest) {
 
-                    const name =
-                        getGuestDisplayName(
-                            guest
-                        )
-                            .toLowerCase();
+                const name =
+                    getGuestDisplayName(guest)
+                        .toLowerCase();
+
+                const phone =
+                    String(
+                        guest.phone || ""
+                    ).toLowerCase();
+
+                const email =
+                    String(
+                        guest.email || ""
+                    ).toLowerCase();
+
+                const city =
+                    String(
+                        guest.city || ""
+                    ).toLowerCase();
+
+                const idNumber =
+                    String(
+                        guest.id_number || ""
+                    ).toLowerCase();
 
 
-                    const phone =
-                        String(
-                            guest.phone || ""
-                        )
-                            .toLowerCase();
+                const matchesSearch =
+                    !search ||
+                    name.includes(search) ||
+                    phone.includes(search) ||
+                    email.includes(search) ||
+                    city.includes(search) ||
+                    idNumber.includes(search);
 
 
-                    const matchesSearch =
-                        !search ||
-                        name.includes(search) ||
-                        phone.includes(search);
+                const matchesGender =
+                    !gender ||
+                    String(
+                        guest.gender || ""
+                    ) === gender;
 
 
-                    const matchesGender =
-                        gender === "ALL" ||
-                        guest.gender === gender;
+                return (
+                    matchesSearch &&
+                    matchesGender
+                );
+
+            });
 
 
-                    return (
-                        matchesSearch &&
-                        matchesGender
-                    );
+        if (guestResultCount) {
 
-                }
-            );
+            guestResultCount.textContent =
+                `${filteredGuests.length} ${
+                    filteredGuests.length === 1
+                        ? "guest"
+                        : "guests"
+                }`;
+        }
 
 
         if (!filteredGuests.length) {
 
             guestsTableBody.innerHTML = `
                 <tr>
-                    <td
-                        colspan="6"
-                        class="guest-empty"
-                    >
-                        No guests found.
+                    <td colspan="6" class="guest-empty">
+                        <div class="guest-table-empty-icon">
+                            ♙
+                        </div>
+
+                        <strong>
+                            No guests found
+                        </strong>
+
+                        <span>
+                            Try another search or add a new guest.
+                        </span>
                     </td>
                 </tr>
             `;
@@ -720,246 +627,271 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         guestsTableBody.innerHTML =
-            filteredGuests
-                .map(
-                    function (guest) {
+            filteredGuests.map(function (guest) {
 
-                        const displayName =
-                            getGuestDisplayName(
-                                guest
-                            );
+                const displayName =
+                    getGuestDisplayName(guest);
 
-
-                        const initials =
-                            getInitials(
-                                displayName
-                            );
+                const initials =
+                    getInitials(displayName);
 
 
-                        return `
-                            <tr>
+                return `
+                    <tr>
 
-                                <td>
+                        <td>
 
-                                    <div
-                                        class="guest-name-cell"
-                                    >
+                            <div class="guest-name-cell">
 
-                                        <div
-                                            class="guest-avatar-small"
-                                        >
-                                            ${escapeHtml(
-                                                initials
-                                            )}
-                                        </div>
+                                <div class="guest-avatar-small">
+                                    ${escapeHtml(initials)}
+                                </div>
 
-                                        <div>
+                                <div class="guest-name-info">
 
+                                    <strong>
+                                        ${escapeHtml(displayName)}
+                                    </strong>
+
+                                    <small>
+                                        ${escapeHtml(
+                                            guest.gender || "Guest"
+                                        )}
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            <span class="table-primary-text">
+                                ${escapeHtml(
+                                    guest.phone || "-"
+                                )}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="table-secondary-text">
+                                ${escapeHtml(
+                                    guest.email || "-"
+                                )}
+                            </span>
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                guest.id_type
+                                    ? `
+                                        <div class="id-cell">
                                             <strong>
                                                 ${escapeHtml(
-                                                    displayName
+                                                    guest.id_type
                                                 )}
                                             </strong>
 
-                                            <small>
-                                                ${escapeHtml(
-                                                    guest.gender ||
-                                                    "Guest"
-                                                )}
-                                            </small>
-
+                                            ${
+                                                guest.id_number
+                                                    ? `
+                                                        <small>
+                                                            ${escapeHtml(
+                                                                guest.id_number
+                                                            )}
+                                                        </small>
+                                                    `
+                                                    : ""
+                                            }
                                         </div>
+                                    `
+                                    : "-"
+                            }
 
-                                    </div>
-
-                                </td>
-
-
-                                <td>
-                                    ${escapeHtml(
-                                        guest.phone ||
-                                        "-"
-                                    )}
-                                </td>
+                        </td>
 
 
-                                <td>
-                                    ${escapeHtml(
-                                        guest.email ||
-                                        "-"
-                                    )}
-                                </td>
+                        <td>
+                            ${escapeHtml(
+                                guest.city || "-"
+                            )}
+                        </td>
 
 
-                                <td>
-                                    ${
-                                        guest.id_type
-                                            ? escapeHtml(
-                                                guest.id_type
-                                            )
-                                            : "-"
-                                    }
-                                </td>
+                        <td class="text-right">
+
+                            <div class="guest-action-buttons">
+
+                                <button
+                                    type="button"
+                                    class="table-action edit"
+                                    data-edit-guest="${escapeHtml(
+                                        guest.id
+                                    )}"
+                                >
+                                    Edit
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="table-action delete"
+                                    data-delete-guest="${escapeHtml(
+                                        guest.id
+                                    )}"
+                                >
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                `;
+
+            }).join("");
+    }
 
 
-                                <td>
-                                    ${escapeHtml(
-                                        guest.city ||
-                                        "-"
-                                    )}
-                                </td>
+    /* =====================================================
+       OPEN GUEST DRAWER
+       ===================================================== */
+
+    function openGuestDrawer(guest = null) {
+
+        if (!guestDrawer) {
+            return;
+        }
 
 
-                                <td>
+        if (!guest) {
 
-                                    <div
-                                        class="guest-action-buttons"
-                                    >
-
-                                        <button
-                                            type="button"
-                                            class="guest-action-btn"
-                                            data-edit-guest="${guest.id}"
-                                        >
-                                            Edit
-                                        </button>
+            guestDrawerTitle.textContent = "Add Guest";
 
 
-                                        <button
-                                            type="button"
-                                            class="guest-action-btn guest-delete-btn"
-                                            data-delete-guest="${guest.id}"
-                                        >
-                                            Delete
-                                        </button>
+            guestId.value = "";
+            guestName.value = "";
+            guestPhone.value = "";
+            guestEmail.value = "";
+            guestGender.value = "";
+            guestDateOfBirth.value = "";
+            guestIdType.value = "";
+            guestIdNumber.value = "";
+            guestNationality.value = "Indian";
+            guestAddress.value = "";
+            guestCity.value = "";
+            guestState.value = "";
+            guestCountry.value = "India";
+            guestNotes.value = "";
 
-                                    </div>
+        } else {
 
-                                </td>
+            guestDrawerTitle.textContent = "Edit Guest";
 
-                            </tr>
-                        `;
 
-                    }
-                )
-                .join("");
+            guestId.value = guest.id || "";
 
+            guestName.value =
+                getGuestDisplayName(guest);
+
+            guestPhone.value =
+                guest.phone || "";
+
+            guestEmail.value =
+                guest.email || "";
+
+            guestGender.value =
+                guest.gender || "";
+
+            guestDateOfBirth.value =
+                guest.date_of_birth || "";
+
+            guestIdType.value =
+                guest.id_type || "";
+
+            guestIdNumber.value =
+                guest.id_number || "";
+
+            guestNationality.value =
+                guest.nationality || "Indian";
+
+            guestAddress.value =
+                guest.address || "";
+
+            guestCity.value =
+                guest.city || "";
+
+            guestState.value =
+                guest.state || "";
+
+            guestCountry.value =
+                guest.country || "India";
+
+            guestNotes.value =
+                guest.notes || "";
+        }
+
+
+        guestDrawer.classList.add("show");
+        guestDrawer.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+
+        if (guestDrawerOverlay) {
+            guestDrawerOverlay.classList.add("show");
+        }
+
+
+        document.body.classList.add("drawer-open");
+
+
+        setTimeout(function () {
+
+            if (guestName) {
+                guestName.focus();
+            }
+
+        }, 200);
+    }
+
+
+    /* =====================================================
+       CLOSE DRAWER
+       ===================================================== */
+
+    function closeGuestDrawerPanel() {
+
+        if (guestDrawer) {
+
+            guestDrawer.classList.remove("show");
+
+            guestDrawer.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+        }
+
+
+        if (guestDrawerOverlay) {
+            guestDrawerOverlay.classList.remove("show");
+        }
+
+
+        document.body.classList.remove("drawer-open");
     }
 
 
     /* =====================================================
        SAVE GUEST
-    ===================================================== */
+       ===================================================== */
 
     async function saveGuest() {
-
-        const id =
-            document.getElementById(
-                "guestId"
-            )?.value;
-
-
-        const fullName =
-            document.getElementById(
-                "guestName"
-            )?.value
-                .trim();
-
-
-        const phone =
-            document.getElementById(
-                "guestPhone"
-            )?.value
-                .trim();
-
-
-        const email =
-            document.getElementById(
-                "guestEmail"
-            )?.value
-                .trim();
-
-
-        const gender =
-            document.getElementById(
-                "guestGender"
-            )?.value;
-
-
-        const dateOfBirth =
-            document.getElementById(
-                "guestDateOfBirth"
-            )?.value;
-
-
-        const idType =
-            document.getElementById(
-                "guestIdType"
-            )?.value;
-
-
-        const idNumber =
-            document.getElementById(
-                "guestIdNumber"
-            )?.value
-                .trim();
-
-
-        const nationality =
-            document.getElementById(
-                "guestNationality"
-            )?.value
-                .trim();
-
-
-        const address =
-            document.getElementById(
-                "guestAddress"
-            )?.value
-                .trim();
-
-
-        const city =
-            document.getElementById(
-                "guestCity"
-            )?.value
-                .trim();
-
-
-        const state =
-            document.getElementById(
-                "guestState"
-            )?.value
-                .trim();
-
-
-        const country =
-            document.getElementById(
-                "guestCountry"
-            )?.value
-                .trim();
-
-
-        const notes =
-            document.getElementById(
-                "guestNotes"
-            )?.value
-                .trim();
-
-
-        /* =================================================
-           VALIDATION
-        ================================================= */
-
-        if (!fullName) {
-
-            alert(
-                "Please enter the guest name."
-            );
-
-            return;
-        }
-
 
         if (!currentHotelId) {
 
@@ -971,47 +903,93 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        /* =================================================
-           SPLIT NAME
-        ================================================= */
+        const id =
+            guestId.value.trim();
 
-        const nameParts =
-            fullName
-                .trim()
-                .split(/\s+/);
+        const fullName =
+            guestName.value.trim();
+
+        const phone =
+            guestPhone.value.trim();
+
+        const email =
+            guestEmail.value.trim();
+
+        const gender =
+            guestGender.value;
+
+        const dateOfBirth =
+            guestDateOfBirth.value;
+
+        const idType =
+            guestIdType.value;
+
+        const idNumber =
+            guestIdNumber.value.trim();
+
+        const nationality =
+            guestNationality.value.trim();
+
+        const address =
+            guestAddress.value.trim();
+
+        const city =
+            guestCity.value.trim();
+
+        const state =
+            guestState.value.trim();
+
+        const country =
+            guestCountry.value.trim();
+
+        const notes =
+            guestNotes.value.trim();
 
 
-        const firstName =
-            nameParts.shift();
+        /* VALIDATION */
 
-
-        const lastName =
-            nameParts.join(" ").trim();
-
-
-        if (!firstName) {
+        if (!fullName) {
 
             alert(
-                "Please enter a valid guest first name."
+                "Please enter the guest name."
             );
+
+            guestName.focus();
 
             return;
         }
 
 
-        /* =================================================
-           DISABLE BUTTON
-        ================================================= */
+        if (
+            email &&
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ) {
 
-        if (saveGuestButton) {
+            alert(
+                "Please enter a valid email address."
+            );
 
-            saveGuestButton.disabled =
-                true;
+            guestEmail.focus();
 
-            saveGuestButton.textContent =
-                "Saving...";
-
+            return;
         }
+
+
+        const nameParts =
+            fullName
+                .split(/\s+/)
+                .filter(Boolean);
+
+
+        const firstName =
+            nameParts.shift() || "";
+
+        const lastName =
+            nameParts.join(" ").trim();
+
+
+        saveGuestButton.disabled = true;
+        saveGuestButton.textContent = "Saving...";
 
 
         try {
@@ -1049,8 +1027,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     idNumber || null,
 
                 nationality:
-                    nationality ||
-                    "Indian",
+                    nationality || "Indian",
 
                 address:
                     address || null,
@@ -1062,8 +1039,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     state || null,
 
                 country:
-                    country ||
-                    "India",
+                    country || "India",
 
                 notes:
                     notes || null,
@@ -1074,27 +1050,15 @@ document.addEventListener("DOMContentLoaded", function () {
             };
 
 
-            console.log(
-                "Saving guest:",
-                guestData
-            );
-
-
             let result;
 
-
-            /* =================================================
-               EDIT
-            ================================================= */
 
             if (id) {
 
                 result =
                     await supabase
                         .from("guests")
-                        .update(
-                            guestData
-                        )
+                        .update(guestData)
                         .eq(
                             "id",
                             Number(id)
@@ -1104,21 +1068,12 @@ document.addEventListener("DOMContentLoaded", function () {
                             currentHotelId
                         );
 
-            }
-
-
-            /* =================================================
-               ADD
-            ================================================= */
-
-            else {
+            } else {
 
                 result =
                     await supabase
                         .from("guests")
-                        .insert(
-                            guestData
-                        );
+                        .insert(guestData);
 
             }
 
@@ -1128,16 +1083,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
 
-            alert(
-                id
-                    ? "Guest updated successfully."
-                    : "Guest added successfully."
-            );
-
-
-            closeDrawer();
+            closeGuestDrawerPanel();
 
             await loadGuests();
+
+
+            showToast(
+                id
+                    ? "Guest updated successfully."
+                    : "Guest added successfully.",
+                "success"
+            );
 
 
         } catch (error) {
@@ -1149,44 +1105,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             alert(
-                error.message ||
-                "Unable to save guest."
+                getFriendlySupabaseError(
+                    error,
+                    "Unable to save guest."
+                )
             );
 
 
         } finally {
 
-            if (saveGuestButton) {
-
-                saveGuestButton.disabled =
-                    false;
-
-                saveGuestButton.textContent =
-                    "Save Guest";
-
-            }
-
+            saveGuestButton.disabled = false;
+            saveGuestButton.textContent = "Save Guest";
         }
-
     }
 
 
     /* =====================================================
        DELETE GUEST
-       
-       IMPORTANT:
-       Guests with bookings cannot be deleted.
-       This protects booking/stay/invoice history.
-    ===================================================== */
+       ===================================================== */
 
     async function deleteGuest(id) {
 
-        const guest =
-            guests.find(
-                item =>
-                    Number(item.id) ===
-                    Number(id)
+        const numericId =
+            Number(id);
+
+
+        if (!Number.isFinite(numericId)) {
+
+            alert(
+                "Invalid guest ID."
             );
+
+            return;
+        }
+
+
+        const guest =
+            guests.find(function (item) {
+
+                return Number(item.id) === numericId;
+
+            });
 
 
         if (!guest) {
@@ -1199,15 +1158,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        const guestName =
-            getGuestDisplayName(
-                guest
-            );
+        const displayName =
+            getGuestDisplayName(guest);
 
 
         const confirmed =
             confirm(
-                `Delete guest ${guestName}?`
+                `Delete guest "${displayName}"?\n\n` +
+                `This action cannot be undone.`
             );
 
 
@@ -1216,77 +1174,36 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        if (!currentHotelId) {
-
-            alert(
-                "Hotel information not found. Please login again."
-            );
-
-            return;
-        }
-
-
         try {
 
-            /*
-             * =================================================
-             * STEP 1
-             * CHECK EXISTING BOOKINGS
-             * =================================================
-             *
-             * We must check this BEFORE deleting the guest.
-             *
-             * bookings.guest_id references guests.id.
-             *
-             * If a booking exists, PostgreSQL will reject
-             * deleting the guest.
-             */
+            /* CHECK BOOKINGS */
 
             const {
                 count: bookingCount,
                 error: bookingCheckError
-            } =
-                await supabase
-                    .from("bookings")
-                    .select(
-                        "id",
-                        {
-                            count: "exact",
-                            head: true
-                        }
-                    )
-                    .eq(
-                        "hotel_id",
-                        currentHotelId
-                    )
-                    .eq(
-                        "guest_id",
-                        Number(id)
-                    );
+            } = await supabase
+                .from("bookings")
+                .select(
+                    "id",
+                    {
+                        count: "exact",
+                        head: true
+                    }
+                )
+                .eq(
+                    "hotel_id",
+                    currentHotelId
+                )
+                .eq(
+                    "guest_id",
+                    numericId
+                );
 
 
             if (bookingCheckError) {
-
-                console.error(
-                    "Booking check error:",
-                    bookingCheckError
-                );
-
-                alert(
-                    "Unable to check the guest's booking history.\n\n" +
-                    bookingCheckError.message
-                );
-
-                return;
+                throw bookingCheckError;
             }
 
-
-            /*
-             * =================================================
-             * STEP 2
-             * BLOCK DELETE IF BOOKINGS EXIST
-             * =================================================
-             */
 
             if (
                 bookingCount !== null &&
@@ -1294,95 +1211,46 @@ document.addEventListener("DOMContentLoaded", function () {
             ) {
 
                 alert(
-                    `${guestName} cannot be deleted.\n\n` +
+                    `${displayName} cannot be deleted.\n\n` +
                     `This guest has ${bookingCount} existing booking` +
                     `${bookingCount === 1 ? "" : "s"}.\n\n` +
-                    `The guest record is kept so that booking, stay, ` +
-                    `restaurant and billing history remains valid.`
+                    `The guest record is kept to protect booking, ` +
+                    `stay and billing history.`
                 );
 
                 return;
             }
 
 
-            /*
-             * =================================================
-             * STEP 3
-             * DELETE GUEST
-             * =================================================
-             */
+            /* DELETE */
 
             const {
                 error: deleteError
-            } =
-                await supabase
-                    .from("guests")
-                    .delete()
-                    .eq(
-                        "id",
-                        Number(id)
-                    )
-                    .eq(
-                        "hotel_id",
-                        currentHotelId
-                    );
-
-
-            if (deleteError) {
-
-                console.error(
-                    "Delete guest error:",
-                    deleteError
+            } = await supabase
+                .from("guests")
+                .delete()
+                .eq(
+                    "id",
+                    numericId
+                )
+                .eq(
+                    "hotel_id",
+                    currentHotelId
                 );
 
 
-                /*
-                 * Extra protection:
-                 * If another foreign key prevents deletion,
-                 * show a user-friendly message instead of
-                 * exposing the raw PostgreSQL error.
-                 */
-
-                if (
-                    deleteError.code === "23503" ||
-                    String(
-                        deleteError.message || ""
-                    ).includes(
-                        "foreign key constraint"
-                    )
-                ) {
-
-                    alert(
-                        `${guestName} cannot be deleted because ` +
-                        `this guest is linked to existing hotel records.\n\n` +
-                        `The guest record has been kept to protect historical data.`
-                    );
-
-                } else {
-
-                    alert(
-                        "Failed to delete guest:\n\n" +
-                        deleteError.message
-                    );
-                }
-
-                return;
+            if (deleteError) {
+                throw deleteError;
             }
 
 
-            /*
-             * =================================================
-             * STEP 4
-             * SUCCESS
-             * =================================================
-             */
-
-            alert(
-                "Guest deleted successfully."
-            );
-
-
             await loadGuests();
+
+
+            showToast(
+                "Guest deleted successfully.",
+                "success"
+            );
 
 
         } catch (error) {
@@ -1393,76 +1261,69 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
 
-            /*
-             * Handle foreign-key errors that may come
-             * from the database even after our check.
-             */
-
             if (
                 error?.code === "23503" ||
                 String(
                     error?.message || ""
-                ).includes(
-                    "foreign key constraint"
                 )
+                    .toLowerCase()
+                    .includes("foreign key constraint")
             ) {
 
                 alert(
-                    `${guestName} cannot be deleted because ` +
-                    `this guest is linked to existing hotel records.\n\n` +
-                    `The guest record has been kept to protect historical data.`
+                    `${displayName} cannot be deleted because ` +
+                    `this guest is linked to existing hotel records.`
                 );
 
             } else {
 
                 alert(
-                    error?.message ||
-                    "Unable to delete guest."
+                    getFriendlySupabaseError(
+                        error,
+                        "Unable to delete guest."
+                    )
                 );
-
             }
-
         }
-
     }
 
 
     /* =====================================================
-       ADD BUTTON
-    ===================================================== */
+       BUTTON EVENTS
+       ===================================================== */
 
-    if (addGuestButton) {
+    if (addGuestBtn) {
 
-        addGuestButton.addEventListener(
+        addGuestBtn.addEventListener(
             "click",
-            function (event) {
-
-                event.preventDefault();
-                event.stopPropagation();
+            function () {
 
                 openGuestDrawer();
 
             }
         );
-
     }
 
 
-    /* =====================================================
-       CLOSE BUTTONS
-    ===================================================== */
+    if (emptyAddGuestBtn) {
+
+        emptyAddGuestBtn.addEventListener(
+            "click",
+            function () {
+
+                openGuestDrawer();
+
+            }
+        );
+    }
+
 
     if (closeGuestDrawer) {
 
         closeGuestDrawer.addEventListener(
             "click",
-            function () {
-
-                closeDrawer();
-
-            }
+            closeGuestDrawerPanel
         );
-
     }
 
 
@@ -1470,13 +1331,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         cancelGuestButton.addEventListener(
             "click",
-            function () {
-
-                closeDrawer();
-
-            }
+            closeGuestDrawerPanel
         );
-
     }
 
 
@@ -1484,19 +1340,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         guestDrawerOverlay.addEventListener(
             "click",
-            function () {
-
-                closeDrawer();
-
-            }
+            closeGuestDrawerPanel
         );
-
     }
 
-
-    /* =====================================================
-       SAVE BUTTON
-    ===================================================== */
 
     if (saveGuestButton) {
 
@@ -1510,13 +1357,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             }
         );
-
     }
 
 
     /* =====================================================
        SEARCH
-    ===================================================== */
+       ===================================================== */
 
     if (guestSearch) {
 
@@ -1524,9 +1370,12 @@ document.addEventListener("DOMContentLoaded", function () {
             "input",
             renderGuests
         );
-
     }
 
+
+    /* =====================================================
+       GENDER FILTER
+       ===================================================== */
 
     if (guestGenderFilter) {
 
@@ -1534,13 +1383,32 @@ document.addEventListener("DOMContentLoaded", function () {
             "change",
             renderGuests
         );
-
     }
 
 
     /* =====================================================
-       EDIT / DELETE EVENT DELEGATION
-    ===================================================== */
+       CLEAR FILTERS
+       ===================================================== */
+
+    if (clearGuestFilters) {
+
+        clearGuestFilters.addEventListener(
+            "click",
+            function () {
+
+                guestSearch.value = "";
+                guestGenderFilter.value = "";
+
+                renderGuests();
+
+            }
+        );
+    }
+
+
+    /* =====================================================
+       TABLE ACTIONS
+       ===================================================== */
 
     if (guestsTableBody) {
 
@@ -1560,103 +1428,140 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
 
-                /* =================================================
-                   EDIT
-                ================================================= */
-
                 if (editButton) {
 
                     const id =
                         Number(
-                            editButton.dataset
-                                .editGuest
+                            editButton.dataset.editGuest
                         );
 
 
                     const guest =
-                        guests.find(
-                            item =>
-                                Number(item.id) ===
-                                id
+                        guests.find(function (item) {
+
+                            return Number(item.id) === id;
+
+                        });
+
+
+                    if (!guest) {
+
+                        alert(
+                            "Guest information could not be found."
                         );
 
-
-                    if (guest) {
-
-                        openGuestDrawer(
-                            guest
-                        );
-
+                        return;
                     }
+
+
+                    openGuestDrawer(guest);
 
                     return;
                 }
 
 
-                /* =================================================
-                   DELETE
-                ================================================= */
-
                 if (deleteButton) {
 
                     const id =
                         Number(
-                            deleteButton.dataset
-                                .deleteGuest
+                            deleteButton.dataset.deleteGuest
                         );
 
 
                     deleteGuest(id);
-
                 }
 
             }
         );
-
     }
+
+
+    /* =====================================================
+       ESC KEY
+       ===================================================== */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape" &&
+                guestDrawer?.classList.contains("show")
+            ) {
+
+                closeGuestDrawerPanel();
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       AUTH STATE
+       ===================================================== */
+
+    supabase.auth.onAuthStateChange(
+        async function (event, session) {
+
+            console.log(
+                "Guest auth event:",
+                event
+            );
+
+
+            if (event === "SIGNED_OUT") {
+
+                currentHotelId = null;
+                guests = [];
+
+                updateGuestSummary();
+
+                showPageMessage(
+                    "Please login to view guests."
+                );
+
+                return;
+            }
+
+
+            if (
+                event === "SIGNED_IN" ||
+                event === "INITIAL_SESSION"
+            ) {
+
+                if (session?.user) {
+
+                    const hotelId =
+                        await loadCurrentHotel();
+
+
+                    if (hotelId) {
+                        await loadGuests();
+                    }
+                }
+            }
+
+        }
+    );
 
 
     /* =====================================================
        INITIALIZE
-    ===================================================== */
+       ===================================================== */
 
-    async function initializeGuests() {
-
-        console.log(
-            "Initializing guest management..."
-        );
+    currentHotelId =
+        await loadCurrentHotel();
 
 
-        currentHotelId =
-            await loadCurrentHotel();
-
-
-        if (!currentHotelId) {
-
-            console.error(
-                "Could not determine hotel ID."
-            );
-
-            return;
-        }
-
-
+    if (currentHotelId) {
         await loadGuests();
-
-
-        console.log(
-            "Guest management initialized successfully."
-        );
-
     }
-
-
-    initializeGuests();
 
 
     /* =====================================================
        HELPERS
-    ===================================================== */
+       ===================================================== */
 
     function getInitials(name) {
 
@@ -1668,7 +1573,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const parts =
             String(name)
                 .trim()
-                .split(/\s+/);
+                .split(/\s+/)
+                .filter(Boolean);
+
+
+        if (!parts.length) {
+            return "G";
+        }
 
 
         if (parts.length === 1) {
@@ -1676,15 +1587,13 @@ document.addEventListener("DOMContentLoaded", function () {
             return parts[0]
                 .substring(0, 2)
                 .toUpperCase();
-
         }
 
 
         return (
-            parts[0][0] +
-            parts[parts.length - 1][0]
+            parts[0].charAt(0) +
+            parts[parts.length - 1].charAt(0)
         ).toUpperCase();
-
     }
 
 
@@ -1694,39 +1603,106 @@ document.addEventListener("DOMContentLoaded", function () {
             value === null ||
             value === undefined
         ) {
-
             return "";
-
         }
 
 
         return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
-            .replace(
-                /&/g,
-                "&amp;"
-            )
 
-            .replace(
-                /</g,
-                "&lt;"
-            )
+    function getFriendlySupabaseError(
+        error,
+        fallback
+    ) {
 
-            .replace(
-                />/g,
-                "&gt;"
-            )
+        if (!error) {
+            return fallback;
+        }
 
-            .replace(
-                /"/g,
-                "&quot;"
-            )
 
-            .replace(
-                /'/g,
-                "&#039;"
+        const message =
+            String(
+                error.message || ""
             );
 
+
+        if (error.code === "23503") {
+
+            return (
+                "This guest cannot be changed because " +
+                "it is linked to other hotel records."
+            );
+        }
+
+
+        if (error.code === "23505") {
+
+            return (
+                "A guest with the same information already exists."
+            );
+        }
+
+
+        if (error.code === "42501") {
+
+            return (
+                "You do not have permission to perform this action."
+            );
+        }
+
+
+        return message || fallback;
+    }
+
+
+    function showToast(message, type = "success") {
+
+        const oldToast =
+            document.querySelector(".star-toast");
+
+        if (oldToast) {
+            oldToast.remove();
+        }
+
+
+        const toast =
+            document.createElement("div");
+
+        toast.className =
+            `star-toast ${type}`;
+
+
+        toast.innerHTML = `
+            <span class="toast-icon">
+                ${type === "success" ? "✓" : "!"}
+            </span>
+
+            <span>
+                ${escapeHtml(message)}
+            </span>
+        `;
+
+
+        document.body.appendChild(toast);
+
+
+        setTimeout(function () {
+
+            toast.classList.add("hide");
+
+            setTimeout(function () {
+
+                toast.remove();
+
+            }, 250);
+
+        }, 2500);
     }
 
 });

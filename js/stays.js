@@ -2,6 +2,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     console.log("Check-in & Stays module loaded");
 
+    /* =========================================================
+       SUPABASE
+    ========================================================= */
+
     if (!window.supabaseClient) {
         console.error("Supabase client not initialized.");
         return;
@@ -16,10 +20,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     let guests = [];
     let rooms = [];
 
+    let isProcessing = false;
 
-    /* =========================================
+
+    /* =========================================================
        ELEMENTS
-    ========================================= */
+    ========================================================= */
 
     const staySearch =
         document.getElementById("staySearch");
@@ -28,14 +34,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("staysTableBody");
 
     const readyBookingsTableBody =
+        document.getElementById("readyBookingsTableBody");
+
+    const checkInBtn =
+        document.getElementById("checkInBtn");
+
+    const activeStaysCount =
+        document.getElementById("activeStaysCount");
+
+    const readyForCheckInCount =
+        document.getElementById("readyForCheckInCount");
+
+    const checkedInTodayCount =
+        document.getElementById("checkedInTodayCount");
+
+    const occupiedRoomsCount =
+        document.getElementById("occupiedRoomsCount");
+
+    const readyForCheckInHeaderCount =
         document.getElementById(
-            "readyBookingsTableBody"
+            "readyForCheckInHeaderCount"
         );
 
 
-    /* =========================================
+    /* =========================================================
        HELPERS
-    ========================================= */
+    ========================================================= */
 
     function escapeHtml(value) {
 
@@ -83,11 +107,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const parts =
-            String(value).substring(0, 10)
+            String(value)
+                .substring(0, 10)
                 .split("-");
 
         if (parts.length !== 3) {
-            return value;
+            return String(value);
         }
 
         return `${parts[2]}-${parts[1]}-${parts[0]}`;
@@ -103,8 +128,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const date =
             new Date(value);
 
-        if (isNaN(date.getTime())) {
-            return value;
+        if (Number.isNaN(date.getTime())) {
+            return String(value);
         }
 
         return date.toLocaleString(
@@ -123,7 +148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             guest =>
                 String(guest.id) ===
                 String(id)
-        );
+        ) || null;
     }
 
 
@@ -133,7 +158,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             room =>
                 String(room.id) ===
                 String(id)
-        );
+        ) || null;
     }
 
 
@@ -143,7 +168,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             booking =>
                 String(booking.id) ===
                 String(id)
-        );
+        ) || null;
+    }
+
+
+    function getStayById(id) {
+
+        return stays.find(
+            stay =>
+                String(stay.id) ===
+                String(id)
+        ) || null;
     }
 
 
@@ -153,16 +188,28 @@ document.addEventListener("DOMContentLoaded", async () => {
             return "Unknown Guest";
         }
 
-        if (guest.full_name) {
-            return guest.full_name;
+        if (
+            guest.full_name &&
+            String(guest.full_name).trim()
+        ) {
+            return String(
+                guest.full_name
+            ).trim();
         }
 
-        return [
+        const name = [
             guest.first_name,
             guest.last_name
         ]
-            .filter(Boolean)
-            .join(" ");
+            .filter(
+                value =>
+                    value &&
+                    String(value).trim()
+            )
+            .join(" ")
+            .trim();
+
+        return name || "Unknown Guest";
     }
 
 
@@ -172,7 +219,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             return "Unknown Room";
         }
 
-        return `Room ${room.room_number}`;
+        if (
+            room.room_number !== null &&
+            room.room_number !== undefined
+        ) {
+            return `Room ${room.room_number}`;
+        }
+
+        return "Unknown Room";
     }
 
 
@@ -191,33 +245,85 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-    function getStatusClass(status) {
+    function showError(message) {
 
-        return String(status || "")
-            .toLowerCase()
-            .replace(/_/g, "-");
+        console.error(message);
+
+        alert(message);
     }
 
 
-    /* =========================================
+    function setButtonBusy(
+        button,
+        busy,
+        busyText = "Processing..."
+    ) {
+
+        if (!button) {
+            return;
+        }
+
+        if (busy) {
+
+            if (
+                !button.dataset.originalText
+            ) {
+                button.dataset.originalText =
+                    button.innerHTML;
+            }
+
+            button.disabled = true;
+            button.innerHTML = busyText;
+
+        } else {
+
+            button.disabled = false;
+
+            if (
+                button.dataset.originalText
+            ) {
+                button.innerHTML =
+                    button.dataset.originalText;
+
+                delete button.dataset.originalText;
+            }
+        }
+    }
+
+
+    /* =========================================================
        LOAD CURRENT HOTEL
-    ========================================= */
+    ========================================================= */
 
     async function loadCurrentHotel() {
 
         const {
             data: {
                 user
-            },
+            } = {},
             error: userError
         } = await supabase.auth.getUser();
 
 
-        if (userError || !user) {
+        if (userError) {
 
-            console.log(
-                "No logged-in user."
+            console.error(
+                "Auth user error:",
+                userError
             );
+
+            showError(
+                "Unable to verify your login."
+            );
+
+            return false;
+        }
+
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
 
             return false;
         }
@@ -228,16 +334,41 @@ document.addEventListener("DOMContentLoaded", async () => {
             error: profileError
         } = await supabase
             .from("profiles")
-            .select("hotel_id")
-            .eq("id", user.id)
-            .single();
+            .select(`
+                id,
+                hotel_id,
+                full_name,
+                role
+            `)
+            .eq(
+                "id",
+                user.id
+            )
+            .maybeSingle();
 
 
         if (profileError) {
 
             console.error(
-                "Profile error:",
+                "Profile loading error:",
                 profileError
+            );
+
+            showError(
+                "Unable to load your hotel profile."
+            );
+
+            return false;
+        }
+
+
+        if (
+            !profile ||
+            !profile.hotel_id
+        ) {
+
+            showError(
+                "Your account is not connected to a hotel."
             );
 
             return false;
@@ -246,6 +377,41 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         currentHotelId =
             profile.hotel_id;
+
+
+        const topUserName =
+            document.getElementById(
+                "topUserName"
+            );
+
+        const topUserInitial =
+            document.getElementById(
+                "topUserInitial"
+            );
+
+
+        if (topUserName) {
+
+            topUserName.textContent =
+                profile.full_name ||
+                user.email?.split("@")[0] ||
+                "User";
+        }
+
+
+        if (topUserInitial) {
+
+            const name =
+                profile.full_name ||
+                user.email ||
+                "U";
+
+            topUserInitial.textContent =
+                name
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase();
+        }
 
 
         console.log(
@@ -257,9 +423,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-    /* =========================================
+    /* =========================================================
        LOAD GUESTS
-    ========================================= */
+    ========================================================= */
 
     async function loadGuests() {
 
@@ -270,6 +436,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             .from("guests")
             .select(`
                 id,
+                hotel_id,
                 first_name,
                 last_name,
                 full_name,
@@ -279,6 +446,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             .eq(
                 "hotel_id",
                 currentHotelId
+            )
+            .order(
+                "id",
+                {
+                    ascending: false
+                }
             );
 
 
@@ -289,17 +462,22 @@ document.addEventListener("DOMContentLoaded", async () => {
                 error
             );
 
-            return;
+            guests = [];
+
+            return false;
         }
 
 
-        guests = data || [];
+        guests =
+            data || [];
+
+        return true;
     }
 
 
-    /* =========================================
+    /* =========================================================
        LOAD ROOMS
-    ========================================= */
+    ========================================================= */
 
     async function loadRooms() {
 
@@ -310,11 +488,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             .from("rooms")
             .select(`
                 id,
+                hotel_id,
                 room_number,
+                room_type_id,
                 floor,
-                price,
                 status,
-                room_type_id
+                price,
+                notes,
+                created_at,
+                updated_at
             `)
             .eq(
                 "hotel_id",
@@ -335,22 +517,22 @@ document.addEventListener("DOMContentLoaded", async () => {
                 error
             );
 
-            return;
+            rooms = [];
+
+            return false;
         }
 
 
-        rooms = data || [];
+        rooms =
+            data || [];
+
+        return true;
     }
 
 
-    /* =========================================
+    /* =========================================================
        LOAD BOOKINGS
-       
-       IMPORTANT:
-       bookings uses:
-       check_in_date
-       check_out_date
-    ========================================= */
+    ========================================================= */
 
     async function loadBookings() {
 
@@ -395,6 +577,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 error
             );
 
+            bookings = [];
+
             if (readyBookingsTableBody) {
 
                 readyBookingsTableBody.innerHTML = `
@@ -407,22 +591,26 @@ document.addEventListener("DOMContentLoaded", async () => {
                 `;
             }
 
-            return;
+            return false;
         }
 
 
-        bookings = data || [];
+        bookings =
+            data || [];
+
 
         console.log(
             "Bookings loaded:",
             bookings.length
         );
+
+        return true;
     }
 
 
-    /* =========================================
+    /* =========================================================
        LOAD STAYS
-    ========================================= */
+    ========================================================= */
 
     async function loadStays() {
 
@@ -467,6 +655,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 error
             );
 
+            stays = [];
+
             if (staysTableBody) {
 
                 staysTableBody.innerHTML = `
@@ -483,7 +673,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
 
-        stays = data || [];
+        stays =
+            data || [];
+
 
         console.log(
             "Stays loaded:",
@@ -494,9 +686,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-    /* =========================================
+    /* =========================================================
        READY BOOKINGS
-    ========================================= */
+    ========================================================= */
 
     function getReadyBookings() {
 
@@ -507,6 +699,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         return bookings.filter(
             booking => {
 
+                if (!booking) {
+                    return false;
+                }
+
+
                 if (
                     booking.status !==
                     "CONFIRMED"
@@ -516,6 +713,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
                 if (
+                    booking.check_in_date &&
                     booking.check_in_date >
                     today
                 ) {
@@ -542,15 +740,40 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
 
 
+                if (!booking.room_id) {
+                    return false;
+                }
+
+
+                const room =
+                    getRoomById(
+                        booking.room_id
+                    );
+
+
+                if (!room) {
+                    return false;
+                }
+
+
+                if (
+                    room.status === "OCCUPIED" ||
+                    room.status === "CLEANING" ||
+                    room.status === "MAINTENANCE"
+                ) {
+                    return false;
+                }
+
+
                 return true;
             }
         );
     }
 
 
-    /* =========================================
+    /* =========================================================
        RENDER READY BOOKINGS
-    ========================================= */
+    ========================================================= */
 
     function renderReadyBookings() {
 
@@ -563,15 +786,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             getReadyBookings();
 
 
-        const countElement =
-            document.getElementById(
-                "readyForCheckInCount"
-            );
+        if (readyForCheckInCount) {
+
+            readyForCheckInCount.textContent =
+                readyBookings.length;
+        }
 
 
-        if (countElement) {
+        if (readyForCheckInHeaderCount) {
 
-            countElement.textContent =
+            readyForCheckInHeaderCount.textContent =
                 readyBookings.length;
         }
 
@@ -621,24 +845,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                             <td>
                                 <strong>
                                     ${escapeHtml(
-                                        booking.booking_number
+                                        booking.booking_number || "-"
                                     )}
                                 </strong>
                             </td>
 
                             <td>
                                 ${escapeHtml(
-                                    getGuestName(
-                                        guest
-                                    )
+                                    getGuestName(guest)
                                 )}
                             </td>
 
                             <td>
                                 ${escapeHtml(
-                                    getRoomName(
-                                        room
-                                    )
+                                    getRoomName(room)
                                 )}
                             </td>
 
@@ -663,8 +883,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 <button
                                     type="button"
                                     class="small-btn primary-btn stay-checkin-btn"
-                                    data-id="${booking.id}">
+                                    data-id="${escapeHtml(
+                                        booking.id
+                                    )}">
+
                                     Check-in
+
                                 </button>
 
                             </td>
@@ -676,9 +900,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-    /* =========================================
+    /* =========================================================
        RENDER ACTIVE STAYS
-    ========================================= */
+    ========================================================= */
 
     function renderStays() {
 
@@ -732,7 +956,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const roomNumber =
                         room
                             ? String(
-                                room.room_number
+                                room.room_number || ""
                             ).toLowerCase()
                             : "";
 
@@ -746,8 +970,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const bookingNumber =
                         booking
                             ? String(
-                                booking.booking_number ||
-                                ""
+                                booking.booking_number || ""
                             ).toLowerCase()
                             : "";
 
@@ -763,15 +986,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
 
-        const activeCount =
-            document.getElementById(
-                "activeStaysCount"
-            );
+        if (activeStaysCount) {
 
-
-        if (activeCount) {
-
-            activeCount.textContent =
+            activeStaysCount.textContent =
                 activeStays.length;
         }
 
@@ -821,24 +1038,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                             <td>
                                 <strong>
                                     ${escapeHtml(
-                                        stay.stay_number
+                                        stay.stay_number || "-"
                                     )}
                                 </strong>
                             </td>
 
                             <td>
                                 ${escapeHtml(
-                                    getGuestName(
-                                        guest
-                                    )
+                                    getGuestName(guest)
                                 )}
                             </td>
 
                             <td>
                                 ${escapeHtml(
-                                    getRoomName(
-                                        room
-                                    )
+                                    getRoomName(room)
                                 )}
                             </td>
 
@@ -869,8 +1082,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 <button
                                     type="button"
                                     class="small-btn danger-btn stay-checkout-btn"
-                                    data-id="${stay.id}">
+                                    data-id="${escapeHtml(
+                                        stay.id
+                                    )}">
+
                                     Checkout
+
                                 </button>
 
                             </td>
@@ -882,9 +1099,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-    /* =========================================
+    /* =========================================================
        SUMMARY
-    ========================================= */
+    ========================================================= */
 
     function updateSummary() {
 
@@ -914,7 +1131,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                         return false;
                     }
 
-
                     return (
                         String(
                             stay.actual_check_in
@@ -933,62 +1149,55 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
 
-        const readyElement =
-            document.getElementById(
-                "readyForCheckInCount"
-            );
+        if (readyForCheckInCount) {
 
-
-        const activeElement =
-            document.getElementById(
-                "activeStaysCount"
-            );
-
-
-        const todayElement =
-            document.getElementById(
-                "checkedInTodayCount"
-            );
-
-
-        const occupiedElement =
-            document.getElementById(
-                "occupiedRoomsCount"
-            );
-
-
-        if (readyElement) {
-            readyElement.textContent =
+            readyForCheckInCount.textContent =
                 ready.length;
         }
 
 
-        if (activeElement) {
-            activeElement.textContent =
+        if (readyForCheckInHeaderCount) {
+
+            readyForCheckInHeaderCount.textContent =
+                ready.length;
+        }
+
+
+        if (activeStaysCount) {
+
+            activeStaysCount.textContent =
                 active.length;
         }
 
 
-        if (todayElement) {
-            todayElement.textContent =
+        if (checkedInTodayCount) {
+
+            checkedInTodayCount.textContent =
                 checkedInToday.length;
         }
 
 
-        if (occupiedElement) {
-            occupiedElement.textContent =
+        if (occupiedRoomsCount) {
+
+            occupiedRoomsCount.textContent =
                 occupiedRooms.length;
         }
     }
 
 
-    /* =========================================
+    /* =========================================================
        CHECK-IN
-    ========================================= */
+    ========================================================= */
 
     async function checkInBooking(
-        bookingId
+        bookingId,
+        button = null
     ) {
+
+        if (isProcessing) {
+            return;
+        }
+
 
         const booking =
             getBookingById(
@@ -998,8 +1207,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!booking) {
 
-            alert(
+            showError(
                 "Booking not found."
+            );
+
+            return;
+        }
+
+
+        if (
+            booking.status !==
+            "CONFIRMED"
+        ) {
+
+            showError(
+                `This booking cannot be checked in because its status is ${booking.status || "UNKNOWN"}.`
             );
 
             return;
@@ -1022,7 +1244,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (existingStay) {
 
-            alert(
+            showError(
                 "This booking is already checked in."
             );
 
@@ -1038,8 +1260,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!room) {
 
-            alert(
-                "Room not found."
+            showError(
+                "Room not found for this booking."
             );
 
             return;
@@ -1052,7 +1274,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             room.status === "MAINTENANCE"
         ) {
 
-            alert(
+            showError(
                 `Room ${room.room_number} is currently ${room.status}.`
             );
 
@@ -1066,6 +1288,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
 
+        if (!guest) {
+
+            showError(
+                "Guest information could not be found."
+            );
+
+            return;
+        }
+
+
         const confirmed =
             confirm(
                 `Check-in ${getGuestName(guest)} to Room ${room.room_number}?`
@@ -1077,169 +1309,378 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
 
-        const stayNumber =
-            generateStayNumber();
+        isProcessing = true;
+
+        setButtonBusy(
+            button,
+            true,
+            "Checking-in..."
+        );
 
 
-        const stayData = {
+        try {
 
-            hotel_id:
-                currentHotelId,
+            /* -----------------------------------------
+               RE-CHECK ROOM
+            ----------------------------------------- */
 
-            stay_number:
-                stayNumber,
-
-            booking_id:
-                booking.id,
-
-            guest_id:
-                booking.guest_id,
-
-            room_id:
-                booking.room_id,
-
-            actual_check_in:
-                new Date().toISOString(),
-
-            expected_check_out:
-                booking.check_out_date,
-
-            adults:
-                booking.adults || 1,
-
-            children:
-                booking.children || 0,
-
-            status:
-                "ACTIVE",
-
-            notes:
-                booking.notes || null,
-
-            updated_at:
-                new Date().toISOString()
-        };
+            const {
+                data: latestRoom,
+                error: latestRoomError
+            } = await supabase
+                .from("rooms")
+                .select(`
+                    id,
+                    hotel_id,
+                    room_number,
+                    status
+                `)
+                .eq(
+                    "id",
+                    booking.room_id
+                )
+                .eq(
+                    "hotel_id",
+                    currentHotelId
+                )
+                .maybeSingle();
 
 
-        const {
-            data: insertedStay,
-            error: stayError
-        } = await supabase
-            .from("stays")
-            .insert(stayData)
-            .select()
-            .single();
+            if (latestRoomError) {
+                throw new Error(
+                    latestRoomError.message
+                );
+            }
 
 
-        if (stayError) {
+            if (!latestRoom) {
+                throw new Error(
+                    "Room no longer exists."
+                );
+            }
+
+
+            if (
+                latestRoom.status === "OCCUPIED" ||
+                latestRoom.status === "CLEANING" ||
+                latestRoom.status === "MAINTENANCE"
+            ) {
+
+                throw new Error(
+                    `Room ${latestRoom.room_number} is currently ${latestRoom.status}.`
+                );
+            }
+
+
+            /* -----------------------------------------
+               DUPLICATE CHECK
+            ----------------------------------------- */
+
+            const {
+                data: duplicateStay,
+                error: duplicateError
+            } = await supabase
+                .from("stays")
+                .select("id, status")
+                .eq(
+                    "hotel_id",
+                    currentHotelId
+                )
+                .eq(
+                    "booking_id",
+                    booking.id
+                )
+                .eq(
+                    "status",
+                    "ACTIVE"
+                )
+                .maybeSingle();
+
+
+            if (duplicateError) {
+                throw new Error(
+                    duplicateError.message
+                );
+            }
+
+
+            if (duplicateStay) {
+                throw new Error(
+                    "This booking is already checked in."
+                );
+            }
+
+
+            const now =
+                new Date().toISOString();
+
+
+            const stayNumber =
+                generateStayNumber();
+
+
+            /* -----------------------------------------
+               CREATE STAY
+            ----------------------------------------- */
+
+            const stayData = {
+
+                hotel_id:
+                    currentHotelId,
+
+                stay_number:
+                    stayNumber,
+
+                booking_id:
+                    booking.id,
+
+                guest_id:
+                    booking.guest_id,
+
+                room_id:
+                    booking.room_id,
+
+                actual_check_in:
+                    now,
+
+                expected_check_out:
+                    booking.check_out_date,
+
+                adults:
+                    Number(
+                        booking.adults || 1
+                    ),
+
+                children:
+                    Number(
+                        booking.children || 0
+                    ),
+
+                status:
+                    "ACTIVE",
+
+                notes:
+                    booking.notes ||
+                    null,
+
+                updated_at:
+                    now
+            };
+
+
+            const {
+                data: insertedStay,
+                error: stayError
+            } = await supabase
+                .from("stays")
+                .insert(stayData)
+                .select(`
+                    id,
+                    hotel_id,
+                    stay_number,
+                    booking_id,
+                    guest_id,
+                    room_id,
+                    actual_check_in,
+                    expected_check_out,
+                    adults,
+                    children,
+                    status,
+                    notes,
+                    created_at,
+                    updated_at
+                `)
+                .single();
+
+
+            if (stayError) {
+
+                throw new Error(
+                    stayError.message
+                );
+            }
+
+
+            console.log(
+                "Stay created:",
+                insertedStay
+            );
+
+
+            /* -----------------------------------------
+               UPDATE BOOKING
+            ----------------------------------------- */
+
+            const {
+                error: bookingError
+            } = await supabase
+                .from("bookings")
+                .update({
+                    status:
+                        "CHECKED_IN",
+                    updated_at:
+                        now
+                })
+                .eq(
+                    "id",
+                    booking.id
+                )
+                .eq(
+                    "hotel_id",
+                    currentHotelId
+                );
+
+
+            if (bookingError) {
+
+                await supabase
+                    .from("stays")
+                    .delete()
+                    .eq(
+                        "id",
+                        insertedStay.id
+                    )
+                    .eq(
+                        "hotel_id",
+                        currentHotelId
+                    );
+
+                throw new Error(
+                    `Booking status could not be updated: ${bookingError.message}`
+                );
+            }
+
+
+            /* -----------------------------------------
+               UPDATE ROOM
+            ----------------------------------------- */
+
+            const {
+                error: roomError
+            } = await supabase
+                .from("rooms")
+                .update({
+                    status:
+                        "OCCUPIED",
+                    updated_at:
+                        now
+                })
+                .eq(
+                    "id",
+                    booking.room_id
+                )
+                .eq(
+                    "hotel_id",
+                    currentHotelId
+                );
+
+
+            if (roomError) {
+
+                await supabase
+                    .from("bookings")
+                    .update({
+                        status:
+                            "CONFIRMED",
+                        updated_at:
+                            now
+                    })
+                    .eq(
+                        "id",
+                        booking.id
+                    )
+                    .eq(
+                        "hotel_id",
+                        currentHotelId
+                    );
+
+
+                await supabase
+                    .from("stays")
+                    .delete()
+                    .eq(
+                        "id",
+                        insertedStay.id
+                    )
+                    .eq(
+                        "hotel_id",
+                        currentHotelId
+                    );
+
+
+                throw new Error(
+                    `Room status could not be updated: ${roomError.message}`
+                );
+            }
+
+
+            await reloadAll();
+
+
+            alert(
+                `Check-in successful.\n\nStay Number: ${stayNumber}`
+            );
+
+        } catch (error) {
 
             console.error(
                 "Check-in error:",
-                stayError
+                error
             );
 
-            alert(
-                "Failed to check-in:\n" +
-                stayError.message
+            showError(
+                `Failed to check-in:\n${error.message}`
+            );
+
+        } finally {
+
+            isProcessing = false;
+
+            setButtonBusy(
+                button,
+                false
+            );
+        }
+    }
+
+
+    /* =========================================================
+       CHECKOUT
+    ========================================================= */
+
+    async function checkoutStay(
+        stayId,
+        button = null
+    ) {
+
+        if (isProcessing) {
+            return;
+        }
+
+
+        const stay =
+            getStayById(
+                stayId
+            );
+
+
+        if (!stay) {
+
+            showError(
+                "Stay not found."
             );
 
             return;
         }
 
 
-        console.log(
-            "Stay created:",
-            insertedStay
-        );
+        if (
+            stay.status !==
+            "ACTIVE"
+        ) {
 
-
-        /* UPDATE BOOKING */
-
-        const {
-            error: bookingError
-        } = await supabase
-            .from("bookings")
-            .update({
-                status: "CHECKED_IN",
-                updated_at:
-                    new Date().toISOString()
-            })
-            .eq(
-                "id",
-                booking.id
-            )
-            .eq(
-                "hotel_id",
-                currentHotelId
-            );
-
-
-        if (bookingError) {
-
-            console.error(
-                "Booking status update error:",
-                bookingError
-            );
-        }
-
-
-        /* UPDATE ROOM */
-
-        const {
-            error: roomError
-        } = await supabase
-            .from("rooms")
-            .update({
-                status: "OCCUPIED"
-            })
-            .eq(
-                "id",
-                booking.room_id
-            )
-            .eq(
-                "hotel_id",
-                currentHotelId
-            );
-
-
-        if (roomError) {
-
-            console.error(
-                "Room status update error:",
-                roomError
-            );
-        }
-
-
-        await reloadAll();
-
-
-        alert(
-            `Check-in successful.\nStay ID: ${stayNumber}`
-        );
-    }
-
-
-    /* =========================================
-       CHECKOUT
-    ========================================= */
-
-    async function checkoutStay(
-        stayId
-    ) {
-
-        const stay =
-            stays.find(
-                item =>
-                    String(item.id) ===
-                    String(stayId)
-            );
-
-
-        if (!stay) {
-
-            alert(
-                "Stay not found."
+            showError(
+                "This stay is no longer active."
             );
 
             return;
@@ -1269,128 +1710,226 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
 
-        const now =
-            new Date().toISOString();
+        isProcessing = true;
+
+        setButtonBusy(
+            button,
+            true,
+            "Checking out..."
+        );
 
 
-        /* UPDATE STAY */
+        try {
 
-        const {
-            error: stayError
-        } = await supabase
-            .from("stays")
-            .update({
-
-                actual_check_out:
-                    now,
-
-                status:
-                    "CHECKED_OUT",
-
-                updated_at:
-                    now
-
-            })
-            .eq(
-                "id",
-                stay.id
-            )
-            .eq(
-                "hotel_id",
-                currentHotelId
-            );
+            const now =
+                new Date().toISOString();
 
 
-        if (stayError) {
+            /* -----------------------------------------
+               UPDATE STAY
+            ----------------------------------------- */
 
-            console.error(
-                "Checkout stay error:",
-                stayError
-            );
+            const {
+                error: stayError
+            } = await supabase
+                .from("stays")
+                .update({
+
+                    actual_check_out:
+                        now,
+
+                    status:
+                        "CHECKED_OUT",
+
+                    updated_at:
+                        now
+
+                })
+                .eq(
+                    "id",
+                    stay.id
+                )
+                .eq(
+                    "hotel_id",
+                    currentHotelId
+                );
+
+
+            if (stayError) {
+
+                throw new Error(
+                    stayError.message
+                );
+            }
+
+
+            /* -----------------------------------------
+               UPDATE BOOKING
+            ----------------------------------------- */
+
+            if (stay.booking_id) {
+
+                const {
+                    error: bookingError
+                } = await supabase
+                    .from("bookings")
+                    .update({
+
+                        status:
+                            "CHECKED_OUT",
+
+                        updated_at:
+                            now
+
+                    })
+                    .eq(
+                        "id",
+                        stay.booking_id
+                    )
+                    .eq(
+                        "hotel_id",
+                        currentHotelId
+                    );
+
+
+                if (bookingError) {
+
+                    await supabase
+                        .from("stays")
+                        .update({
+                            status:
+                                "ACTIVE",
+                            actual_check_out:
+                                null,
+                            updated_at:
+                                now
+                        })
+                        .eq(
+                            "id",
+                            stay.id
+                        )
+                        .eq(
+                            "hotel_id",
+                            currentHotelId
+                        );
+
+
+                    throw new Error(
+                        `Booking checkout update failed: ${bookingError.message}`
+                    );
+                }
+            }
+
+
+            /* -----------------------------------------
+               ROOM -> CLEANING
+            ----------------------------------------- */
+
+            const {
+                error: roomError
+            } = await supabase
+                .from("rooms")
+                .update({
+
+                    status:
+                        "CLEANING",
+
+                    updated_at:
+                        now
+
+                })
+                .eq(
+                    "id",
+                    stay.room_id
+                )
+                .eq(
+                    "hotel_id",
+                    currentHotelId
+                );
+
+
+            if (roomError) {
+
+                if (stay.booking_id) {
+
+                    await supabase
+                        .from("bookings")
+                        .update({
+                            status:
+                                "CHECKED_IN",
+                            updated_at:
+                                now
+                        })
+                        .eq(
+                            "id",
+                            stay.booking_id
+                        )
+                        .eq(
+                            "hotel_id",
+                            currentHotelId
+                        );
+                }
+
+
+                await supabase
+                    .from("stays")
+                    .update({
+                        status:
+                            "ACTIVE",
+                        actual_check_out:
+                            null,
+                        updated_at:
+                            now
+                    })
+                    .eq(
+                        "id",
+                        stay.id
+                    )
+                    .eq(
+                        "hotel_id",
+                        currentHotelId
+                    );
+
+
+                throw new Error(
+                    `Room could not be moved to CLEANING: ${roomError.message}`
+                );
+            }
+
+
+            await reloadAll();
+
 
             alert(
-                "Failed to checkout:\n" +
-                stayError.message
+                "Guest checked out successfully.\n\nRoom moved to CLEANING."
             );
 
-            return;
-        }
-
-
-        /* UPDATE BOOKING */
-
-        const {
-            error: bookingError
-        } = await supabase
-            .from("bookings")
-            .update({
-
-                status:
-                    "CHECKED_OUT",
-
-                updated_at:
-                    now
-
-            })
-            .eq(
-                "id",
-                stay.booking_id
-            )
-            .eq(
-                "hotel_id",
-                currentHotelId
-            );
-
-
-        if (bookingError) {
+        } catch (error) {
 
             console.error(
-                "Booking checkout update error:",
-                bookingError
+                "Checkout error:",
+                error
+            );
+
+            showError(
+                `Failed to checkout:\n${error.message}`
+            );
+
+        } finally {
+
+            isProcessing = false;
+
+            setButtonBusy(
+                button,
+                false
             );
         }
-
-
-        /* ROOM → CLEANING */
-
-        const {
-            error: roomError
-        } = await supabase
-            .from("rooms")
-            .update({
-                status: "CLEANING"
-            })
-            .eq(
-                "id",
-                stay.room_id
-            )
-            .eq(
-                "hotel_id",
-                currentHotelId
-            );
-
-
-        if (roomError) {
-
-            console.error(
-                "Room cleaning status error:",
-                roomError
-            );
-        }
-
-
-        await reloadAll();
-
-
-        alert(
-            "Guest checked out successfully.\nRoom moved to CLEANING."
-        );
     }
 
 
-    /* =========================================
+    /* =========================================================
        RELOAD EVERYTHING
-    ========================================= */
+    ========================================================= */
 
     async function reloadAll() {
 
@@ -1410,22 +1949,87 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-    /* =========================================
+    /* =========================================================
        SEARCH
-    ========================================= */
+    ========================================================= */
 
     if (staySearch) {
 
         staySearch.addEventListener(
             "input",
-            renderStays
+            () => {
+                renderStays();
+            }
         );
     }
 
 
-    /* =========================================
+    /* =========================================================
+       TOP CHECK-IN BUTTON
+    ========================================================= */
+
+    if (checkInBtn) {
+
+        checkInBtn.addEventListener(
+            "click",
+            () => {
+
+                const ready =
+                    getReadyBookings();
+
+
+                if (!ready.length) {
+
+                    alert(
+                        "There are no bookings ready for check-in."
+                    );
+
+                    return;
+                }
+
+
+                const first =
+                    ready[0];
+
+
+                const button =
+                    readyBookingsTableBody
+                        ?.querySelector(
+                            `.stay-checkin-btn[data-id="${first.id}"]`
+                        );
+
+
+                if (button) {
+
+                    button.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                    setTimeout(
+                        () => {
+                            checkInBooking(
+                                first.id,
+                                button
+                            );
+                        },
+                        300
+                    );
+
+                } else {
+
+                    alert(
+                        "Please use the Check-in button beside the booking."
+                    );
+                }
+            }
+        );
+    }
+
+
+    /* =========================================================
        READY BOOKING ACTION
-    ========================================= */
+    ========================================================= */
 
     if (readyBookingsTableBody) {
 
@@ -1448,15 +2052,23 @@ document.addEventListener("DOMContentLoaded", async () => {
                     button.dataset.id;
 
 
-                checkInBooking(id);
+                if (!id) {
+                    return;
+                }
+
+
+                checkInBooking(
+                    id,
+                    button
+                );
             }
         );
     }
 
 
-    /* =========================================
+    /* =========================================================
        ACTIVE STAY ACTION
-    ========================================= */
+    ========================================================= */
 
     if (staysTableBody) {
 
@@ -1479,15 +2091,116 @@ document.addEventListener("DOMContentLoaded", async () => {
                     button.dataset.id;
 
 
-                checkoutStay(id);
+                if (!id) {
+                    return;
+                }
+
+
+                checkoutStay(
+                    id,
+                    button
+                );
             }
         );
     }
 
 
-    /* =========================================
+    /* =========================================================
+       MOBILE MENU
+    ========================================================= */
+
+    const mobileMenu =
+        document.getElementById(
+            "mobileMenu"
+        );
+
+    const sidebar =
+        document.getElementById(
+            "sidebar"
+        );
+
+    const sidebarBackdrop =
+        document.getElementById(
+            "sidebarBackdrop"
+        );
+
+
+    function closeMobileMenu() {
+
+        sidebar?.classList.remove(
+            "show"
+        );
+
+        sidebarBackdrop?.classList.remove(
+            "show"
+        );
+    }
+
+
+    if (mobileMenu) {
+
+        mobileMenu.addEventListener(
+            "click",
+            () => {
+
+                sidebar?.classList.toggle(
+                    "show"
+                );
+
+                sidebarBackdrop?.classList.toggle(
+                    "show"
+                );
+            }
+        );
+    }
+
+
+    if (sidebarBackdrop) {
+
+        sidebarBackdrop.addEventListener(
+            "click",
+            closeMobileMenu
+        );
+    }
+
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(
+            item => {
+
+                item.addEventListener(
+                    "click",
+                    () => {
+                        closeMobileMenu();
+                    }
+                );
+            }
+        );
+
+
+    /* =========================================================
+       AUTH STATE
+    ========================================================= */
+
+    supabase.auth.onAuthStateChange(
+        event => {
+
+            if (
+                event ===
+                "SIGNED_OUT"
+            ) {
+
+                window.location.href =
+                    "login.html";
+            }
+        }
+    );
+
+
+    /* =========================================================
        INITIALIZE
-    ========================================= */
+    ========================================================= */
 
     const hotelLoaded =
         await loadCurrentHotel();
@@ -1499,5 +2212,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     await reloadAll();
+
+
+    console.log(
+        "Check-in & Stays module initialized successfully."
+    );
 
 });

@@ -1,608 +1,2023 @@
-
 /* =========================================================
    STAR HOTELS - RESTAURANT MANAGEMENT
    File: js/restaurant.js
 
-   Manages:
+   Features:
    - Restaurant tables
    - Menu categories
-   - Food menu items
+   - Menu items
    - Menu availability
-
-   Requires:
-   window.supabaseClient
-   profiles.hotel_id for the logged-in user
+   - Menu search
+   - Today's restaurant sales
+   - Mobile sidebar
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
-  const db = window.supabaseClient;
+document.addEventListener("DOMContentLoaded", async () => {
 
-  if (!db) {
-    console.error("Supabase client not found. Check js/supabase.js.");
-    return;
-  }
+    console.log("Restaurant module loaded.");
 
-  let hotelId = null;
-  let tables = [];
-  let categories = [];
-  let menuItems = [];
+    const db = window.supabaseClient;
 
-  const $ = (id) => document.getElementById(id);
-
-  const escapeHTML = (value) =>
-    String(value ?? "").replace(/[&<>"']/g, (character) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    })[character]);
-
-  const money = (amount) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR"
-    }).format(Number(amount) || 0);
-
-  function showMessage(id, message, isError = false) {
-    const element = $(id);
-    if (!element) return;
-
-    element.textContent = message;
-    element.style.color = isError ? "#dc2626" : "#15803d";
-    element.style.display = message ? "block" : "none";
-  }
-
-  function setButtonLoading(button, loading, text = "Save") {
-    if (!button) return;
-
-    if (loading) {
-      button.dataset.originalText = button.textContent;
-      button.disabled = true;
-      button.textContent = "Saving...";
-    } else {
-      button.disabled = false;
-      button.textContent = button.dataset.originalText || text;
-    }
-  }
-
-  async function getHotelId() {
-    const { data: authData, error: authError } =
-      await db.auth.getUser();
-
-    if (authError) throw authError;
-
-    const user = authData?.user;
-
-    if (!user) {
-      throw new Error("Please log in to manage the restaurant.");
+    if (!db) {
+        console.error(
+            "Supabase client not found."
+        );
+        return;
     }
 
-    const { data: profile, error } = await db
-      .from("profiles")
-      .select("hotel_id")
-      .eq("id", user.id)
-      .single();
 
-    if (error) throw error;
+    /* =====================================================
+       STATE
+    ===================================================== */
 
-    if (!profile?.hotel_id) {
-      throw new Error(
-        "Your account is not linked to a hotel. Check your profile settings."
-      );
+    let hotelId = null;
+
+    let tables = [];
+    let categories = [];
+    let menuItems = [];
+    let todaySales = 0;
+
+    let isLoading = false;
+
+
+    /* =====================================================
+       ELEMENT HELPER
+    ===================================================== */
+
+    const $ = (id) =>
+        document.getElementById(id);
+
+
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
+
+    function escapeHTML(value) {
+
+        return String(value ?? "")
+            .replace(
+                /[&<>"']/g,
+                character => ({
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#039;"
+                })[character]
+            );
     }
 
-    return profile.hotel_id;
-  }
 
-  async function loadTables() {
-    const { data, error } = await db
-      .from("restaurant_tables")
-      .select("*")
-      .eq("hotel_id", hotelId)
-      .order("table_number", { ascending: true });
+    /* =====================================================
+       MONEY
+    ===================================================== */
 
-    if (error) throw error;
+    function money(amount) {
 
-    tables = data || [];
-    renderTables();
-  }
+        const value =
+            Number(amount) || 0;
 
-  async function loadCategories() {
-    const { data, error } = await db
-      .from("menu_categories")
-      .select("*")
-      .eq("hotel_id", hotelId)
-      .order("display_order", { ascending: true });
-
-    if (error) throw error;
-
-    categories = data || [];
-    renderCategories();
-    populateCategorySelect();
-  }
-
-  async function loadMenuItems() {
-    const { data, error } = await db
-      .from("menu_items")
-      .select("*")
-      .eq("hotel_id", hotelId)
-      .order("name", { ascending: true });
-
-    if (error) throw error;
-
-    menuItems = data || [];
-    renderMenuItems();
-  }
-
-  function renderTables() {
-    const grid = $("restTablesGrid");
-
-    if (grid) {
-      if (!tables.length) {
-        grid.innerHTML = `
-          <div class="empty-state">
-            No restaurant tables added yet.
-          </div>`;
-      } else {
-        grid.innerHTML = tables.map((table) => `
-          <div class="restaurant-table-card">
-            <div class="restaurant-table-card-header">
-              <strong>
-                Table ${escapeHTML(table.table_number)}
-              </strong>
-              <span class="restaurant-status">
-                ${escapeHTML(table.status || "Available")}
-              </span>
-            </div>
-            <p>Capacity: ${escapeHTML(table.capacity ?? "—")}</p>
-            ${
-              table.notes
-                ? `<p>${escapeHTML(table.notes)}</p>`
-                : ""
+        return new Intl.NumberFormat(
+            "en-IN",
+            {
+                style: "currency",
+                currency: "INR",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
             }
-          </div>
-        `).join("");
-      }
+        ).format(value);
     }
 
-    if ($("restTableCount")) {
-      $("restTableCount").textContent = tables.length;
+
+    /* =====================================================
+       ROUND MONEY
+    ===================================================== */
+
+    function roundMoney(value) {
+
+        return Math.round(
+            (Number(value) || 0) * 100
+        ) / 100;
     }
 
-    // Also support a table-based layout if your HTML uses it.
-    const tableBody = $("restTablesTableBody");
 
-    if (tableBody) {
-      tableBody.innerHTML = tables.length
-        ? tables.map((table) => `
-            <tr>
-              <td>${escapeHTML(table.table_number)}</td>
-              <td>${escapeHTML(table.capacity ?? "—")}</td>
-              <td>${escapeHTML(table.status || "Available")}</td>
-              <td>${escapeHTML(table.notes || "—")}</td>
-            </tr>
-          `).join("")
-        : `<tr><td colspan="4">No tables found.</td></tr>`;
-    }
+    /* =====================================================
+       MESSAGE
+    ===================================================== */
 
-    const orderTableSelect = $("restOrderTable");
-
-    if (orderTableSelect) {
-      const previousValue = orderTableSelect.value;
-
-      orderTableSelect.innerHTML = `
-        <option value="">No table / Room service</option>
-        ${tables.map((table) => `
-          <option value="${escapeHTML(table.id)}">
-            Table ${escapeHTML(table.table_number)}
-          </option>
-        `).join("")}
-      `;
-
-      if (
-        previousValue &&
-        [...orderTableSelect.options].some(
-          (option) => option.value === previousValue
-        )
-      ) {
-        orderTableSelect.value = previousValue;
-      }
-    }
-  }
-
-  function renderCategories() {
-    const list = $("restCategoriesList");
-
-    if (list) {
-      list.innerHTML = categories.length
-        ? categories.map((category) => `
-            <div class="restaurant-category-item">
-              <strong>${escapeHTML(category.name)}</strong>
-              ${
-                category.description
-                  ? `<p>${escapeHTML(category.description)}</p>`
-                  : ""
-              }
-            </div>
-          `).join("")
-        : `<p class="empty-state">No food categories added yet.</p>`;
-    }
-  }
-
-  function populateCategorySelect() {
-    const select = $("restMenuCategory");
-    if (!select) return;
-
-    const previousValue = select.value;
-
-    select.innerHTML = `
-      <option value="">Select category</option>
-      ${categories.map((category) => `
-        <option value="${escapeHTML(category.id)}">
-          ${escapeHTML(category.name)}
-        </option>
-      `).join("")}
-    `;
-
-    if (
-      previousValue &&
-      [...select.options].some(
-        (option) => option.value === previousValue
-      )
+    function showMessage(
+        id,
+        message,
+        isError = false
     ) {
-      select.value = previousValue;
-    }
-  }
 
-  function renderMenuItems() {
-    const body = $("restMenuTableBody");
+        const element = $(id);
 
-    if (body) {
-      body.innerHTML = menuItems.length
-        ? menuItems.map((item) => {
-            const category = categories.find(
-              (entry) => String(entry.id) === String(item.category_id)
-            );
+        if (!element) {
+            return;
+        }
 
-            const available = item.is_available !== false;
+        element.textContent =
+            message || "";
 
-            return `
-              <tr>
-                <td>${escapeHTML(item.name)}</td>
-                <td>${escapeHTML(category?.name || "Uncategorized")}</td>
-                <td>${money(item.price)}</td>
-                <td>
-                  <span class="${available ? "status-available" : "status-unavailable"}">
-                    ${available ? "Available" : "Unavailable"}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    type="button"
-                    data-menu-toggle="${escapeHTML(item.id)}"
-                    data-available="${available ? "true" : "false"}"
-                  >
-                    ${available ? "Mark unavailable" : "Mark available"}
-                  </button>
-                </td>
-              </tr>
-            `;
-          }).join("")
-        : `<tr><td colspan="5">No food items added yet.</td></tr>`;
+        element.style.color =
+            isError
+                ? "#dc2626"
+                : "#15803d";
+
+        element.style.display =
+            message
+                ? "block"
+                : "none";
     }
 
-    const grid = $("restMenuGrid");
 
-    if (grid) {
-      grid.innerHTML = menuItems.length
-        ? menuItems.map((item) => {
-            const category = categories.find(
-              (entry) => String(entry.id) === String(item.category_id)
+    /* =====================================================
+       BUTTON LOADING
+    ===================================================== */
+
+    function setButtonLoading(
+        button,
+        loading,
+        normalText
+    ) {
+
+        if (!button) {
+            return;
+        }
+
+        if (loading) {
+
+            if (
+                !button.dataset.originalText
+            ) {
+                button.dataset.originalText =
+                    button.textContent;
+            }
+
+            button.disabled = true;
+
+            button.textContent =
+                "Saving...";
+
+        } else {
+
+            button.disabled = false;
+
+            button.textContent =
+                button.dataset.originalText ||
+                normalText ||
+                "Save";
+
+            delete button.dataset.originalText;
+        }
+    }
+
+
+    /* =====================================================
+       GET HOTEL ID
+    ===================================================== */
+
+    async function getHotelId() {
+
+        const {
+            data: authData,
+            error: authError
+        } = await db.auth.getUser();
+
+        if (authError) {
+            throw authError;
+        }
+
+        const user =
+            authData?.user;
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return null;
+        }
+
+
+        const {
+            data: profile,
+            error: profileError
+        } = await db
+            .from("profiles")
+            .select(`
+                id,
+                hotel_id,
+                full_name
+            `)
+            .eq(
+                "id",
+                user.id
+            )
+            .maybeSingle();
+
+
+        if (profileError) {
+            throw profileError;
+        }
+
+
+        if (
+            !profile ||
+            !profile.hotel_id
+        ) {
+
+            throw new Error(
+                "Your account is not linked to a hotel."
+            );
+        }
+
+
+        /* ---------------------------------------------
+           Update top user information
+        --------------------------------------------- */
+
+        const topUserName =
+            $("topUserName");
+
+        const topUserInitial =
+            $("topUserInitial");
+
+
+        const name =
+            profile.full_name ||
+            user.email ||
+            "User";
+
+
+        if (topUserName) {
+            topUserName.textContent =
+                name;
+        }
+
+
+        if (topUserInitial) {
+
+            topUserInitial.textContent =
+                String(name)
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase() ||
+                "U";
+        }
+
+
+        return profile.hotel_id;
+    }
+
+
+    /* =====================================================
+       LOAD TABLES
+    ===================================================== */
+
+    async function loadTables() {
+
+        const {
+            data,
+            error
+        } = await db
+            .from("restaurant_tables")
+            .select(`
+                id,
+                hotel_id,
+                table_number,
+                capacity,
+                status,
+                notes,
+                created_at
+            `)
+            .eq(
+                "hotel_id",
+                hotelId
+            )
+            .order(
+                "table_number",
+                {
+                    ascending: true
+                }
             );
 
-            const available = item.is_available !== false;
 
-            return `
-              <div class="restaurant-menu-card">
-                <div>
-                  <strong>${escapeHTML(item.name)}</strong>
-                  <p>${escapeHTML(category?.name || "Uncategorized")}</p>
-                  ${
-                    item.description
-                      ? `<p>${escapeHTML(item.description)}</p>`
-                      : ""
-                  }
+        if (error) {
+            throw error;
+        }
+
+
+        tables =
+            data || [];
+
+
+        renderTables();
+    }
+
+
+    /* =====================================================
+       LOAD CATEGORIES
+    ===================================================== */
+
+    async function loadCategories() {
+
+        const {
+            data,
+            error
+        } = await db
+            .from("menu_categories")
+            .select(`
+                id,
+                hotel_id,
+                name,
+                description,
+                display_order,
+                is_active,
+                created_at
+            `)
+            .eq(
+                "hotel_id",
+                hotelId
+            )
+            .order(
+                "display_order",
+                {
+                    ascending: true
+                }
+            );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        categories =
+            data || [];
+
+
+        renderCategories();
+
+        populateCategorySelect();
+    }
+
+
+    /* =====================================================
+       LOAD MENU ITEMS
+    ===================================================== */
+
+    async function loadMenuItems() {
+
+        const {
+            data,
+            error
+        } = await db
+            .from("menu_items")
+            .select(`
+                id,
+                hotel_id,
+                category_id,
+                name,
+                description,
+                price,
+                is_available,
+                created_at
+            `)
+            .eq(
+                "hotel_id",
+                hotelId
+            )
+            .order(
+                "name",
+                {
+                    ascending: true
+                }
+            );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        menuItems =
+            data || [];
+
+
+        renderMenuItems();
+    }
+
+
+    /* =====================================================
+       LOAD TODAY SALES
+    ===================================================== */
+
+    async function loadTodaySales() {
+
+        todaySales = 0;
+
+
+        const today =
+            new Date();
+
+
+        const start =
+            new Date(
+                today.getFullYear(),
+                today.getMonth(),
+                today.getDate(),
+                0,
+                0,
+                0
+            );
+
+
+        const end =
+            new Date(
+                today.getFullYear(),
+                today.getMonth(),
+                today.getDate() + 1,
+                0,
+                0,
+                0
+            );
+
+
+        const {
+            data,
+            error
+        } = await db
+            .from("restaurant_orders")
+            .select(`
+                id,
+                total,
+                status,
+                created_at
+            `)
+            .eq(
+                "hotel_id",
+                hotelId
+            )
+            .gte(
+                "created_at",
+                start.toISOString()
+            )
+            .lt(
+                "created_at",
+                end.toISOString()
+            );
+
+
+        if (error) {
+
+            console.warn(
+                "Today's sales could not be loaded:",
+                error.message
+            );
+
+            updateSalesStat();
+
+            return;
+        }
+
+
+        todaySales =
+            (data || [])
+                .filter(
+                    order =>
+                        String(
+                            order.status ||
+                            ""
+                        ).toUpperCase() !==
+                        "CANCELLED"
+                )
+                .reduce(
+                    (
+                        total,
+                        order
+                    ) =>
+                        total +
+                        Number(
+                            order.total || 0
+                        ),
+                    0
+                );
+
+
+        updateSalesStat();
+    }
+
+
+    /* =====================================================
+       UPDATE SALES STAT
+    ===================================================== */
+
+    function updateSalesStat() {
+
+        const element =
+            $("restaurantSales");
+
+        if (element) {
+
+            element.textContent =
+                money(todaySales);
+        }
+    }
+
+
+    /* =====================================================
+       RENDER TABLES
+    ===================================================== */
+
+    function renderTables() {
+
+        const grid =
+            $("restTablesGrid");
+
+
+        if (!grid) {
+            return;
+        }
+
+
+        if (!tables.length) {
+
+            grid.innerHTML = `
+                <div class="empty-state">
+                    No restaurant tables added yet.
                 </div>
-                <strong>${money(item.price)}</strong>
-                <span>${available ? "Available" : "Unavailable"}</span>
-              </div>
             `;
-          }).join("")
-        : `<div class="empty-state">No food items added yet.</div>`;
+
+        } else {
+
+            grid.innerHTML =
+                tables.map(
+                    table => {
+
+                        const status =
+                            String(
+                                table.status ||
+                                "AVAILABLE"
+                            ).toUpperCase();
+
+
+                        return `
+                            <div class="restaurant-item">
+
+                                <div style="
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:space-between;
+                                    gap:10px;
+                                ">
+
+                                    <strong>
+                                        Table
+                                        ${escapeHTML(
+                                            table.table_number
+                                        )}
+                                    </strong>
+
+                                    <span class="restaurant-status">
+                                        ${escapeHTML(
+                                            status
+                                        )}
+                                    </span>
+
+                                </div>
+
+                                <p>
+                                    Capacity:
+                                    ${escapeHTML(
+                                        table.capacity ??
+                                        "—"
+                                    )}
+                                </p>
+
+                                ${
+                                    table.notes
+                                        ? `
+                                            <p>
+                                                ${escapeHTML(
+                                                    table.notes
+                                                )}
+                                            </p>
+                                        `
+                                        : ""
+                                }
+
+                            </div>
+                        `;
+                    }
+                ).join("");
+        }
+
+
+        const count =
+            $("restaurantTableCount");
+
+        if (count) {
+            count.textContent =
+                tables.length;
+        }
     }
 
-    const availableCount = menuItems.filter(
-      (item) => item.is_available !== false
-    ).length;
 
-    if ($("restMenuCount")) {
-      $("restMenuCount").textContent = menuItems.length;
+    /* =====================================================
+       RENDER CATEGORIES
+    ===================================================== */
+
+    function renderCategories() {
+
+        const list =
+            $("restCategoriesList");
+
+
+        if (!list) {
+            return;
+        }
+
+
+        const activeCategories =
+            categories.filter(
+                category =>
+                    category.is_active !== false
+            );
+
+
+        if (!activeCategories.length) {
+
+            list.innerHTML = `
+                <div class="empty-state">
+                    No food categories added yet.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        list.innerHTML =
+            activeCategories
+                .map(
+                    category => `
+                        <div class="restaurant-item">
+
+                            <strong>
+                                ${escapeHTML(
+                                    category.name
+                                )}
+                            </strong>
+
+                            ${
+                                category.description
+                                    ? `
+                                        <p>
+                                            ${escapeHTML(
+                                                category.description
+                                            )}
+                                        </p>
+                                    `
+                                    : ""
+                            }
+
+                        </div>
+                    `
+                )
+                .join("");
     }
 
-    if ($("restAvailableCount")) {
-      $("restAvailableCount").textContent = availableCount;
-    }
 
-    // Keep the Orders food-item dropdown in sync.
-    const orderItemSelect = $("restOrderMenuItem");
+    /* =====================================================
+       CATEGORY SELECT
+    ===================================================== */
 
-    if (orderItemSelect) {
-      const previousValue = orderItemSelect.value;
+    function populateCategorySelect() {
 
-      orderItemSelect.innerHTML = `
-        <option value="">Select food item</option>
-        ${menuItems
-          .filter((item) => item.is_available !== false)
-          .map((item) => `
-            <option value="${escapeHTML(item.id)}">
-              ${escapeHTML(item.name)} — ${money(item.price)}
+        const select =
+            $("restMenuCategory");
+
+
+        if (!select) {
+            return;
+        }
+
+
+        const previousValue =
+            select.value;
+
+
+        const activeCategories =
+            categories.filter(
+                category =>
+                    category.is_active !== false
+            );
+
+
+        select.innerHTML = `
+            <option value="">
+                Select category
             </option>
-          `).join("")}
-      `;
 
-      if (
-        previousValue &&
-        [...orderItemSelect.options].some(
-          (option) => option.value === previousValue
-        )
-      ) {
-        orderItemSelect.value = previousValue;
-      }
-    }
-  }
+            ${activeCategories
+                .map(
+                    category => `
+                        <option value="${escapeHTML(
+                            category.id
+                        )}">
+                            ${escapeHTML(
+                                category.name
+                            )}
+                        </option>
+                    `
+                )
+                .join("")}
+        `;
 
-  async function addTable(event) {
-    event.preventDefault();
 
-    const button = $("restSaveTable");
+        if (
+            previousValue &&
+            [...select.options].some(
+                option =>
+                    option.value ===
+                    previousValue
+            )
+        ) {
 
-    const tableNumber = $("restTableNumber")?.value.trim();
-    const capacity = Number($("restTableCapacity")?.value);
-    const notes = $("restTableNotes")?.value.trim() || null;
-
-    showMessage("restTableMessage", "");
-
-    if (!tableNumber) {
-      showMessage("restTableMessage", "Enter a table number.", true);
-      return;
-    }
-
-    if (!Number.isInteger(capacity) || capacity < 1) {
-      showMessage("restTableMessage", "Capacity must be at least 1.", true);
-      return;
+            select.value =
+                previousValue;
+        }
     }
 
-    setButtonLoading(button, true);
 
-    try {
-      // Leave status to the database default so its status constraint
-      // is respected.
-      const { error } = await db
-        .from("restaurant_tables")
-        .insert({
-          hotel_id: hotelId,
-          table_number: tableNumber,
-          capacity,
-          ...(notes ? { notes } : {})
-        });
+    /* =====================================================
+       RENDER MENU ITEMS
+    ===================================================== */
 
-      if (error) throw error;
+    function renderMenuItems() {
 
-      $("restTableForm")?.reset();
+        const body =
+            $("menuItemsTableBody");
 
-      await loadTables();
 
-      showMessage("restTableMessage", "Restaurant table added.");
-    } catch (error) {
-      console.error("Add restaurant table failed:", error);
-      showMessage(
-        "restTableMessage",
-        error.message || "Could not add restaurant table.",
-        true
-      );
-    } finally {
-      setButtonLoading(button, false, "Save Table");
+        if (!body) {
+            return;
+        }
+
+
+        const search =
+            $("menuSearch")
+                ?.value
+                .trim()
+                .toLowerCase() || "";
+
+
+        const filteredItems =
+            menuItems.filter(
+                item => {
+
+                    if (!search) {
+                        return true;
+                    }
+
+
+                    const category =
+                        categories.find(
+                            entry =>
+                                String(
+                                    entry.id
+                                ) ===
+                                String(
+                                    item.category_id
+                                )
+                        );
+
+
+                    const name =
+                        String(
+                            item.name || ""
+                        ).toLowerCase();
+
+
+                    const description =
+                        String(
+                            item.description || ""
+                        ).toLowerCase();
+
+
+                    const categoryName =
+                        String(
+                            category?.name || ""
+                        ).toLowerCase();
+
+
+                    return (
+                        name.includes(search) ||
+                        description.includes(search) ||
+                        categoryName.includes(search)
+                    );
+                }
+            );
+
+
+        if (!filteredItems.length) {
+
+            body.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-table">
+                            ${
+                                menuItems.length
+                                    ? "No menu items match your search."
+                                    : "No food items added yet."
+                            }
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+        } else {
+
+            body.innerHTML =
+                filteredItems
+                    .map(
+                        item => {
+
+                            const category =
+                                categories.find(
+                                    entry =>
+                                        String(
+                                            entry.id
+                                        ) ===
+                                        String(
+                                            item.category_id
+                                        )
+                                );
+
+
+                            const available =
+                                item.is_available !== false;
+
+
+                            return `
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            ${escapeHTML(
+                                                item.name
+                                            )}
+                                        </strong>
+
+                                        ${
+                                            item.description
+                                                ? `
+                                                    <div style="
+                                                        margin-top:4px;
+                                                        color:#96929f;
+                                                        font-size:9px;
+                                                    ">
+                                                        ${escapeHTML(
+                                                            item.description
+                                                        )}
+                                                    </div>
+                                                `
+                                                : ""
+                                        }
+
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            category?.name ||
+                                            "Uncategorized"
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            ${money(
+                                                item.price
+                                            )}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="${
+                                            available
+                                                ? "status-available"
+                                                : "status-unavailable"
+                                        }">
+
+                                            ${
+                                                available
+                                                    ? "Available"
+                                                    : "Unavailable"
+                                            }
+
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <button
+                                            type="button"
+                                            class="table-action-btn ${
+                                                available
+                                                    ? ""
+                                                    : "unavailable"
+                                            }"
+                                            data-menu-toggle="${escapeHTML(
+                                                item.id
+                                            )}"
+                                            data-available="${
+                                                available
+                                                    ? "true"
+                                                    : "false"
+                                            }">
+
+                                            ${
+                                                available
+                                                    ? "Mark unavailable"
+                                                    : "Mark available"
+                                            }
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+                            `;
+                        }
+                    )
+                    .join("");
+        }
+
+
+        /* ---------------------------------------------
+           Statistics
+        --------------------------------------------- */
+
+        const availableCount =
+            menuItems.filter(
+                item =>
+                    item.is_available !== false
+            ).length;
+
+
+        const menuCount =
+            $("menuItemCount");
+
+
+        const availableElement =
+            $("availableMenuItems");
+
+
+        if (menuCount) {
+            menuCount.textContent =
+                menuItems.length;
+        }
+
+
+        if (availableElement) {
+            availableElement.textContent =
+                availableCount;
+        }
     }
-  }
 
-  async function addCategory(event) {
-    event.preventDefault();
 
-    const button = $("restSaveCategory");
+    /* =====================================================
+       ADD TABLE
+    ===================================================== */
 
-    const name = $("restCategoryName")?.value.trim();
-    const description =
-      $("restCategoryDescription")?.value.trim() || null;
+    async function addTable(event) {
 
-    showMessage("restCategoryMessage", "");
+        event.preventDefault();
 
-    if (!name) {
-      showMessage("restCategoryMessage", "Enter a category name.", true);
-      return;
+
+        const button =
+            $("restSaveTable");
+
+
+        const tableNumber =
+            $("restTableNumber")
+                ?.value
+                .trim();
+
+
+        const capacity =
+            Number(
+                $("restTableCapacity")
+                    ?.value
+            );
+
+
+        const notes =
+            $("restTableNotes")
+                ?.value
+                .trim() ||
+            null;
+
+
+        showMessage(
+            "restTableMessage",
+            ""
+        );
+
+
+        if (!tableNumber) {
+
+            showMessage(
+                "restTableMessage",
+                "Enter a table number.",
+                true
+            );
+
+            return;
+        }
+
+
+        if (
+            !Number.isInteger(capacity) ||
+            capacity < 1
+        ) {
+
+            showMessage(
+                "restTableMessage",
+                "Capacity must be at least 1.",
+                true
+            );
+
+            return;
+        }
+
+
+        const duplicate =
+            tables.some(
+                table =>
+                    String(
+                        table.table_number || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    tableNumber.toLowerCase()
+            );
+
+
+        if (duplicate) {
+
+            showMessage(
+                "restTableMessage",
+                `Table ${tableNumber} already exists.`,
+                true
+            );
+
+            return;
+        }
+
+
+        setButtonLoading(
+            button,
+            true,
+            "Save Table"
+        );
+
+
+        try {
+
+            const insertData = {
+                hotel_id: hotelId,
+                table_number:
+                    tableNumber,
+                capacity
+            };
+
+
+            if (notes) {
+                insertData.notes =
+                    notes;
+            }
+
+
+            const {
+                error
+            } = await db
+                .from(
+                    "restaurant_tables"
+                )
+                .insert(
+                    insertData
+                );
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            $("restTableForm")
+                ?.reset();
+
+
+            $("restTableCapacity")
+                && (
+                    $("restTableCapacity")
+                        .value = 2
+                );
+
+
+            await loadTables();
+
+
+            showMessage(
+                "restTableMessage",
+                `Table ${tableNumber} added successfully.`
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Add table error:",
+                error
+            );
+
+
+            showMessage(
+                "restTableMessage",
+                error?.message ||
+                "Could not add restaurant table.",
+                true
+            );
+
+        } finally {
+
+            setButtonLoading(
+                button,
+                false,
+                "Save Table"
+            );
+        }
     }
 
-    setButtonLoading(button, true);
 
-    try {
-      const nextDisplayOrder = categories.reduce(
-        (max, category) =>
-          Math.max(max, Number(category.display_order) || 0),
-        0
-      ) + 1;
+    /* =====================================================
+       ADD CATEGORY
+    ===================================================== */
 
-      const { error } = await db
-        .from("menu_categories")
-        .insert({
-          hotel_id: hotelId,
-          name,
-          description,
-          display_order: nextDisplayOrder,
-          is_active: true
-        });
+    async function addCategory(event) {
 
-      if (error) throw error;
+        event.preventDefault();
 
-      $("restCategoryForm")?.reset();
 
-      await loadCategories();
+        const button =
+            $("restSaveCategory");
 
-      showMessage("restCategoryMessage", "Food category added.");
-    } catch (error) {
-      console.error("Add menu category failed:", error);
-      showMessage(
-        "restCategoryMessage",
-        error.message || "Could not add category.",
-        true
-      );
-    } finally {
-      setButtonLoading(button, false, "Save Category");
+
+        const name =
+            $("restCategoryName")
+                ?.value
+                .trim();
+
+
+        const description =
+            $("restCategoryDescription")
+                ?.value
+                .trim() ||
+            null;
+
+
+        showMessage(
+            "restCategoryMessage",
+            ""
+        );
+
+
+        if (!name) {
+
+            showMessage(
+                "restCategoryMessage",
+                "Enter a category name.",
+                true
+            );
+
+            return;
+        }
+
+
+        const duplicate =
+            categories.some(
+                category =>
+                    String(
+                        category.name || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+
+        if (duplicate) {
+
+            showMessage(
+                "restCategoryMessage",
+                `Category "${name}" already exists.`,
+                true
+            );
+
+            return;
+        }
+
+
+        setButtonLoading(
+            button,
+            true,
+            "Save Category"
+        );
+
+
+        try {
+
+            const nextDisplayOrder =
+                categories.reduce(
+                    (
+                        max,
+                        category
+                    ) =>
+                        Math.max(
+                            max,
+                            Number(
+                                category.display_order
+                            ) || 0
+                        ),
+                    0
+                ) + 1;
+
+
+            const insertData = {
+                hotel_id: hotelId,
+                name,
+                display_order:
+                    nextDisplayOrder,
+                is_active: true
+            };
+
+
+            if (description) {
+                insertData.description =
+                    description;
+            }
+
+
+            const {
+                error
+            } = await db
+                .from(
+                    "menu_categories"
+                )
+                .insert(
+                    insertData
+                );
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            $("restCategoryForm")
+                ?.reset();
+
+
+            await loadCategories();
+
+
+            showMessage(
+                "restCategoryMessage",
+                `Food category "${name}" added successfully.`
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Add category error:",
+                error
+            );
+
+
+            showMessage(
+                "restCategoryMessage",
+                error?.message ||
+                "Could not add category.",
+                true
+            );
+
+        } finally {
+
+            setButtonLoading(
+                button,
+                false,
+                "Save Category"
+            );
+        }
     }
-  }
 
-  async function addMenuItem(event) {
-    event.preventDefault();
 
-    const button = $("restSaveMenu");
+    /* =====================================================
+       ADD MENU ITEM
+    ===================================================== */
 
-    const name = $("restMenuName")?.value.trim();
-    const categoryId = $("restMenuCategory")?.value;
-    const price = Number($("restMenuPrice")?.value);
-    const description =
-      $("restMenuDescription")?.value.trim() || null;
+    async function addMenuItem(event) {
 
-    showMessage("restMenuMessage", "");
+        event.preventDefault();
 
-    if (!name) {
-      showMessage("restMenuMessage", "Enter a food item name.", true);
-      return;
+
+        const button =
+            $("restSaveMenu");
+
+
+        const name =
+            $("restMenuName")
+                ?.value
+                .trim();
+
+
+        const categoryId =
+            $("restMenuCategory")
+                ?.value;
+
+
+        const price =
+            Number(
+                $("restMenuPrice")
+                    ?.value
+            );
+
+
+        const description =
+            $("restMenuDescription")
+                ?.value
+                .trim() ||
+            null;
+
+
+        showMessage(
+            "restMenuMessage",
+            ""
+        );
+
+
+        if (!name) {
+
+            showMessage(
+                "restMenuMessage",
+                "Enter a food item name.",
+                true
+            );
+
+            return;
+        }
+
+
+        if (!categoryId) {
+
+            showMessage(
+                "restMenuMessage",
+                "Select a food category.",
+                true
+            );
+
+            return;
+        }
+
+
+        if (
+            !Number.isFinite(price) ||
+            price < 0
+        ) {
+
+            showMessage(
+                "restMenuMessage",
+                "Enter a valid price.",
+                true
+            );
+
+            return;
+        }
+
+
+        const selectedCategory =
+            categories.find(
+                category =>
+                    String(
+                        category.id
+                    ) ===
+                    String(categoryId)
+            );
+
+
+        if (
+            !selectedCategory ||
+            selectedCategory.is_active === false
+        ) {
+
+            showMessage(
+                "restMenuMessage",
+                "Selected category is not available.",
+                true
+            );
+
+            return;
+        }
+
+
+        const duplicate =
+            menuItems.some(
+                item =>
+                    String(
+                        item.name || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+
+        if (duplicate) {
+
+            showMessage(
+                "restMenuMessage",
+                `Food item "${name}" already exists.`,
+                true
+            );
+
+            return;
+        }
+
+
+        setButtonLoading(
+            button,
+            true,
+            "Save Food Item"
+        );
+
+
+        try {
+
+            const insertData = {
+                hotel_id: hotelId,
+                category_id:
+                    categoryId,
+                name,
+                price:
+                    roundMoney(price),
+                is_available:
+                    true
+            };
+
+
+            if (description) {
+                insertData.description =
+                    description;
+            }
+
+
+            const {
+                error
+            } = await db
+                .from("menu_items")
+                .insert(
+                    insertData
+                );
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            $("restMenuForm")
+                ?.reset();
+
+
+            await loadMenuItems();
+
+
+            showMessage(
+                "restMenuMessage",
+                `"${name}" added to the menu successfully.`
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Add menu item error:",
+                error
+            );
+
+
+            showMessage(
+                "restMenuMessage",
+                error?.message ||
+                "Could not add food item.",
+                true
+            );
+
+        } finally {
+
+            setButtonLoading(
+                button,
+                false,
+                "Save Food Item"
+            );
+        }
     }
 
-    if (!categoryId) {
-      showMessage("restMenuMessage", "Select a food category.", true);
-      return;
+
+    /* =====================================================
+       TOGGLE MENU AVAILABILITY
+    ===================================================== */
+
+    async function toggleMenuItem(button) {
+
+        if (!button) {
+            return;
+        }
+
+
+        const itemId =
+            button.dataset.menuToggle;
+
+
+        const currentlyAvailable =
+            button.dataset.available ===
+            "true";
+
+
+        const nextAvailable =
+            !currentlyAvailable;
+
+
+        if (!itemId) {
+            return;
+        }
+
+
+        const item =
+            menuItems.find(
+                entry =>
+                    String(entry.id) ===
+                    String(itemId)
+            );
+
+
+        if (!item) {
+
+            alert(
+                "Food item not found. Refresh the page."
+            );
+
+            return;
+        }
+
+
+        button.disabled = true;
+
+
+        try {
+
+            const {
+                error
+            } = await db
+                .from("menu_items")
+                .update({
+                    is_available:
+                        nextAvailable
+                })
+                .eq(
+                    "id",
+                    itemId
+                )
+                .eq(
+                    "hotel_id",
+                    hotelId
+                );
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            await loadMenuItems();
+
+
+        } catch (error) {
+
+            console.error(
+                "Menu availability update error:",
+                error
+            );
+
+
+            alert(
+                error?.message ||
+                "Could not update food availability."
+            );
+
+
+        } finally {
+
+            button.disabled =
+                false;
+        }
     }
 
-    if (!Number.isFinite(price) || price < 0) {
-      showMessage("restMenuMessage", "Enter a valid price.", true);
-      return;
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
+    function setupSearch() {
+
+        const search =
+            $("menuSearch");
+
+
+        if (!search) {
+            return;
+        }
+
+
+        search.addEventListener(
+            "input",
+            () => {
+                renderMenuItems();
+            }
+        );
     }
 
-    setButtonLoading(button, true);
 
-    try {
-      const { error } = await db
-        .from("menu_items")
-        .insert({
-          hotel_id: hotelId,
-          category_id: categoryId,
-          name,
-          description,
-          price,
-          is_available: true
-        });
+    /* =====================================================
+       MOBILE MENU
+    ===================================================== */
 
-      if (error) throw error;
+    function setupMobileMenu() {
 
-      $("restMenuForm")?.reset();
+        const menu =
+            $("mobileMenu");
 
-      await loadMenuItems();
+        const sidebar =
+            $("sidebar");
 
-      showMessage("restMenuMessage", "Food item added to the menu.");
-    } catch (error) {
-      console.error("Add menu item failed:", error);
-      showMessage(
-        "restMenuMessage",
-        error.message || "Could not add food item.",
-        true
-      );
-    } finally {
-      setButtonLoading(button, false, "Save Food Item");
+        const backdrop =
+            $("sidebarBackdrop");
+
+
+        if (
+            !menu ||
+            !sidebar ||
+            !backdrop
+        ) {
+            return;
+        }
+
+
+        function closeSidebar() {
+
+            sidebar.classList.remove(
+                "show"
+            );
+
+            backdrop.classList.remove(
+                "show"
+            );
+        }
+
+
+        menu.addEventListener(
+            "click",
+            () => {
+
+                sidebar.classList.toggle(
+                    "show"
+                );
+
+                backdrop.classList.toggle(
+                    "show"
+                );
+            }
+        );
+
+
+        backdrop.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+
+        sidebar
+            .querySelectorAll("a")
+            .forEach(
+                link => {
+
+                    link.addEventListener(
+                        "click",
+                        closeSidebar
+                    );
+                }
+            );
     }
-  }
 
-  async function toggleMenuItem(button) {
-    const itemId = button.dataset.menuToggle;
-    const currentlyAvailable = button.dataset.available === "true";
-    const nextAvailable = !currentlyAvailable;
 
-    button.disabled = true;
+    /* =====================================================
+       ADD MENU ITEM BUTTON
+    ===================================================== */
 
-    try {
-      const { error } = await db
-        .from("menu_items")
-        .update({ is_available: nextAvailable })
-        .eq("id", itemId)
-        .eq("hotel_id", hotelId);
+    function setupAddMenuButton() {
 
-      if (error) throw error;
+        const button =
+            $("addMenuItemBtn");
 
-      await loadMenuItems();
-    } catch (error) {
-      console.error("Update menu availability failed:", error);
-      alert(error.message || "Could not update food availability.");
-    } finally {
-      button.disabled = false;
+        const card =
+            $("menuItemFormCard");
+
+
+        if (!button || !card) {
+            return;
+        }
+
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                card.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+
+                setTimeout(
+                    () => {
+
+                        $("restMenuName")
+                            ?.focus();
+
+                    },
+                    400
+                );
+            }
+        );
     }
-  }
 
-  function wireEvents() {
-    $("restTableForm")?.addEventListener("submit", addTable);
-    $("restCategoryForm")?.addEventListener("submit", addCategory);
-    $("restMenuForm")?.addEventListener("submit", addMenuItem);
 
-    $("restMenuTableBody")?.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-menu-toggle]");
-      if (button) toggleMenuItem(button);
-    });
+    /* =====================================================
+       REFRESH
+    ===================================================== */
 
-    $("restaurantRefresh")?.addEventListener("click", async () => {
-      try {
-        await Promise.all([
-          loadTables(),
-          loadCategories(),
-          loadMenuItems()
-        ]);
-      } catch (error) {
-        console.error("Refresh restaurant failed:", error);
-        alert(error.message || "Could not refresh restaurant data.");
-      }
-    });
-  }
+    function setupRefresh() {
 
-  async function init() {
-    try {
-      hotelId = await getHotelId();
+        const button =
+            $("restaurantRefresh");
 
-      wireEvents();
 
-      await Promise.all([
-        loadTables(),
-        loadCategories()
-      ]);
+        if (!button) {
+            return;
+        }
 
-      await loadMenuItems();
-    } catch (error) {
-      console.error("Restaurant initialization failed:", error);
 
-      const message =
-        error.message || "Could not load restaurant information.";
+        button.addEventListener(
+            "click",
+            async () => {
 
-      showMessage("restTableMessage", message, true);
-      showMessage("restCategoryMessage", message, true);
-      showMessage("restMenuMessage", message, true);
+                if (isLoading) {
+                    return;
+                }
+
+
+                button.disabled = true;
+
+                const original =
+                    button.textContent;
+
+                button.textContent =
+                    "Refreshing...";
+
+
+                try {
+
+                    await Promise.all([
+                        loadTables(),
+                        loadCategories(),
+                        loadMenuItems(),
+                        loadTodaySales()
+                    ]);
+
+
+                    showMessage(
+                        "restTableMessage",
+                        "Restaurant data refreshed."
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Refresh error:",
+                        error
+                    );
+
+
+                    showMessage(
+                        "restTableMessage",
+                        error?.message ||
+                        "Could not refresh restaurant data.",
+                        true
+                    );
+
+                } finally {
+
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        original;
+                }
+            }
+        );
     }
-  }
 
-  init();
+
+    /* =====================================================
+       EVENTS
+    ===================================================== */
+
+    function wireEvents() {
+
+        $("restTableForm")
+            ?.addEventListener(
+                "submit",
+                addTable
+            );
+
+
+        $("restCategoryForm")
+            ?.addEventListener(
+                "submit",
+                addCategory
+            );
+
+
+        $("restMenuForm")
+            ?.addEventListener(
+                "submit",
+                addMenuItem
+            );
+
+
+        $("menuItemsTableBody")
+            ?.addEventListener(
+                "click",
+                event => {
+
+                    const button =
+                        event.target.closest(
+                            "[data-menu-toggle]"
+                        );
+
+
+                    if (!button) {
+                        return;
+                    }
+
+
+                    toggleMenuItem(
+                        button
+                    );
+                }
+            );
+
+
+        setupSearch();
+
+        setupMobileMenu();
+
+        setupAddMenuButton();
+
+        setupRefresh();
+    }
+
+
+    /* =====================================================
+       AUTH STATE
+    ===================================================== */
+
+    db.auth.onAuthStateChange(
+        event => {
+
+            if (
+                event ===
+                "SIGNED_OUT"
+            ) {
+
+                window.location.href =
+                    "login.html";
+            }
+        }
+    );
+
+
+    /* =====================================================
+       INITIALIZE
+    ===================================================== */
+
+    async function init() {
+
+        if (isLoading) {
+            return;
+        }
+
+
+        isLoading = true;
+
+
+        try {
+
+            hotelId =
+                await getHotelId();
+
+
+            if (!hotelId) {
+                return;
+            }
+
+
+            wireEvents();
+
+
+            /*
+             * Categories first because
+             * menu items use category names.
+             */
+
+            await loadCategories();
+
+
+            await Promise.all([
+                loadTables(),
+                loadMenuItems(),
+                loadTodaySales()
+            ]);
+
+
+            console.log(
+                "Restaurant management initialized successfully."
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Restaurant initialization failed:",
+                error
+            );
+
+
+            const message =
+                error?.message ||
+                "Could not load restaurant information.";
+
+
+            showMessage(
+                "restTableMessage",
+                message,
+                true
+            );
+
+
+            showMessage(
+                "restCategoryMessage",
+                message,
+                true
+            );
+
+
+            showMessage(
+                "restMenuMessage",
+                message,
+                true
+            );
+
+        } finally {
+
+            isLoading = false;
+        }
+    }
+
+
+    await init();
+
 });

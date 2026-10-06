@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", async function () {
 
+    "use strict";
+
     console.log("=================================");
-    console.log("HOTEL MANAGEMENT APP STARTED");
+    console.log("STAR HOTELS - DASHBOARD");
     console.log("=================================");
 
 
@@ -11,31 +13,227 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const supabase = window.supabaseClient;
 
-
     if (!supabase) {
 
         console.error(
-            "Supabase client not found."
+            "❌ Supabase client not initialized."
+        );
+
+        showConnectionError(
+            "Supabase connection is not available. Check config.js and supabase.js."
         );
 
         return;
     }
 
-
-    console.log(
-        "Supabase client connected."
-    );
+    console.log("✓ Supabase client connected.");
 
 
     // =====================================================
-    // GLOBAL USER DATA
+    // STATE
     // =====================================================
 
     let currentUser = null;
-
     let currentProfile = null;
-
     let currentHotel = null;
+
+    let dashboardLoading = false;
+
+
+    // =====================================================
+    // ELEMENT HELPER
+    // =====================================================
+
+    function $(id) {
+
+        return document.getElementById(id);
+    }
+
+
+    // =====================================================
+    // HTML ESCAPE
+    // =====================================================
+
+    function escapeHtml(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    // =====================================================
+    // INITIALS
+    // =====================================================
+
+    function getInitials(name) {
+
+        if (!name) {
+            return "U";
+        }
+
+        const cleanName =
+            String(name).trim();
+
+        if (!cleanName) {
+            return "U";
+        }
+
+        const parts =
+            cleanName.split(/\s+/);
+
+        if (parts.length === 1) {
+
+            return parts[0]
+                .substring(0, 2)
+                .toUpperCase();
+        }
+
+        return (
+            parts[0][0] +
+            parts[parts.length - 1][0]
+        ).toUpperCase();
+    }
+
+
+    // =====================================================
+    // FORMAT CURRENCY
+    // =====================================================
+
+    function formatCurrency(value) {
+
+        const amount =
+            Number(value || 0);
+
+        const currency =
+            currentHotel?.currency ||
+            "INR";
+
+        try {
+
+            return new Intl.NumberFormat(
+                "en-IN",
+                {
+                    style: "currency",
+                    currency: currency,
+                    maximumFractionDigits: 2
+                }
+            ).format(amount);
+
+        } catch (error) {
+
+            return "₹" +
+                amount.toLocaleString(
+                    "en-IN",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+        }
+    }
+
+
+    // =====================================================
+    // SET NUMBER
+    // =====================================================
+
+    function setNumber(id, value) {
+
+        const element = $(id);
+
+        if (!element) {
+            return;
+        }
+
+        element.textContent =
+            Number(value || 0)
+                .toLocaleString("en-IN");
+    }
+
+
+    // =====================================================
+    // SET CURRENCY
+    // =====================================================
+
+    function setCurrency(id, value) {
+
+        const element = $(id);
+
+        if (!element) {
+            return;
+        }
+
+        element.textContent =
+            formatCurrency(value);
+    }
+
+
+    // =====================================================
+    // CONNECTION ERROR
+    // =====================================================
+
+    function showConnectionError(message) {
+
+        console.error(message);
+
+
+        const subtitle =
+            $("pageSubtitle");
+
+        if (subtitle) {
+
+            subtitle.textContent =
+                "Connection problem";
+        }
+
+
+        const statusText =
+            document.querySelector(
+                ".hotel-status strong"
+            );
+
+        const statusSmall =
+            document.querySelector(
+                ".hotel-status small"
+            );
+
+        const statusDot =
+            document.querySelector(
+                ".status-dot"
+            );
+
+
+        if (statusText) {
+
+            statusText.textContent =
+                "Connection Error";
+        }
+
+
+        if (statusSmall) {
+
+            statusSmall.textContent =
+                "Check Supabase connection";
+        }
+
+
+        if (statusDot) {
+
+            statusDot.style.background =
+                "#ef4444";
+        }
+    }
 
 
     // =====================================================
@@ -64,9 +262,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
             currentUser =
-                data.session
-                    ? data.session.user
-                    : null;
+                data?.session?.user || null;
 
 
             console.log(
@@ -79,7 +275,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             return currentUser;
 
-
         } catch (error) {
 
             console.error(
@@ -89,7 +284,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             return null;
         }
-
     }
 
 
@@ -99,32 +293,27 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     function requireLogin() {
 
-        const answer = confirm(
-            "Please login to continue.\n\n" +
-            "You need a hotel account to use this feature.\n\n" +
-            "Click OK to open the login page."
-        );
+        const answer =
+            confirm(
+                "Please login to continue.\n\n" +
+                "You need a hotel account to use this feature.\n\n" +
+                "Click OK to open the login page."
+            );
 
 
         if (answer) {
 
             window.location.href =
                 "login.html";
-
         }
-
     }
 
 
     // =====================================================
-    // LOAD USER INFORMATION
+    // LOAD PROFILE + HOTEL
     // =====================================================
 
     async function loadUserInformation() {
-
-        // ---------------------------------------------
-        // DEFAULT GUEST DISPLAY
-        // ---------------------------------------------
 
         updateProfileDisplay(
             "Guest",
@@ -138,26 +327,26 @@ document.addEventListener("DOMContentLoaded", async function () {
             currentProfile = null;
             currentHotel = null;
 
-            console.log(
-                "No logged-in user."
-            );
+            updateHotelDisplay(null);
 
-            return;
+            return false;
         }
 
 
         try {
 
-            // -----------------------------------------
-            // GET PROFILE
-            // -----------------------------------------
+            // =================================================
+            // PROFILE
+            // =================================================
 
             const {
                 data: profile,
                 error: profileError
             } = await supabase
                 .from("profiles")
-                .select("*")
+                .select(
+                    "id, hotel_id, full_name, phone, role"
+                )
                 .eq(
                     "id",
                     currentUser.id
@@ -172,37 +361,45 @@ document.addEventListener("DOMContentLoaded", async function () {
                     profileError
                 );
 
+                currentProfile = null;
+
+            } else {
+
+                currentProfile =
+                    profile || null;
             }
 
 
-            currentProfile =
-                profile || null;
-
-
-            console.log(
-                "Profile loaded:",
-                currentProfile
-            );
-
-
-            // -----------------------------------------
-            // GET HOTEL
-            // -----------------------------------------
+            // =================================================
+            // HOTEL
+            // =================================================
 
             currentHotel = null;
 
 
-            if (
-                currentProfile &&
-                currentProfile.hotel_id
-            ) {
+            if (currentProfile?.hotel_id) {
 
                 const {
                     data: hotel,
                     error: hotelError
                 } = await supabase
                     .from("hotels")
-                    .select("*")
+                    .select(`
+                        id,
+                        name,
+                        logo_url,
+                        address,
+                        city,
+                        state,
+                        country,
+                        phone,
+                        email,
+                        website,
+                        currency,
+                        tax_number,
+                        created_at,
+                        updated_at
+                    `)
                     .eq(
                         "id",
                         currentProfile.hotel_id
@@ -221,21 +418,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                     currentHotel =
                         hotel || null;
-
                 }
-
             }
 
 
-            console.log(
-                "Hotel loaded:",
-                currentHotel
-            );
-
-
-            // -----------------------------------------
+            // =================================================
             // USER DISPLAY
-            // -----------------------------------------
+            // =================================================
 
             const name =
                 currentProfile?.full_name ||
@@ -256,18 +445,16 @@ document.addEventListener("DOMContentLoaded", async function () {
             );
 
 
-            // -----------------------------------------
+            // =================================================
             // HOTEL DISPLAY
-            // -----------------------------------------
+            // =================================================
 
-            if (currentHotel) {
+            updateHotelDisplay(
+                currentHotel
+            );
 
-                updateHotelDisplay(
-                    currentHotel
-                );
 
-            }
-
+            return true;
 
         } catch (error) {
 
@@ -276,13 +463,13 @@ document.addEventListener("DOMContentLoaded", async function () {
                 error
             );
 
+            return false;
         }
-
     }
 
 
     // =====================================================
-    // UPDATE TOP-RIGHT PROFILE
+    // UPDATE TOP PROFILE
     // =====================================================
 
     function updateProfileDisplay(
@@ -297,7 +484,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             );
 
 
-        if (!profile) return;
+        if (!profile) {
+            return;
+        }
 
 
         const avatar =
@@ -314,7 +503,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         const roleElement =
             profile.querySelector(
-                "small"
+                "span"
             );
 
 
@@ -322,7 +511,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             avatar.textContent =
                 getInitials(name);
-
         }
 
 
@@ -330,28 +518,16 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             nameElement.textContent =
                 name;
-
         }
 
 
         if (roleElement) {
 
-            if (
+            roleElement.textContent =
                 status === "LOGGED IN"
-            ) {
-
-                roleElement.textContent =
-                    role;
-
-            } else {
-
-                roleElement.textContent =
-                    "Please Login";
-
-            }
-
+                    ? role
+                    : "Please Login";
         }
-
     }
 
 
@@ -359,26 +535,45 @@ document.addEventListener("DOMContentLoaded", async function () {
     // UPDATE HOTEL DISPLAY
     // =====================================================
 
-    function updateHotelDisplay(
-        hotel
-    ) {
+    function updateHotelDisplay(hotel) {
 
-        if (!hotel) return;
+        const subtitle =
+            $("pageSubtitle");
+
+
+        const heading =
+            document.querySelector(
+                ".welcome-card h2"
+            );
+
+
+        if (!hotel) {
+
+            if (subtitle) {
+
+                subtitle.textContent =
+                    "Welcome to Star Hotels";
+            }
+
+
+            if (heading) {
+
+                heading.textContent =
+                    "Welcome to Star Hotels 👋";
+            }
+
+
+            document.title =
+                "Star Hotels - Dashboard";
+
+
+            return;
+        }
 
 
         const hotelName =
             hotel.name ||
-            "HOTEL MANAGEMENT";
-
-
-        // -----------------------------------------
-        // PAGE SUBTITLE
-        // -----------------------------------------
-
-        const subtitle =
-            document.getElementById(
-                "pageSubtitle"
-            );
+            "Star Hotels";
 
 
         if (subtitle) {
@@ -386,185 +581,238 @@ document.addEventListener("DOMContentLoaded", async function () {
             subtitle.textContent =
                 "Welcome to " +
                 hotelName;
-
         }
 
 
-        // -----------------------------------------
-        // DASHBOARD HEADING
-        // -----------------------------------------
+        if (heading) {
 
-        const dashboardHeading =
-            document.querySelector(
-                "#dashboardPage .welcome-card h2"
-            );
-
-
-        if (dashboardHeading) {
-
-            dashboardHeading.textContent =
+            heading.textContent =
                 hotelName +
                 " Dashboard";
-
         }
 
-
-        // -----------------------------------------
-        // BROWSER TITLE
-        // -----------------------------------------
 
         document.title =
             hotelName +
             " - Hotel Management";
-
     }
 
 
     // =====================================================
-    // DASHBOARD STATISTICS
+    // RESET DASHBOARD
     // =====================================================
 
-    async function loadDashboardStatistics() {
+    function resetDashboardStatistics() {
 
-        if (!currentUser) {
+        // Top statistics
 
-            console.log(
-                "Dashboard stats skipped - user not logged in."
-            );
+        setNumber(
+            "totalBookings",
+            0
+        );
 
-            resetDashboardStatistics();
+        setNumber(
+            "availableRooms",
+            0
+        );
 
-            return;
-        }
+        setNumber(
+            "activeGuests",
+            0
+        );
 
-
-        if (!currentProfile?.hotel_id) {
-
-            console.log(
-                "Dashboard stats skipped - hotel_id not found."
-            );
-
-            resetDashboardStatistics();
-
-            return;
-        }
-
-
-        const hotelId =
-            currentProfile.hotel_id;
-
-
-        console.log(
-            "Loading dashboard statistics for hotel:",
-            hotelId
+        setCurrency(
+            "todayRevenue",
+            0
         );
 
 
-        try {
+        // Room status
 
-            // =================================================
-            // CURRENT MONTH
-            // =================================================
+        setNumber(
+            "roomAvailableCount",
+            0
+        );
 
-            const now =
-                new Date();
+        setNumber(
+            "roomReservedCount",
+            0
+        );
 
+        setNumber(
+            "roomOccupiedCount",
+            0
+        );
 
-            const monthStart =
-                new Date(
-                    now.getFullYear(),
-                    now.getMonth(),
-                    1,
-                    0,
-                    0,
-                    0,
-                    0
-                );
+        setNumber(
+            "roomCleaningCount",
+            0
+        );
 
-
-            const monthStartISO =
-                monthStart.toISOString();
-
-
-            // =================================================
-            // TODAY
-            // =================================================
-
-            const todayStart =
-                new Date(
-                    now.getFullYear(),
-                    now.getMonth(),
-                    now.getDate(),
-                    0,
-                    0,
-                    0,
-                    0
-                );
+        setNumber(
+            "roomMaintenanceCount",
+            0
+        );
+    }
 
 
-            const tomorrowStart =
-                new Date(
-                    now.getFullYear(),
-                    now.getMonth(),
-                    now.getDate() + 1,
-                    0,
-                    0,
-                    0,
-                    0
-                );
+    // =====================================================
+    // LOAD BOOKINGS THIS MONTH
+    // =====================================================
+
+    async function loadBookingsCount(
+        hotelId
+    ) {
+
+        const now =
+            new Date();
 
 
-            const todayISO =
-                todayStart.toISOString();
+        const startOfMonth =
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                1,
+                0,
+                0,
+                0,
+                0
+            ).toISOString();
 
 
-            const tomorrowISO =
-                tomorrowStart.toISOString();
+        const startOfNextMonth =
+            new Date(
+                now.getFullYear(),
+                now.getMonth() + 1,
+                1,
+                0,
+                0,
+                0,
+                0
+            ).toISOString();
 
 
-            // =================================================
-            // 1. TOTAL BOOKINGS
-            // =================================================
+        const {
+            count,
+            error
+        } = await supabase
+            .from("bookings")
+            .select(
+                "id",
+                {
+                    count: "exact",
+                    head: true
+                }
+            )
+            .eq(
+                "hotel_id",
+                hotelId
+            )
+            .gte(
+                "created_at",
+                startOfMonth
+            )
+            .lt(
+                "created_at",
+                startOfNextMonth
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Bookings count error:",
+                error
+            );
+
+            return 0;
+        }
+
+
+        return count || 0;
+    }
+
+
+    // =====================================================
+    // LOAD ROOM COUNTS
+    // =====================================================
+
+    async function loadRoomCounts(
+        hotelId
+    ) {
+
+        const statuses = [
+            "AVAILABLE",
+            "RESERVED",
+            "OCCUPIED",
+            "CLEANING",
+            "MAINTENANCE"
+        ];
+
+
+        const counts = {
+
+            total: 0,
+
+            AVAILABLE: 0,
+
+            RESERVED: 0,
+
+            OCCUPIED: 0,
+
+            CLEANING: 0,
+
+            MAINTENANCE: 0
+        };
+
+
+        // =================================================
+        // TOTAL
+        // =================================================
+
+        const {
+            count: total,
+            error: totalError
+        } = await supabase
+            .from("rooms")
+            .select(
+                "id",
+                {
+                    count: "exact",
+                    head: true
+                }
+            )
+            .eq(
+                "hotel_id",
+                hotelId
+            );
+
+
+        if (totalError) {
+
+            console.error(
+                "Total rooms error:",
+                totalError
+            );
+
+        } else {
+
+            counts.total =
+                total || 0;
+        }
+
+
+        // =================================================
+        // STATUS COUNTS
+        // =================================================
+
+        for (
+            const status of statuses
+        ) {
 
             const {
-                count: bookingCount,
-                error: bookingError
-            } = await supabase
-                .from("bookings")
-                .select(
-                    "id",
-                    {
-                        count: "exact",
-                        head: true
-                    }
-                )
-                .eq(
-                    "hotel_id",
-                    hotelId
-                )
-                .gte(
-                    "created_at",
-                    monthStartISO
-                );
-
-
-            if (bookingError) {
-
-                console.error(
-                    "Booking count error:",
-                    bookingError
-                );
-
-            }
-
-
-            // =================================================
-            // 2. AVAILABLE ROOMS
-            // =================================================
-
-            const {
-                count: availableRoomCount,
-                error: availableRoomError
+                count,
+                error
             } = await supabase
                 .from("rooms")
                 .select(
@@ -580,349 +828,189 @@ document.addEventListener("DOMContentLoaded", async function () {
                 )
                 .eq(
                     "status",
-                    "AVAILABLE"
+                    status
                 );
 
 
-            if (availableRoomError) {
+            if (error) {
 
                 console.error(
-                    "Available room count error:",
-                    availableRoomError
+                    `${status} rooms error:`,
+                    error
                 );
 
+                continue;
             }
 
 
-            // =================================================
-            // 3. ACTIVE GUESTS
-            // =================================================
-
-            const {
-                count: activeGuestCount,
-                error: activeGuestError
-            } = await supabase
-                .from("stays")
-                .select(
-                    "id",
-                    {
-                        count: "exact",
-                        head: true
-                    }
-                )
-                .eq(
-                    "hotel_id",
-                    hotelId
-                )
-                .eq(
-                    "status",
-                    "ACTIVE"
-                );
+            counts[status] =
+                count || 0;
+        }
 
 
-            if (activeGuestError) {
-
-                console.error(
-                    "Active guest count error:",
-                    activeGuestError
-                );
-
-            }
+        return counts;
+    }
 
 
-            // =================================================
-            // 4. TODAY'S REVENUE
-            // =================================================
+    // =====================================================
+    // LOAD ACTIVE GUESTS
+    // =====================================================
 
-            const {
-                data: payments,
-                error: paymentError
-            } = await supabase
-                .from("payments")
-                .select(
-                    "amount"
-                )
-                .eq(
-                    "hotel_id",
-                    hotelId
-                )
-                .gte(
-                    "created_at",
-                    todayISO
-                )
-                .lt(
-                    "created_at",
-                    tomorrowISO
-                );
+    async function loadActiveGuests(
+        hotelId
+    ) {
 
-
-            if (paymentError) {
-
-                console.error(
-                    "Today's revenue error:",
-                    paymentError
-                );
-
-            }
-
-
-            let todayRevenue = 0;
-
-
-            if (
-                !paymentError &&
-                payments
-            ) {
-
-                todayRevenue =
-                    payments.reduce(
-                        function (
-                            total,
-                            payment
-                        ) {
-
-                            return (
-                                total +
-                                Number(
-                                    payment.amount || 0
-                                )
-                            );
-
-                        },
-                        0
-                    );
-
-            }
-
-
-            // =================================================
-            // UPDATE CARDS
-            // =================================================
-
-            updateDashboardNumber(
-                "totalBookings",
-                bookingCount || 0
-            );
-
-
-            updateDashboardNumber(
-                "availableRooms",
-                availableRoomCount || 0
-            );
-
-
-            updateDashboardNumber(
-                "activeGuests",
-                activeGuestCount || 0
-            );
-
-
-            updateDashboardCurrency(
-                "todayRevenue",
-                todayRevenue
-            );
-
-
-            console.log(
-                "Dashboard statistics:",
+        const {
+            count,
+            error
+        } = await supabase
+            .from("stays")
+            .select(
+                "id",
                 {
-                    hotelId: hotelId,
-
-                    totalBookings:
-                        bookingCount || 0,
-
-                    availableRooms:
-                        availableRoomCount || 0,
-
-                    activeGuests:
-                        activeGuestCount || 0,
-
-                    todayRevenue:
-                        todayRevenue
+                    count: "exact",
+                    head: true
                 }
+            )
+            .eq(
+                "hotel_id",
+                hotelId
+            )
+            .eq(
+                "status",
+                "ACTIVE"
             );
 
 
-        } catch (error) {
+        if (error) {
 
             console.error(
-                "Dashboard statistics error:",
+                "Active stays error:",
                 error
             );
 
+            return 0;
         }
 
+
+        return count || 0;
     }
 
 
     // =====================================================
-    // UPDATE DASHBOARD NUMBER
+    // LOAD TODAY REVENUE
     // =====================================================
 
-    function updateDashboardNumber(
-        elementId,
-        value
+    async function loadTodayRevenue(
+        hotelId
     ) {
 
-        const element =
-            document.getElementById(
-                elementId
+        const now =
+            new Date();
+
+
+        const startOfDay =
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate(),
+                0,
+                0,
+                0,
+                0
+            ).toISOString();
+
+
+        const startOfNextDay =
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 1,
+                0,
+                0,
+                0,
+                0
+            ).toISOString();
+
+
+        /*
+         * We intentionally select only columns known to exist
+         * in the current payments table.
+         *
+         * Do NOT add received_by here because the current
+         * project schema previously showed that column missing.
+         */
+
+        const {
+            data,
+            error
+        } = await supabase
+            .from("payments")
+            .select(
+                "amount, payment_date, created_at"
+            )
+            .eq(
+                "hotel_id",
+                hotelId
+            )
+            .gte(
+                "created_at",
+                startOfDay
+            )
+            .lt(
+                "created_at",
+                startOfNextDay
             );
 
 
-        if (!element) {
+        if (error) {
 
-            console.warn(
-                "Dashboard element not found:",
-                elementId
+            console.error(
+                "Today's revenue error:",
+                error
             );
 
-            return;
+            return 0;
         }
 
 
-        element.textContent =
-            Number(
-                value || 0
-            ).toLocaleString(
-                "en-IN"
-            );
+        return (data || [])
+            .reduce(
+                function (
+                    total,
+                    payment
+                ) {
 
+                    return total +
+                        Number(
+                            payment.amount || 0
+                        );
+
+                },
+                0
+            );
     }
 
 
     // =====================================================
-    // UPDATE DASHBOARD CURRENCY
+    // LOAD DASHBOARD STATISTICS
     // =====================================================
 
-    function updateDashboardCurrency(
-        elementId,
-        value
-    ) {
+    async function loadDashboardStatistics() {
 
-        const element =
-            document.getElementById(
-                elementId
-            );
-
-
-        if (!element) {
-
-            console.warn(
-                "Dashboard currency element not found:",
-                elementId
-            );
-
+        if (dashboardLoading) {
             return;
         }
 
 
-        element.textContent =
-            "₹" +
-            Number(
-                value || 0
-            ).toLocaleString(
-                "en-IN",
-                {
-                    maximumFractionDigits: 2
-                }
-            );
-
-    }
-
-
-    // =====================================================
-    // RESET DASHBOARD
-    // =====================================================
-
-    function resetDashboardStatistics() {
-
-        updateDashboardNumber(
-            "totalBookings",
-            0
-        );
-
-
-        updateDashboardNumber(
-            "availableRooms",
-            0
-        );
-
-
-        updateDashboardNumber(
-            "activeGuests",
-            0
-        );
-
-
-        updateDashboardCurrency(
-            "todayRevenue",
-            0
-        );
-
-
-        const recentBookings =
-            document.getElementById(
-                "recentBookings"
-            );
-
-
-        if (recentBookings) {
-
-            recentBookings.innerHTML = `
-
-                <tr>
-
-                    <td
-                        colspan="6"
-                        class="empty-state"
-                    >
-                        No bookings yet
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-
-    }
-
-
-    // =====================================================
-    // LOAD RECENT BOOKINGS
-    // =====================================================
-
-    async function loadRecentBookings() {
-
-        const tableBody =
-            document.getElementById(
-                "recentBookings"
-            );
-
-
-        if (!tableBody) {
-
-            return;
-        }
+        dashboardLoading = true;
 
 
         if (!currentUser) {
 
-            tableBody.innerHTML = `
+            resetDashboardStatistics();
 
-                <tr>
-
-                    <td
-                        colspan="6"
-                        class="empty-state"
-                    >
-                        Please login to view bookings.
-                    </td>
-
-                </tr>
-
-            `;
+            dashboardLoading = false;
 
             return;
         }
@@ -930,20 +1018,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (!currentProfile?.hotel_id) {
 
-            tableBody.innerHTML = `
+            console.warn(
+                "No hotel_id found for current profile."
+            );
 
-                <tr>
+            resetDashboardStatistics();
 
-                    <td
-                        colspan="6"
-                        class="empty-state"
-                    >
-                        Hotel information not found.
-                    </td>
-
-                </tr>
-
-            `;
+            dashboardLoading = false;
 
             return;
         }
@@ -956,421 +1037,118 @@ document.addEventListener("DOMContentLoaded", async function () {
         try {
 
             // =================================================
-            // GET RECENT BOOKINGS
+            // LOAD ALL DASHBOARD DATA
             // =================================================
 
-            const {
-                data: bookings,
-                error: bookingsError
-            } = await supabase
-                .from("bookings")
-                .select("*")
-                .eq(
-                    "hotel_id",
+            const [
+                bookingCount,
+                roomCounts,
+                activeGuests,
+                todayRevenue
+            ] = await Promise.all([
+
+                loadBookingsCount(
+                    hotelId
+                ),
+
+                loadRoomCounts(
+                    hotelId
+                ),
+
+                loadActiveGuests(
+                    hotelId
+                ),
+
+                loadTodayRevenue(
                     hotelId
                 )
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                )
-                .limit(5);
-
-
-            if (bookingsError) {
-
-                throw bookingsError;
-
-            }
+            ]);
 
 
             // =================================================
-            // NO BOOKINGS
+            // TOP STATISTICS
             // =================================================
 
-            if (
-                !bookings ||
-                bookings.length === 0
-            ) {
-
-                tableBody.innerHTML = `
-
-                    <tr>
-
-                        <td
-                            colspan="6"
-                            class="empty-state"
-                        >
-                            No bookings yet
-                        </td>
-
-                    </tr>
-
-                `;
-
-                return;
-
-            }
+            setNumber(
+                "totalBookings",
+                bookingCount
+            );
 
 
-            // =================================================
-            // GET GUEST IDS
-            // =================================================
-
-            const guestIds =
-                [
-                    ...new Set(
-                        bookings
-                            .map(
-                                booking =>
-                                    booking.guest_id
-                            )
-                            .filter(Boolean)
-                    )
-                ];
+            setNumber(
+                "availableRooms",
+                roomCounts.AVAILABLE
+            );
 
 
-            // =================================================
-            // GET ROOM IDS
-            // =================================================
-
-            const roomIds =
-                [
-                    ...new Set(
-                        bookings
-                            .map(
-                                booking =>
-                                    booking.room_id
-                            )
-                            .filter(Boolean)
-                    )
-                ];
+            setNumber(
+                "activeGuests",
+                activeGuests
+            );
 
 
-            // =================================================
-            // LOAD GUESTS
-            // =================================================
-
-            let guests = [];
-
-
-            if (
-                guestIds.length > 0
-            ) {
-
-                const {
-                    data,
-                    error
-                } = await supabase
-                    .from("guests")
-                    .select(
-                        "id, first_name, last_name, full_name"
-                    )
-                    .eq(
-                        "hotel_id",
-                        hotelId
-                    )
-                    .in(
-                        "id",
-                        guestIds
-                    );
-
-
-                if (error) {
-
-                    console.error(
-                        "Recent booking guest error:",
-                        error
-                    );
-
-                } else {
-
-                    guests =
-                        data || [];
-
-                }
-
-            }
-
-
-            // =================================================
-            // LOAD ROOMS
-            // =================================================
-
-            let rooms = [];
-
-
-            if (
-                roomIds.length > 0
-            ) {
-
-                const {
-                    data,
-                    error
-                } = await supabase
-                    .from("rooms")
-                    .select(
-                        "id, room_number"
-                    )
-                    .eq(
-                        "hotel_id",
-                        hotelId
-                    )
-                    .in(
-                        "id",
-                        roomIds
-                    );
-
-
-                if (error) {
-
-                    console.error(
-                        "Recent booking room error:",
-                        error
-                    );
-
-                } else {
-
-                    rooms =
-                        data || [];
-
-                }
-
-            }
-
-
-            // =================================================
-            // CREATE GUEST MAP
-            // =================================================
-
-            const guestMap =
-                new Map();
-
-
-            guests.forEach(
-                function (guest) {
-
-                    const guestName =
-                        guest.full_name ||
-                        [
-                            guest.first_name,
-                            guest.last_name
-                        ]
-                            .filter(Boolean)
-                            .join(" ") ||
-                        "Guest";
-
-
-                    guestMap.set(
-                        String(guest.id),
-                        guestName
-                    );
-
-                }
+            setCurrency(
+                "todayRevenue",
+                todayRevenue
             );
 
 
             // =================================================
-            // CREATE ROOM MAP
+            // ROOM STATUS
             // =================================================
 
-            const roomMap =
-                new Map();
-
-
-            rooms.forEach(
-                function (room) {
-
-                    roomMap.set(
-                        String(room.id),
-                        room.room_number ||
-                        "-"
-                    );
-
-                }
+            setNumber(
+                "roomAvailableCount",
+                roomCounts.AVAILABLE
             );
 
 
-            // =================================================
-            // RENDER BOOKINGS
-            // =================================================
-
-            tableBody.innerHTML =
-                bookings
-                    .map(
-                        function (booking) {
-
-                            const guestName =
-                                guestMap.get(
-                                    String(
-                                        booking.guest_id
-                                    )
-                                ) ||
-                                "Guest";
+            setNumber(
+                "roomReservedCount",
+                roomCounts.RESERVED
+            );
 
 
-                            const roomNumber =
-                                roomMap.get(
-                                    String(
-                                        booking.room_id
-                                    )
-                                ) ||
-                                "-";
+            setNumber(
+                "roomOccupiedCount",
+                roomCounts.OCCUPIED
+            );
 
 
-                            const bookingNumber =
-                                booking.booking_number ||
-                                booking.booking_no ||
-                                booking.id;
+            setNumber(
+                "roomCleaningCount",
+                roomCounts.CLEANING
+            );
 
 
-                            const checkIn =
-                                booking.check_in_date ||
-                                booking.check_in ||
-                                booking.arrival_date ||
-                                booking.arrival;
+            setNumber(
+                "roomMaintenanceCount",
+                roomCounts.MAINTENANCE
+            );
 
 
-                            const checkOut =
-                                booking.check_out_date ||
-                                booking.check_out ||
-                                booking.departure_date ||
-                                booking.departure;
-
-
-                            const status =
-                                booking.status ||
-                                "PENDING";
-
-
-                            return `
-
-                                <tr>
-
-                                    <td>
-                                        ${escapeHtml(
-                                            bookingNumber
-                                        )}
-                                    </td>
-
-
-                                    <td>
-                                        ${escapeHtml(
-                                            guestName
-                                        )}
-                                    </td>
-
-
-                                    <td>
-                                        ${escapeHtml(
-                                            roomNumber
-                                        )}
-                                    </td>
-
-
-                                    <td>
-                                        ${formatDate(
-                                            checkIn
-                                        )}
-                                    </td>
-
-
-                                    <td>
-                                        ${formatDate(
-                                            checkOut
-                                        )}
-                                    </td>
-
-
-                                    <td>
-
-                                        <span
-                                            class="status-badge"
-                                        >
-                                            ${escapeHtml(
-                                                status
-                                            )}
-                                        </span>
-
-                                    </td>
-
-                                </tr>
-
-                            `;
-
-                        }
-                    )
-                    .join("");
-
+            console.log(
+                "✓ Dashboard statistics loaded",
+                {
+                    hotelId,
+                    bookingCount,
+                    roomCounts,
+                    activeGuests,
+                    todayRevenue
+                }
+            );
 
         } catch (error) {
 
             console.error(
-                "Recent bookings error:",
+                "Dashboard statistics error:",
                 error
             );
 
+        } finally {
 
-            tableBody.innerHTML = `
-
-                <tr>
-
-                    <td
-                        colspan="6"
-                        class="empty-state"
-                    >
-                        Unable to load recent bookings.
-                    </td>
-
-                </tr>
-
-            `;
-
+            dashboardLoading = false;
         }
-
-    }
-
-
-    // =====================================================
-    // FORMAT DATE
-    // =====================================================
-
-    function formatDate(
-        value
-    ) {
-
-        if (!value) {
-
-            return "-";
-
-        }
-
-
-        const date =
-            new Date(value);
-
-
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
-
-            return "-";
-
-        }
-
-
-        return date.toLocaleDateString(
-            "en-IN",
-            {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-            }
-        );
-
     }
 
 
@@ -1390,301 +1168,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (!currentProfile?.hotel_id) {
 
-            console.warn(
-                "Cannot refresh dashboard - hotel_id missing."
-            );
-
             resetDashboardStatistics();
 
             return;
         }
 
 
-        console.log(
-            "Refreshing dashboard..."
-        );
-
-
-        await Promise.all([
-            loadDashboardStatistics(),
-            loadRecentBookings()
-        ]);
-
-    }
-
-
-    // =====================================================
-    // NAVIGATION
-    // =====================================================
-
-    function setupNavigation() {
-
-        const clickableItems =
-            document.querySelectorAll(
-                "[data-page]"
-            );
-
-
-        console.log(
-            "Navigation items found:",
-            clickableItems.length
-        );
-
-
-        clickableItems.forEach(
-            function (item) {
-
-                item.addEventListener(
-                    "click",
-                    function (event) {
-
-                        event.preventDefault();
-
-
-                        const pageName =
-                            item.getAttribute(
-                                "data-page"
-                            );
-
-
-                        if (!pageName) {
-
-                            return;
-
-                        }
-
-
-                        console.log(
-                            "Clicked page:",
-                            pageName
-                        );
-
-
-                        // ---------------------------------
-                        // DASHBOARD IS PUBLIC
-                        // ---------------------------------
-
-                        if (
-                            pageName !== "dashboard" &&
-                            !currentUser
-                        ) {
-
-                            requireLogin();
-
-                            return;
-
-                        }
-
-
-                        showPage(
-                            pageName
-                        );
-
-
-                        // ---------------------------------
-                        // REFRESH DASHBOARD
-                        // ---------------------------------
-
-                        if (
-                            pageName === "dashboard" &&
-                            currentUser
-                        ) {
-
-                            refreshDashboard();
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-    }
-
-
-    // =====================================================
-    // SHOW PAGE
-    // =====================================================
-
-    function showPage(
-        pageName
-    ) {
-
-        const navItems =
-            document.querySelectorAll(
-                ".nav-item"
-            );
-
-
-        const pages =
-            document.querySelectorAll(
-                ".page"
-            );
-
-
-        const pageTitle =
-            document.getElementById(
-                "pageTitle"
-            );
-
-
-        const pageSubtitle =
-            document.getElementById(
-                "pageSubtitle"
-            );
-
-
-        // ---------------------------------------------
-        // REMOVE ACTIVE NAV
-        // ---------------------------------------------
-
-        navItems.forEach(
-            function (nav) {
-
-                nav.classList.remove(
-                    "active"
-                );
-
-            }
-        );
-
-
-        // ---------------------------------------------
-        // ADD ACTIVE NAV
-        // ---------------------------------------------
-
-        navItems.forEach(
-            function (nav) {
-
-                if (
-                    nav.getAttribute(
-                        "data-page"
-                    ) === pageName
-                ) {
-
-                    nav.classList.add(
-                        "active"
-                    );
-
-                }
-
-            }
-        );
-
-
-        // ---------------------------------------------
-        // HIDE ALL PAGES
-        // ---------------------------------------------
-
-        pages.forEach(
-            function (page) {
-
-                page.classList.remove(
-                    "active-page"
-                );
-
-            }
-        );
-
-
-        // ---------------------------------------------
-        // SHOW SELECTED PAGE
-        // ---------------------------------------------
-
-        const selectedPage =
-            document.getElementById(
-                pageName + "Page"
-            );
-
-
-        if (selectedPage) {
-
-            selectedPage.classList.add(
-                "active-page"
-            );
-
-        }
-
-
-        // ---------------------------------------------
-        // PAGE TITLES
-        // ---------------------------------------------
-
-        const hotelName =
-            currentHotel?.name ||
-            "your hotel";
-
-
-        const titles = {
-
-            dashboard: [
-                "Dashboard",
-                "Welcome to " + hotelName
-            ],
-
-            bookings: [
-                "Bookings",
-                "Manage hotel reservations"
-            ],
-
-            guests: [
-                "Guests",
-                "Manage hotel guests"
-            ],
-
-            rooms: [
-                "Rooms",
-                "Manage hotel rooms"
-            ],
-
-            restaurant: [
-                "Restaurant",
-                "Manage restaurant"
-            ],
-
-            orders: [
-                "Orders",
-                "Manage restaurant orders"
-            ],
-
-            billing: [
-                "Billing",
-                "Guest billing and checkout"
-            ],
-
-            invoices: [
-                "Invoices",
-                "Manage invoices"
-            ],
-
-            settings: [
-                "Settings",
-                "Hotel settings"
-            ]
-
-        };
-
-
-        if (titles[pageName]) {
-
-            if (pageTitle) {
-
-                pageTitle.textContent =
-                    titles[pageName][0];
-
-            }
-
-
-            if (pageSubtitle) {
-
-                pageSubtitle.textContent =
-                    titles[pageName][1];
-
-            }
-
-        }
-
+        await loadDashboardStatistics();
     }
 
 
@@ -1701,13 +1191,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
         if (!profile) {
-
-            console.warn(
-                "Profile element not found."
-            );
-
             return;
-
         }
 
 
@@ -1715,34 +1199,47 @@ document.addEventListener("DOMContentLoaded", async function () {
             "pointer";
 
 
-        // -----------------------------------------
-        // CREATE DROPDOWN
-        // -----------------------------------------
-
-        const dropdown =
-            document.createElement(
-                "div"
-            );
-
-
-        dropdown.className =
-            "profile-dropdown";
-
-
-        profile.parentElement.appendChild(
-            dropdown
-        );
-
-
-        // -----------------------------------------
-        // PROFILE CLICK
-        // -----------------------------------------
-
         profile.addEventListener(
             "click",
             function (event) {
 
+                event.preventDefault();
+
                 event.stopPropagation();
+
+
+                let dropdown =
+                    document.querySelector(
+                        ".profile-dropdown"
+                    );
+
+
+                if (!dropdown) {
+
+                    dropdown =
+                        document.createElement(
+                            "div"
+                        );
+
+                    dropdown.className =
+                        "profile-dropdown";
+
+
+                    const parent =
+                        profile.parentElement;
+
+
+                    if (parent) {
+
+                        parent.style.position =
+                            "relative";
+
+
+                        parent.appendChild(
+                            dropdown
+                        );
+                    }
+                }
 
 
                 renderProfileDropdown(
@@ -1753,40 +1250,28 @@ document.addEventListener("DOMContentLoaded", async function () {
                 dropdown.classList.toggle(
                     "show"
                 );
-
             }
         );
 
-
-        // -----------------------------------------
-        // DROPDOWN CLICK
-        // -----------------------------------------
-
-        dropdown.addEventListener(
-            "click",
-            function (event) {
-
-                event.stopPropagation();
-
-            }
-        );
-
-
-        // -----------------------------------------
-        // OUTSIDE CLICK
-        // -----------------------------------------
 
         document.addEventListener(
             "click",
             function () {
 
-                dropdown.classList.remove(
-                    "show"
-                );
+                const dropdown =
+                    document.querySelector(
+                        ".profile-dropdown"
+                    );
 
+
+                if (dropdown) {
+
+                    dropdown.classList.remove(
+                        "show"
+                    );
+                }
             }
         );
-
     }
 
 
@@ -1798,10 +1283,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         dropdown
     ) {
 
-        // -----------------------------------------
-        // GUEST
-        // -----------------------------------------
-
         if (!currentUser) {
 
             dropdown.innerHTML = `
@@ -1809,7 +1290,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <div class="profile-header">
 
                     <div class="profile-big-avatar">
-                        U
+                        G
                     </div>
 
                     <div class="profile-header-info">
@@ -1826,49 +1307,37 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                 </div>
 
-
                 <div class="login-profile">
 
                     <button
+                        type="button"
                         id="profileLoginButton"
                     >
                         🔐 Login to your account
                     </button>
 
                 </div>
-
             `;
 
 
             const loginButton =
-                document.getElementById(
-                    "profileLoginButton"
-                );
+                $("profileLoginButton");
 
 
             if (loginButton) {
 
-                loginButton.addEventListener(
-                    "click",
+                loginButton.onclick =
                     function () {
 
                         window.location.href =
                             "login.html";
-
-                    }
-                );
-
+                    };
             }
 
 
             return;
-
         }
 
-
-        // -----------------------------------------
-        // LOGGED-IN USER
-        // -----------------------------------------
 
         const name =
             currentProfile?.full_name ||
@@ -1897,11 +1366,10 @@ document.addEventListener("DOMContentLoaded", async function () {
             <div class="profile-header">
 
                 <div class="profile-big-avatar">
-
-                    ${getInitials(name)}
-
+                    ${escapeHtml(
+                        getInitials(name)
+                    )}
                 </div>
-
 
                 <div class="profile-header-info">
 
@@ -1935,13 +1403,12 @@ document.addEventListener("DOMContentLoaded", async function () {
             <div class="profile-menu">
 
                 <button
+                    type="button"
                     class="profile-menu-item"
                     id="profileDetailsButton"
                 >
 
-                    <span
-                        class="profile-menu-icon"
-                    >
+                    <span class="profile-menu-icon">
                         👤
                     </span>
 
@@ -1953,13 +1420,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
                 <button
+                    type="button"
                     class="profile-menu-item"
                     id="hotelSettingsButton"
                 >
 
-                    <span
-                        class="profile-menu-icon"
-                    >
+                    <span class="profile-menu-icon">
                         🏨
                     </span>
 
@@ -1971,13 +1437,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
                 <button
+                    type="button"
                     class="profile-menu-item"
                     id="accountSettingsButton"
                 >
 
-                    <span
-                        class="profile-menu-icon"
-                    >
+                    <span class="profile-menu-icon">
                         ⚙
                     </span>
 
@@ -1988,19 +1453,16 @@ document.addEventListener("DOMContentLoaded", async function () {
                 </button>
 
 
-                <div
-                    class="profile-divider"
-                ></div>
+                <div class="profile-divider"></div>
 
 
                 <button
+                    type="button"
                     class="profile-menu-item profile-logout"
                     id="logoutButton"
                 >
 
-                    <span
-                        class="profile-menu-icon"
-                    >
+                    <span class="profile-menu-icon">
                         🚪
                     </span>
 
@@ -2011,25 +1473,24 @@ document.addEventListener("DOMContentLoaded", async function () {
                 </button>
 
             </div>
-
         `;
 
 
-        // -----------------------------------------
+        // =================================================
         // MY PROFILE
-        // -----------------------------------------
+        // =================================================
 
         const profileButton =
-            document.getElementById(
-                "profileDetailsButton"
-            );
+            $("profileDetailsButton");
 
 
         if (profileButton) {
 
-            profileButton.addEventListener(
-                "click",
-                function () {
+            profileButton.onclick =
+                function (event) {
+
+                    event.stopPropagation();
+
 
                     dropdown.classList.remove(
                         "show"
@@ -2037,90 +1498,66 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
                     openProfileDrawer();
-
-                }
-            );
-
+                };
         }
 
 
-        // -----------------------------------------
+        // =================================================
         // HOTEL SETTINGS
-        // -----------------------------------------
+        // =================================================
 
         const hotelButton =
-            document.getElementById(
-                "hotelSettingsButton"
-            );
+            $("hotelSettingsButton");
 
 
         if (hotelButton) {
 
-            hotelButton.addEventListener(
-                "click",
-                function () {
+            hotelButton.onclick =
+                function (event) {
 
-                    dropdown.classList.remove(
-                        "show"
-                    );
+                    event.stopPropagation();
 
-
-                    showPage(
-                        "settings"
-                    );
-
-                }
-            );
-
+                    window.location.href =
+                        "settings.html";
+                };
         }
 
 
-        // -----------------------------------------
+        // =================================================
         // ACCOUNT SETTINGS
-        // -----------------------------------------
+        // =================================================
 
         const accountButton =
-            document.getElementById(
-                "accountSettingsButton"
-            );
+            $("accountSettingsButton");
 
 
         if (accountButton) {
 
-            accountButton.addEventListener(
-                "click",
-                function () {
+            accountButton.onclick =
+                function (event) {
 
-                    dropdown.classList.remove(
-                        "show"
-                    );
+                    event.stopPropagation();
 
-
-                    showPage(
-                        "settings"
-                    );
-
-                }
-            );
-
+                    window.location.href =
+                        "settings.html";
+                };
         }
 
 
-        // -----------------------------------------
+        // =================================================
         // LOGOUT
-        // -----------------------------------------
+        // =================================================
 
         const logoutButton =
-            document.getElementById(
-                "logoutButton"
-            );
+            $("logoutButton");
 
 
         if (logoutButton) {
 
-            logoutButton.addEventListener(
-                "click",
-                async function () {
+            logoutButton.onclick =
+                async function (event) {
+
+                    event.stopPropagation();
 
                     dropdown.classList.remove(
                         "show"
@@ -2128,51 +1565,40 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
                     await logoutUser();
-
-                }
-            );
-
+                };
         }
-
     }
 
 
     // =====================================================
-    // OPEN PROFILE DRAWER
+    // PROFILE DRAWER
     // =====================================================
 
     function openProfileDrawer() {
 
         if (!currentUser) {
 
-            window.location.href =
-                "login.html";
+            requireLogin();
 
             return;
-
         }
 
 
         const drawer =
-            document.getElementById(
-                "profileDrawer"
-            );
+            $("profileDrawer");
 
 
         const overlay =
-            document.getElementById(
-                "profileOverlay"
-            );
+            $("profileOverlay");
 
 
         if (!drawer) {
 
             console.warn(
-                "Profile drawer not found in index.html"
+                "Profile drawer not found."
             );
 
             return;
-
         }
 
 
@@ -2189,28 +1615,18 @@ document.addEventListener("DOMContentLoaded", async function () {
             overlay.classList.add(
                 "show"
             );
-
         }
-
     }
 
-
-    // =====================================================
-    // CLOSE PROFILE DRAWER
-    // =====================================================
 
     function closeProfileDrawer() {
 
         const drawer =
-            document.getElementById(
-                "profileDrawer"
-            );
+            $("profileDrawer");
 
 
         const overlay =
-            document.getElementById(
-                "profileOverlay"
-            );
+            $("profileOverlay");
 
 
         if (drawer) {
@@ -2218,7 +1634,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             drawer.classList.remove(
                 "show"
             );
-
         }
 
 
@@ -2227,9 +1642,47 @@ document.addEventListener("DOMContentLoaded", async function () {
             overlay.classList.remove(
                 "show"
             );
+        }
+    }
 
+
+    // =====================================================
+    // SET VALUE
+    // =====================================================
+
+    function setValue(
+        id,
+        value
+    ) {
+
+        const element =
+            $(id);
+
+
+        if (element) {
+
+            element.value =
+                value ?? "";
+        }
+    }
+
+
+    // =====================================================
+    // GET VALUE
+    // =====================================================
+
+    function getValue(id) {
+
+        const element =
+            $(id);
+
+
+        if (!element) {
+            return "";
         }
 
+
+        return element.value.trim();
     }
 
 
@@ -2239,7 +1692,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     function fillProfileDrawer() {
 
-        if (!currentUser) return;
+        if (!currentUser) {
+            return;
+        }
 
 
         const name =
@@ -2258,69 +1713,33 @@ document.addEventListener("DOMContentLoaded", async function () {
             currentHotel || {};
 
 
-        // -----------------------------------------
         // USER
-        // -----------------------------------------
 
-        const drawerAvatar =
-            document.getElementById(
-                "drawerAvatar"
-            );
-
-
-        const drawerUserName =
-            document.getElementById(
-                "drawerUserName"
-            );
+        setText(
+            "drawerAvatar",
+            getInitials(name)
+        );
 
 
-        const drawerUserEmail =
-            document.getElementById(
-                "drawerUserEmail"
-            );
+        setText(
+            "drawerUserName",
+            name
+        );
 
 
-        const drawerUserRole =
-            document.getElementById(
-                "drawerUserRole"
-            );
+        setText(
+            "drawerUserEmail",
+            currentUser.email || ""
+        );
 
 
-        if (drawerAvatar) {
-
-            drawerAvatar.textContent =
-                getInitials(name);
-
-        }
+        setText(
+            "drawerUserRole",
+            role
+        );
 
 
-        if (drawerUserName) {
-
-            drawerUserName.textContent =
-                name;
-
-        }
-
-
-        if (drawerUserEmail) {
-
-            drawerUserEmail.textContent =
-                currentUser.email || "";
-
-        }
-
-
-        if (drawerUserRole) {
-
-            drawerUserRole.textContent =
-                role;
-
-        }
-
-
-        // -----------------------------------------
-        // HOTEL FIELDS
-        // -----------------------------------------
+        // HOTEL
 
         setValue(
             "profileHotelName",
@@ -2376,58 +1795,27 @@ document.addEventListener("DOMContentLoaded", async function () {
             "profileTaxNumber",
             hotel.tax_number || ""
         );
-
     }
 
 
     // =====================================================
-    // SET INPUT VALUE
+    // SET TEXT
     // =====================================================
 
-    function setValue(
+    function setText(
         id,
         value
     ) {
 
         const element =
-            document.getElementById(
-                id
-            );
+            $(id);
 
 
         if (element) {
 
-            element.value =
-                value;
-
+            element.textContent =
+                value ?? "";
         }
-
-    }
-
-
-    // =====================================================
-    // GET INPUT VALUE
-    // =====================================================
-
-    function getValue(
-        id
-    ) {
-
-        const element =
-            document.getElementById(
-                id
-            );
-
-
-        if (!element) {
-
-            return "";
-
-        }
-
-
-        return element.value.trim();
-
     }
 
 
@@ -2438,32 +1826,20 @@ document.addEventListener("DOMContentLoaded", async function () {
     function setupProfileDrawer() {
 
         const closeButton =
-            document.getElementById(
-                "closeProfileDrawer"
-            );
+            $("closeProfileDrawer");
 
 
         const overlay =
-            document.getElementById(
-                "profileOverlay"
-            );
+            $("profileOverlay");
 
 
         const saveButton =
-            document.getElementById(
-                "saveProfileButton"
-            );
+            $("saveProfileButton");
 
 
         const logoutButton =
-            document.getElementById(
-                "drawerLogoutButton"
-            );
+            $("drawerLogoutButton");
 
-
-        // -----------------------------------------
-        // CLOSE
-        // -----------------------------------------
 
         if (closeButton) {
 
@@ -2471,13 +1847,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 "click",
                 closeProfileDrawer
             );
-
         }
 
-
-        // -----------------------------------------
-        // OVERLAY
-        // -----------------------------------------
 
         if (overlay) {
 
@@ -2485,13 +1856,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 "click",
                 closeProfileDrawer
             );
-
         }
 
-
-        // -----------------------------------------
-        // SAVE
-        // -----------------------------------------
 
         if (saveButton) {
 
@@ -2499,13 +1865,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 "click",
                 saveHotelProfile
             );
-
         }
 
-
-        // -----------------------------------------
-        // LOGOUT
-        // -----------------------------------------
 
         if (logoutButton) {
 
@@ -2513,9 +1874,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 "click",
                 logoutUser
             );
-
         }
-
     }
 
 
@@ -2527,29 +1886,24 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (!currentUser) {
 
-            window.location.href =
-                "login.html";
+            requireLogin();
 
             return;
-
         }
 
 
-        if (!currentHotel) {
+        if (!currentHotel?.id) {
 
             alert(
                 "Hotel information was not found."
             );
 
             return;
-
         }
 
 
         const saveButton =
-            document.getElementById(
-                "saveProfileButton"
-            );
+            $("saveProfileButton");
 
 
         if (saveButton) {
@@ -2559,18 +1913,31 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             saveButton.textContent =
                 "Saving...";
-
         }
 
 
         try {
 
+            const hotelName =
+                getValue(
+                    "profileHotelName"
+                );
+
+
+            if (!hotelName) {
+
+                alert(
+                    "Hotel name is required."
+                );
+
+                return;
+            }
+
+
             const updatedHotel = {
 
                 name:
-                    getValue(
-                        "profileHotelName"
-                    ),
+                    hotelName,
 
                 phone:
                     getValue(
@@ -2614,37 +1981,42 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                 updated_at:
                     new Date().toISOString()
-
             };
-
-
-            console.log(
-                "Saving hotel:",
-                updatedHotel
-            );
 
 
             const {
                 data,
                 error
-            } =
-                await supabase
-                    .from("hotels")
-                    .update(
-                        updatedHotel
-                    )
-                    .eq(
-                        "id",
-                        currentHotel.id
-                    )
-                    .select()
-                    .single();
+            } = await supabase
+                .from("hotels")
+                .update(
+                    updatedHotel
+                )
+                .eq(
+                    "id",
+                    currentHotel.id
+                )
+                .select(`
+                    id,
+                    name,
+                    logo_url,
+                    address,
+                    city,
+                    state,
+                    country,
+                    phone,
+                    email,
+                    website,
+                    currency,
+                    tax_number,
+                    created_at,
+                    updated_at
+                `)
+                .single();
 
 
             if (error) {
-
                 throw error;
-
             }
 
 
@@ -2657,6 +2029,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             );
 
 
+            fillProfileDrawer();
+
+
             alert(
                 "Hotel profile saved successfully."
             );
@@ -2664,11 +2039,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             closeProfileDrawer();
 
-
         } catch (error) {
 
             console.error(
-                "Profile save error:",
+                "Hotel profile save error:",
                 error
             );
 
@@ -2678,19 +2052,17 @@ document.addEventListener("DOMContentLoaded", async function () {
                 error.message
             );
 
+        } finally {
+
+            if (saveButton) {
+
+                saveButton.disabled =
+                    false;
+
+                saveButton.textContent =
+                    "Save Changes";
+            }
         }
-
-
-        if (saveButton) {
-
-            saveButton.disabled =
-                false;
-
-            saveButton.textContent =
-                "Save Changes";
-
-        }
-
     }
 
 
@@ -2700,16 +2072,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     async function logoutUser() {
 
-        const confirmLogout =
+        const confirmed =
             confirm(
                 "Are you sure you want to logout?"
             );
 
 
-        if (!confirmLogout) {
-
+        if (!confirmed) {
             return;
-
         }
 
 
@@ -2717,25 +2087,17 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             const {
                 error
-            } =
-                await supabase.auth.signOut();
+            } = await supabase.auth.signOut();
 
 
             if (error) {
-
                 throw error;
-
             }
 
 
-            currentUser =
-                null;
-
-            currentProfile =
-                null;
-
-            currentHotel =
-                null;
+            currentUser = null;
+            currentProfile = null;
+            currentHotel = null;
 
 
             resetDashboardStatistics();
@@ -2743,7 +2105,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             window.location.href =
                 "login.html";
-
 
         } catch (error) {
 
@@ -2757,9 +2118,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 "Logout failed.\n\n" +
                 error.message
             );
-
         }
-
     }
 
 
@@ -2770,9 +2129,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     function setupMobileMenu() {
 
         const mobileMenu =
-            document.getElementById(
-                "mobileMenu"
-            );
+            $("mobileMenu");
 
 
         const sidebar =
@@ -2782,28 +2139,54 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
         if (
-            mobileMenu &&
-            sidebar
+            !mobileMenu ||
+            !sidebar
         ) {
-
-            mobileMenu.addEventListener(
-                "click",
-                function () {
-
-                    sidebar.classList.toggle(
-                        "show"
-                    );
-
-                }
-            );
-
+            return;
         }
 
+
+        mobileMenu.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+
+                sidebar.classList.toggle(
+                    "show"
+                );
+            }
+        );
+
+
+        const navLinks =
+            sidebar.querySelectorAll(
+                "a"
+            );
+
+
+        navLinks.forEach(
+            function (link) {
+
+                link.addEventListener(
+                    "click",
+                    function () {
+
+                        sidebar.classList.remove(
+                            "show"
+                        );
+                    }
+                );
+            }
+        );
     }
 
 
     // =====================================================
-    // SUPABASE AUTH STATE
+    // AUTH STATE
     // =====================================================
 
     supabase.auth.onAuthStateChange(
@@ -2819,14 +2202,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
             currentUser =
-                session
-                    ? session.user
-                    : null;
+                session?.user || null;
 
 
             if (!currentUser) {
 
                 currentProfile = null;
+
                 currentHotel = null;
 
 
@@ -2837,20 +2219,17 @@ document.addEventListener("DOMContentLoaded", async function () {
                 );
 
 
+                updateHotelDisplay(
+                    null
+                );
+
+
                 resetDashboardStatistics();
 
-                return;
 
+                return;
             }
 
-
-            // -------------------------------------------------
-            // IMPORTANT:
-            // Don't perform awaited Supabase calls directly
-            // inside onAuthStateChange.
-            //
-            // Schedule them after the auth callback finishes.
-            // -------------------------------------------------
 
             if (
                 event === "SIGNED_IN" ||
@@ -2873,53 +2252,63 @@ document.addEventListener("DOMContentLoaded", async function () {
                                 "Auth refresh error:",
                                 error
                             );
-
                         }
 
                     },
                     0
                 );
-
             }
-
         }
     );
 
 
     // =====================================================
-    // INITIALIZE APPLICATION
+    // INITIALIZE
     // =====================================================
 
-    await checkLogin();
-
-
-    setupNavigation();
+    const user =
+        await checkLogin();
 
 
     setupProfile();
 
-
     setupProfileDrawer();
-
 
     setupMobileMenu();
 
 
-    await loadUserInformation();
+    if (!user) {
+
+        updateProfileDisplay(
+            "Guest",
+            "Please Login",
+            "GUEST"
+        );
 
 
-    // =====================================================
-    // LOAD DASHBOARD
-    // =====================================================
+        resetDashboardStatistics();
 
-    if (currentUser) {
+
+        console.log(
+            "Dashboard ready - guest mode."
+        );
+
+
+        return;
+    }
+
+
+    const loaded =
+        await loadUserInformation();
+
+
+    if (loaded) {
 
         await refreshDashboard();
 
     } else {
 
         resetDashboardStatistics();
-
     }
 
 
@@ -2928,7 +2317,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     );
 
     console.log(
-        "HOTEL MANAGEMENT DASHBOARD READY"
+        "✓ STAR HOTELS DASHBOARD READY"
     );
 
     console.log(
@@ -2936,95 +2325,3 @@ document.addEventListener("DOMContentLoaded", async function () {
     );
 
 });
-
-
-// =========================================================
-// GET INITIALS
-// =========================================================
-
-function getInitials(
-    name
-) {
-
-    if (!name) {
-
-        return "U";
-
-    }
-
-
-    const cleanName =
-        String(name).trim();
-
-
-    if (!cleanName) {
-
-        return "U";
-
-    }
-
-
-    const parts =
-        cleanName.split(/\s+/);
-
-
-    if (
-        parts.length === 1
-    ) {
-
-        return parts[0]
-            .substring(0, 2)
-            .toUpperCase();
-
-    }
-
-
-    return (
-        parts[0][0] +
-        parts[parts.length - 1][0]
-    ).toUpperCase();
-
-}
-
-
-// =========================================================
-// HTML ESCAPE
-// =========================================================
-
-function escapeHtml(
-    value
-) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return "";
-
-    }
-
-
-    return String(value)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}

@@ -1,0 +1,2926 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Billing - Hotels</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+
+        /* =========================================================
+           STAR HOTELS
+           BILLING PAGE
+           ALL CSS INCLUDED IN THIS HTML
+           ========================================================= */
+
+        :root {
+
+            --primary: #6d4aff;
+            --primary-dark: #5436d6;
+            --primary-light: #eeeaff;
+
+            --dark: #17151f;
+            --dark-2: #24212f;
+            --dark-3: #312d3e;
+
+            --text: #24212f;
+            --text-light: #747181;
+            --muted: #96929f;
+
+            --white: #ffffff;
+            --background: #f7f7fb;
+            --border: #e9e7ef;
+
+            --green: #21a366;
+            --green-light: #eaf8f0;
+
+            --orange: #f59e0b;
+            --orange-light: #fff7e6;
+
+            --red: #ef4444;
+            --red-light: #fff0f0;
+
+            --blue: #3d7eff;
+            --blue-light: #edf3ff;
+
+            --purple: #8b5cf6;
+            --purple-light: #f3edff;
+
+            --gray-light: #f5f4f8;
+
+            --shadow:
+                0 4px 15px rgba(24, 20, 40, 0.05);
+
+            --shadow-large:
+                0 15px 45px rgba(24, 20, 40, 0.12);
+
+            --sidebar-width: 255px;
+        }
+
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+
+            font-family: "Inter", sans-serif;
+
+            background:
+                var(--background);
+
+            color:
+                var(--text);
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+
+        button {
+            cursor: pointer;
+        }
+
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+
+        /* =========================================================
+           APP
+           ========================================================= */
+
+        .app {
+            min-height: 100vh;
+        }
+
+
+        /* =========================================================
+           SIDEBAR
+           ========================================================= */
+
+        .sidebar {
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: var(--sidebar-width);
+            height: 100vh;
+
+            background:
+                var(--dark);
+
+            color:
+                #ffffff;
+
+            z-index: 1000;
+
+            display: flex;
+            flex-direction: column;
+
+            overflow-y: auto;
+        }
+
+
+        .logo {
+
+            height: 72px;
+
+            padding:
+                0 22px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            border-bottom:
+                1px solid rgba(255,255,255,0.07);
+        }
+
+
+        .logo-icon {
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                var(--primary);
+
+            color:
+                #ffffff;
+
+            font-size: 20px;
+
+            box-shadow:
+                0 5px 18px rgba(109, 74, 255, 0.3);
+        }
+
+
+        .logo-text {
+
+            display: flex;
+
+            flex-direction: column;
+
+            line-height: 1.05;
+        }
+
+
+        .logo-text strong {
+
+            font-size: 15px;
+
+            letter-spacing: 1.5px;
+        }
+
+
+        .logo-text span {
+
+            margin-top: 4px;
+
+            color:
+                #a9a5b4;
+
+            font-size: 9px;
+
+            letter-spacing: 2px;
+        }
+
+
+        .sidebar-nav {
+
+            padding:
+                20px 12px;
+
+            flex: 1;
+        }
+
+
+        .menu-title {
+
+            padding:
+                10px 12px 8px;
+
+            color:
+                #777384;
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            letter-spacing: 1.3px;
+        }
+
+
+        .nav-item {
+
+            min-height: 42px;
+
+            padding:
+                0 12px;
+
+            margin:
+                3px 0;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            border-radius: 8px;
+
+            color:
+                #b8b4c2;
+
+            font-size: 12px;
+
+            font-weight: 500;
+
+            transition:
+                0.15s ease;
+        }
+
+
+        .nav-item:hover {
+
+            background:
+                rgba(255,255,255,0.06);
+
+            color:
+                #ffffff;
+        }
+
+
+        .nav-item.active {
+
+            background:
+                var(--primary);
+
+            color:
+                #ffffff;
+
+            box-shadow:
+                0 5px 16px rgba(109,74,255,0.22);
+        }
+
+
+        .nav-icon {
+
+            width: 22px;
+
+            text-align: center;
+
+            font-size: 15px;
+
+            opacity: 0.9;
+        }
+
+
+        .sidebar-footer {
+
+            padding:
+                16px;
+
+            border-top:
+                1px solid rgba(255,255,255,0.07);
+        }
+
+
+        .hotel-status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding:
+                10px;
+
+            border-radius: 8px;
+
+            background:
+                rgba(255,255,255,0.04);
+        }
+
+
+        .hotel-status strong {
+
+            display: block;
+
+            color:
+                #ddd9e5;
+
+            font-size: 10px;
+        }
+
+
+        .hotel-status small {
+
+            display: block;
+
+            margin-top: 2px;
+
+            color:
+                #777384;
+
+            font-size: 8px;
+        }
+
+
+        .status-dot {
+
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background:
+                #21a366;
+
+            box-shadow:
+                0 0 0 4px rgba(33,163,102,0.12);
+        }
+
+
+        /* =========================================================
+           MAIN
+           ========================================================= */
+
+        .main {
+
+            min-height: 100vh;
+
+            margin-left:
+                var(--sidebar-width);
+        }
+
+
+        /* =========================================================
+           TOPBAR
+           ========================================================= */
+
+        .topbar {
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 100;
+
+            min-height: 72px;
+
+            padding:
+                0 28px;
+
+            background:
+                rgba(255,255,255,0.96);
+
+            border-bottom:
+                1px solid var(--border);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            backdrop-filter:
+                blur(10px);
+        }
+
+
+        .topbar-left {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+
+        .topbar-left h1 {
+
+            font-size: 17px;
+
+            line-height: 1.2;
+        }
+
+
+        .topbar-left p {
+
+            margin-top: 3px;
+
+            color:
+                var(--text-light);
+
+            font-size: 10px;
+        }
+
+
+        .topbar-right {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+
+        .sidebar-link {
+
+            width: 36px;
+            height: 36px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 8px;
+
+            color:
+                var(--text-light);
+
+            background:
+                #ffffff;
+        }
+
+
+        .sidebar-link:hover {
+
+            color:
+                var(--primary);
+
+            border-color:
+                #dcd6ff;
+
+            background:
+                var(--primary-light);
+        }
+
+
+        .user-profile {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding:
+                4px 8px;
+
+            border-radius: 9px;
+        }
+
+
+        .user-profile:hover {
+
+            background:
+                var(--gray-light);
+        }
+
+
+        .avatar {
+
+            width: 36px;
+            height: 36px;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            background:
+                var(--primary-light);
+
+            color:
+                var(--primary);
+
+            font-size: 13px;
+
+            font-weight: 700;
+        }
+
+
+        .user-info {
+
+            display: flex;
+
+            flex-direction: column;
+        }
+
+
+        .user-info strong {
+
+            font-size: 11px;
+        }
+
+
+        .user-info span {
+
+            margin-top: 2px;
+
+            color:
+                var(--muted);
+
+            font-size: 9px;
+        }
+
+
+        .mobile-menu {
+
+            display: none;
+
+            width: 36px;
+            height: 36px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 8px;
+
+            background:
+                #ffffff;
+
+            color:
+                var(--text);
+
+            font-size: 17px;
+        }
+
+
+        /* =========================================================
+           CONTENT
+           ========================================================= */
+
+        .content {
+
+            padding:
+                25px 28px 45px;
+        }
+
+
+        .section-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 20px;
+        }
+
+
+        .section-header h2 {
+
+            font-size: 19px;
+        }
+
+
+        .section-header p {
+
+            margin-top: 4px;
+
+            color:
+                var(--text-light);
+
+            font-size: 10px;
+        }
+
+
+        /* =========================================================
+           STATS
+           ========================================================= */
+
+        .stats-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 14px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .stat-card {
+
+            min-height: 92px;
+
+            padding: 16px;
+
+            background:
+                #ffffff;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 10px;
+
+            box-shadow:
+                var(--shadow);
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+        }
+
+
+        .stat-icon {
+
+            width: 42px;
+            height: 42px;
+
+            flex-shrink: 0;
+
+            border-radius: 10px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 17px;
+
+            font-weight: 700;
+        }
+
+
+        .stat-icon.orange {
+
+            background:
+                var(--orange-light);
+
+            color:
+                var(--orange);
+        }
+
+
+        .stat-icon.green {
+
+            background:
+                var(--green-light);
+
+            color:
+                var(--green);
+        }
+
+
+        .stat-icon.red {
+
+            background:
+                var(--red-light);
+
+            color:
+                var(--red);
+        }
+
+
+        .stat-icon.purple {
+
+            background:
+                var(--purple-light);
+
+            color:
+                var(--purple);
+        }
+
+
+        .stat-content span {
+
+            display: block;
+
+            color:
+                var(--text-light);
+
+            font-size: 9px;
+
+            font-weight: 500;
+        }
+
+
+        .stat-content strong {
+
+            display: block;
+
+            margin-top: 4px;
+
+            font-size: 17px;
+        }
+
+
+        /* =========================================================
+           BILLING WORKSPACE
+           ========================================================= */
+
+        .billing-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1.25fr)
+                minmax(360px, 0.75fr);
+
+            gap: 18px;
+
+            align-items: start;
+
+            margin-bottom: 20px;
+        }
+
+
+        .card {
+
+            background:
+                #ffffff;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 10px;
+
+            box-shadow:
+                var(--shadow);
+
+            overflow: hidden;
+        }
+
+
+        .card-header {
+
+            min-height: 58px;
+
+            padding:
+                14px 18px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+        }
+
+
+        .card-header h3 {
+
+            font-size: 13px;
+        }
+
+
+        .card-header p {
+
+            margin-top: 2px;
+
+            color:
+                var(--text-light);
+
+            font-size: 9px;
+        }
+
+
+        .card-body {
+
+            padding:
+                18px;
+        }
+
+
+        /* =========================================================
+           FORM
+           ========================================================= */
+
+        .form-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 13px;
+        }
+
+
+        .form-group {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 6px;
+        }
+
+
+        .form-group.full {
+
+            grid-column:
+                1 / -1;
+        }
+
+
+        .form-group label {
+
+            color:
+                var(--text);
+
+            font-size: 10px;
+
+            font-weight: 600;
+        }
+
+
+        .form-control {
+
+            width: 100%;
+
+            min-height: 39px;
+
+            padding:
+                0 11px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 7px;
+
+            background:
+                #ffffff;
+
+            color:
+                var(--text);
+
+            outline: none;
+
+            font-size: 11px;
+
+            transition:
+                0.15s ease;
+        }
+
+
+        textarea.form-control {
+
+            min-height: 78px;
+
+            padding:
+                10px 11px;
+
+            resize: vertical;
+        }
+
+
+        .form-control:focus {
+
+            border-color:
+                var(--primary);
+
+            box-shadow:
+                0 0 0 3px rgba(109,74,255,0.08);
+        }
+
+
+        .form-help {
+
+            color:
+                var(--muted);
+
+            font-size: 8px;
+        }
+
+
+        /* =========================================================
+           GUEST DETAILS
+           ========================================================= */
+
+        .guest-details {
+
+            margin-bottom: 16px;
+
+            padding: 13px;
+
+            background:
+                var(--gray-light);
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 8px;
+        }
+
+
+        .guest-details-title {
+
+            margin-bottom: 9px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+
+        .guest-details-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
+            gap: 10px;
+        }
+
+
+        .detail-box {
+
+            padding:
+                9px;
+
+            border-radius: 7px;
+
+            background:
+                #ffffff;
+
+            border:
+                1px solid var(--border);
+        }
+
+
+        .detail-box span {
+
+            display: block;
+
+            color:
+                var(--muted);
+
+            font-size: 8px;
+        }
+
+
+        .detail-box strong {
+
+            display: block;
+
+            margin-top: 3px;
+
+            font-size: 10px;
+        }
+
+
+        /* =========================================================
+           BILL SUMMARY
+           ========================================================= */
+
+        .bill-summary {
+
+            margin-top: 18px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 8px;
+
+            overflow: hidden;
+        }
+
+
+        .bill-row {
+
+            min-height: 38px;
+
+            padding:
+                0 12px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            border-bottom:
+                1px solid var(--border);
+
+            font-size: 10px;
+        }
+
+
+        .bill-row:last-child {
+
+            border-bottom: 0;
+        }
+
+
+        .bill-row span:first-child {
+
+            color:
+                var(--text-light);
+        }
+
+
+        .bill-row strong {
+
+            font-size: 11px;
+        }
+
+
+        .bill-row.discount strong {
+
+            color:
+                var(--red);
+        }
+
+
+        .bill-row.grand-total {
+
+            min-height: 48px;
+
+            background:
+                var(--primary-light);
+
+            color:
+                var(--primary-dark);
+        }
+
+
+        .bill-row.grand-total span:first-child {
+
+            color:
+                var(--primary-dark);
+
+            font-weight: 700;
+        }
+
+
+        .bill-row.grand-total strong {
+
+            font-size: 16px;
+        }
+
+
+        .bill-row.balance {
+
+            background:
+                var(--orange-light);
+        }
+
+
+        /* =========================================================
+           BUTTONS
+           ========================================================= */
+
+        .button-row {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 8px;
+
+            margin-top: 18px;
+        }
+
+
+        .btn {
+
+            min-height: 38px;
+
+            padding:
+                0 14px;
+
+            border-radius: 7px;
+
+            border:
+                1px solid transparent;
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 7px;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+            transition:
+                0.15s ease;
+        }
+
+
+        .btn:disabled {
+
+            opacity: 0.55;
+
+            cursor:
+                not-allowed;
+        }
+
+
+        .btn-primary {
+
+            background:
+                var(--primary);
+
+            color:
+                #ffffff;
+        }
+
+
+        .btn-primary:hover:not(:disabled) {
+
+            background:
+                var(--primary-dark);
+        }
+
+
+        .btn-light {
+
+            background:
+                #ffffff;
+
+            color:
+                var(--text);
+
+            border-color:
+                var(--border);
+        }
+
+
+        .btn-light:hover:not(:disabled) {
+
+            background:
+                var(--gray-light);
+        }
+
+
+        .btn-success {
+
+            background:
+                var(--green);
+
+            color:
+                #ffffff;
+        }
+
+
+        .btn-success:hover:not(:disabled) {
+
+            background:
+                #18874f;
+        }
+
+
+        .btn-danger {
+
+            background:
+                var(--red);
+
+            color:
+                #ffffff;
+        }
+
+
+        /* =========================================================
+           MESSAGE
+           ========================================================= */
+
+        .checkout-message {
+
+            min-height: 18px;
+
+            margin-top: 12px;
+
+            font-size: 9px;
+
+            font-weight: 500;
+        }
+
+
+        /* =========================================================
+           PREVIEW
+           ========================================================= */
+
+        .invoice-preview {
+
+            min-height: 250px;
+
+            padding: 18px;
+
+            background:
+                #ffffff;
+
+            border:
+                1px dashed var(--border);
+
+            border-radius: 8px;
+
+            overflow-x: auto;
+        }
+
+
+        .preview-placeholder {
+
+            min-height: 210px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+            color:
+                var(--muted);
+
+            font-size: 10px;
+        }
+
+
+        .print-invoice {
+
+            max-width: 760px;
+
+            margin: 0 auto;
+
+            color:
+                #222222;
+
+            background:
+                #ffffff;
+        }
+
+
+        .print-invoice-header {
+
+            padding-bottom: 15px;
+
+            margin-bottom: 15px;
+
+            border-bottom:
+                2px solid #222222;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+
+        .print-invoice h2 {
+
+            font-size: 22px;
+
+            letter-spacing: 1px;
+        }
+
+
+        .invoice-meta {
+
+            text-align: right;
+
+            font-size: 9px;
+
+            line-height: 1.8;
+        }
+
+
+        .invoice-meta strong {
+
+            font-size: 10px;
+        }
+
+
+        .invoice-guest {
+
+            margin-bottom: 15px;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 10px;
+        }
+
+
+        .invoice-info-box {
+
+            padding: 9px;
+
+            background:
+                #f7f7f7;
+
+            border:
+                1px solid #e5e5e5;
+
+            border-radius: 5px;
+        }
+
+
+        .invoice-info-box span {
+
+            display: block;
+
+            color:
+                #777;
+
+            font-size: 8px;
+        }
+
+
+        .invoice-info-box strong {
+
+            display: block;
+
+            margin-top: 3px;
+
+            font-size: 10px;
+        }
+
+
+        .print-invoice table {
+
+            width: 100%;
+
+            border-collapse:
+                collapse;
+
+            margin-top: 12px;
+        }
+
+
+        .print-invoice th,
+        .print-invoice td {
+
+            padding:
+                8px;
+
+            border:
+                1px solid #dddddd;
+
+            font-size: 9px;
+
+            text-align: left;
+        }
+
+
+        .print-invoice th {
+
+            background:
+                #f5f5f5;
+
+            font-weight: 700;
+        }
+
+
+        .print-invoice td:nth-child(2),
+        .print-invoice td:nth-child(3),
+        .print-invoice td:nth-child(4) {
+
+            text-align: right;
+        }
+
+
+        .invoice-totals {
+
+            width: 280px;
+
+            margin:
+                16px 0 0 auto;
+        }
+
+
+        .invoice-total-row {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            padding: 5px 0;
+
+            font-size: 9px;
+        }
+
+
+        .invoice-total-row.grand {
+
+            padding-top: 8px;
+
+            margin-top: 5px;
+
+            border-top:
+                2px solid #222;
+
+            font-size: 13px;
+
+            font-weight: 700;
+        }
+
+
+        /* =========================================================
+           INVOICE TABLE
+           ========================================================= */
+
+        .table-card {
+
+            background:
+                #ffffff;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 10px;
+
+            box-shadow:
+                var(--shadow);
+
+            overflow: hidden;
+        }
+
+
+        .table-card-header {
+
+            padding:
+                15px 18px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+        }
+
+
+        .table-card-header h3 {
+
+            font-size: 13px;
+        }
+
+
+        .table-card-header p {
+
+            margin-top: 3px;
+
+            color:
+                var(--text-light);
+
+            font-size: 9px;
+        }
+
+
+        .search-input {
+
+            width: 300px;
+
+            height: 36px;
+
+            padding:
+                0 11px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 7px;
+
+            outline: none;
+
+            font-size: 10px;
+        }
+
+
+        .search-input:focus {
+
+            border-color:
+                var(--primary);
+
+            box-shadow:
+                0 0 0 3px rgba(109,74,255,0.08);
+        }
+
+
+        .table-responsive {
+
+            width: 100%;
+
+            overflow-x: auto;
+        }
+
+
+        .data-table {
+
+            width: 100%;
+
+            min-width: 850px;
+
+            border-collapse:
+                collapse;
+        }
+
+
+        .data-table th {
+
+            padding:
+                11px 14px;
+
+            background:
+                #fafafd;
+
+            border-bottom:
+                1px solid var(--border);
+
+            color:
+                var(--text-light);
+
+            text-align: left;
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+
+        .data-table td {
+
+            padding:
+                12px 14px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            font-size: 10px;
+
+            vertical-align: middle;
+        }
+
+
+        .data-table tbody tr:hover {
+
+            background:
+                #fbfaff;
+        }
+
+
+        .invoice-number {
+
+            color:
+                var(--primary);
+
+            font-weight: 700;
+        }
+
+
+        .guest-name {
+
+            font-weight: 600;
+        }
+
+
+        .sub-text {
+
+            display: block;
+
+            margin-top: 2px;
+
+            color:
+                var(--muted);
+
+            font-size: 8px;
+        }
+
+
+        .status-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            min-height: 23px;
+
+            padding:
+                0 8px;
+
+            border-radius: 20px;
+
+            font-size: 8px;
+
+            font-weight: 700;
+        }
+
+
+        .status-paid {
+
+            background:
+                var(--green-light);
+
+            color:
+                var(--green);
+        }
+
+
+        .status-partial {
+
+            background:
+                var(--orange-light);
+
+            color:
+                #b56a00;
+        }
+
+
+        .status-unpaid {
+
+            background:
+                var(--red-light);
+
+            color:
+                var(--red);
+        }
+
+
+        .status-cancelled {
+
+            background:
+                #f1f1f1;
+
+            color:
+                #777;
+        }
+
+
+        .action-btn {
+
+            height: 30px;
+
+            padding:
+                0 9px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 6px;
+
+            background:
+                #ffffff;
+
+            color:
+                var(--text-light);
+
+            font-size: 9px;
+
+            font-weight: 600;
+        }
+
+
+        .action-btn:hover {
+
+            border-color:
+                var(--primary);
+
+            color:
+                var(--primary);
+
+            background:
+                var(--primary-light);
+        }
+
+
+        .empty-table {
+
+            padding:
+                40px 20px;
+
+            text-align: center;
+
+            color:
+                var(--muted);
+
+            font-size: 10px;
+        }
+
+
+        /* =========================================================
+           OVERLAY
+           ========================================================= */
+
+        .sidebar-backdrop {
+
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(0,0,0,0.45);
+
+            z-index: 900;
+        }
+
+
+        /* =========================================================
+           PRINT
+           ========================================================= */
+
+        @media print {
+
+            body {
+                background: #ffffff;
+            }
+
+
+            .sidebar,
+            .topbar,
+            .stats-grid,
+            .billing-form-card,
+            .table-card,
+            .card-header,
+            .button-row,
+            .checkout-message {
+                display: none !important;
+            }
+
+
+            .main {
+                margin-left: 0;
+            }
+
+
+            .content {
+                padding: 0;
+            }
+
+
+            .billing-grid {
+                display: block;
+            }
+
+
+            .invoice-preview {
+                border: 0;
+                padding: 0;
+            }
+
+
+            .print-invoice {
+                max-width: none;
+            }
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+        @media (max-width: 1200px) {
+
+            .billing-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .stats-grid {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+        }
+
+
+        @media (max-width: 900px) {
+
+            :root {
+                --sidebar-width: 255px;
+            }
+
+
+            .sidebar {
+
+                transform:
+                    translateX(-100%);
+
+                transition:
+                    transform 0.2s ease;
+            }
+
+
+            .sidebar.show {
+
+                transform:
+                    translateX(0);
+            }
+
+
+            .sidebar-backdrop.show {
+
+                display: block;
+            }
+
+
+            .main {
+
+                margin-left: 0;
+            }
+
+
+            .mobile-menu {
+
+                display: flex;
+
+                align-items: center;
+
+                justify-content: center;
+            }
+
+
+            .content {
+
+                padding:
+                    20px;
+            }
+
+
+            .topbar {
+
+                padding:
+                    0 20px;
+            }
+        }
+
+
+        @media (max-width: 650px) {
+
+            .stats-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .form-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .form-group.full {
+
+                grid-column:
+                    auto;
+            }
+
+
+            .guest-details-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .table-card-header {
+
+                align-items:
+                    stretch;
+
+                flex-direction:
+                    column;
+            }
+
+
+            .search-input {
+
+                width: 100%;
+            }
+
+
+            .user-info {
+
+                display: none;
+            }
+
+
+            .invoice-guest {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .invoice-totals {
+
+                width: 100%;
+            }
+
+
+            .topbar-left h1 {
+
+                font-size: 15px;
+            }
+
+
+            .section-header h2 {
+
+                font-size: 17px;
+            }
+        }
+
+
+        @media (max-width: 480px) {
+
+            .content {
+
+                padding:
+                    15px;
+            }
+
+
+            .topbar {
+
+                padding:
+                    0 15px;
+            }
+
+
+            .topbar-right {
+
+                gap: 5px;
+            }
+
+
+            .sidebar-link {
+
+                display: none;
+            }
+
+
+            .button-row {
+
+                flex-direction:
+                    column;
+            }
+
+
+            .btn {
+
+                width: 100%;
+            }
+
+
+            .stat-card {
+
+                min-height: 82px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+    <!-- =========================================================
+         SIDEBAR
+         ========================================================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ★
+            </div>
+
+            <div class="logo-text">
+                <strong>HOTELS</strong>
+                <span></span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
+
+
+            <a href="bookings.html" class="nav-item">
+                <span class="nav-icon">▣</span>
+                Bookings
+            </a>
+
+
+            <a href="guests.html" class="nav-item">
+                <span class="nav-icon">♙</span>
+                Guests
+            </a>
+
+
+            <a href="rooms.html" class="nav-item">
+                <span class="nav-icon">▤</span>
+                Rooms
+            </a>
+
+
+            <a href="stays.html" class="nav-item">
+                <span class="nav-icon">⌂</span>
+                Check-in & Stays
+            </a>
+
+
+            <div class="menu-title">
+                SERVICES
+            </div>
+
+
+            <a href="restaurant.html" class="nav-item">
+                <span class="nav-icon">♨</span>
+                Restaurant
+            </a>
+
+
+            <a href="orders.html" class="nav-item">
+                <span class="nav-icon">☷</span>
+                Orders
+            </a>
+
+
+            <a href="billing.html" class="nav-item active">
+                <span class="nav-icon">▤</span>
+                Billing
+            </a>
+
+
+            <a href="invoices.html" class="nav-item">
+                <span class="nav-icon">▥</span>
+                Invoices
+            </a>
+
+
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+
+            <a href="reports.html" class="nav-item">
+                <span class="nav-icon">▥</span>
+                Reports
+            </a>
+
+
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                Settings
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="hotel-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+
+                    <strong>
+                        System Online
+                    </strong>
+
+                    <small>
+                        All services running
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <div
+        id="sidebarBackdrop"
+        class="sidebar-backdrop">
+    </div>
+
+
+    <!-- =========================================================
+         MAIN
+         ========================================================= -->
+
+    <main class="main">
+
+        <!-- =====================================================
+             TOPBAR
+             ===================================================== -->
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button
+                    id="mobileMenu"
+                    class="mobile-menu"
+                    type="button">
+                    ☰
+                </button>
+
+
+                <div>
+
+                    <h1>
+                        Billing
+                    </h1>
+
+                    <p>
+                        Guest billing and checkout
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <a
+                    href="settings.html"
+                    class="sidebar-link">
+                    ⚙
+                </a>
+
+
+                <a
+                    href="settings.html"
+                    class="user-profile">
+
+                    <div class="avatar">
+                        U
+                    </div>
+
+                    <div class="user-info">
+
+                        <strong id="topUserName">
+                            User
+                        </strong>
+
+                        <span>
+                            Hotel Manager
+                        </span>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             CONTENT
+             ===================================================== -->
+
+        <section class="content">
+
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Billing & Checkout
+                    </h2>
+
+                    <p>
+                        Generate guest invoices and complete checkout
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 STATISTICS
+                 ================================================= -->
+
+            <div class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon orange">
+                        ₹
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Today's Revenue
+                        </span>
+
+                        <strong id="todayRevenue">
+                            ₹0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon green">
+                        ✓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Paid
+                        </span>
+
+                        <strong id="paidAmount">
+                            ₹0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon red">
+                        !
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Pending
+                        </span>
+
+                        <strong id="pendingAmount">
+                            ₹0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon purple">
+                        ▥
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Invoices
+                        </span>
+
+                        <strong id="billingInvoiceCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 BILLING WORKSPACE
+                 ================================================= -->
+
+            <div class="billing-grid">
+
+
+                <!-- =============================================
+                     CHECKOUT FORM
+                     ============================================= -->
+
+                <div class="card billing-form-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                Create Guest Bill
+                            </h3>
+
+                            <p>
+                                Select an active stay and prepare the final invoice
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+
+                        <!-- GUEST DETAILS -->
+
+                        <div class="guest-details">
+
+                            <div class="guest-details-title">
+                                Guest & Stay
+                            </div>
+
+
+                            <div
+                                id="checkoutGuestDetails"
+                                class="guest-details-grid">
+
+                                <div class="detail-box">
+
+                                    <span>
+                                        Guest
+                                    </span>
+
+                                    <strong>
+                                        Select a stay
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="detail-box">
+
+                                    <span>
+                                        Room
+                                    </span>
+
+                                    <strong>
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="detail-box">
+
+                                    <span>
+                                        Check-in
+                                    </span>
+
+                                    <strong>
+                                        —
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FORM -->
+
+                        <div class="form-grid">
+
+
+                            <div class="form-group full">
+
+                                <label for="checkoutStaySelect">
+                                    Active Stay
+                                </label>
+
+                                <select
+                                    id="checkoutStaySelect"
+                                    class="form-control">
+
+                                    <option value="">
+                                        Loading active stays...
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="checkoutDate">
+                                    Checkout Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="checkoutDate"
+                                    class="form-control">
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="checkoutDiscount">
+                                    Discount
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="checkoutDiscount"
+                                    class="form-control"
+                                    min="0"
+                                    step="0.01"
+                                    value="0"
+                                    placeholder="0.00">
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="checkoutPaymentAmount">
+                                    Payment Amount
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="checkoutPaymentAmount"
+                                    class="form-control"
+                                    min="0"
+                                    step="0.01"
+                                    value="0"
+                                    placeholder="0.00">
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="checkoutPaymentMethod">
+                                    Payment Method
+                                </label>
+
+                                <select
+                                    id="checkoutPaymentMethod"
+                                    class="form-control">
+
+                                    <option value="CASH">
+                                        Cash
+                                    </option>
+
+                                    <option value="UPI">
+                                        UPI
+                                    </option>
+
+                                    <option value="CARD">
+                                        Card
+                                    </option>
+
+                                    <option value="BANK_TRANSFER">
+                                        Bank Transfer
+                                    </option>
+
+                                    <option value="OTHER">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="checkoutPaymentReference">
+                                    Payment Reference
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="checkoutPaymentReference"
+                                    class="form-control"
+                                    placeholder="Transaction / reference number">
+
+                            </div>
+
+
+                            <div class="form-group full">
+
+                                <label for="checkoutPaymentNotes">
+                                    Payment Notes
+                                </label>
+
+                                <textarea
+                                    id="checkoutPaymentNotes"
+                                    class="form-control"
+                                    placeholder="Optional payment notes..."></textarea>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- BILL SUMMARY -->
+
+                        <div class="bill-summary">
+
+
+                            <div class="bill-row">
+
+                                <span>
+                                    Room Charges
+                                </span>
+
+                                <strong id="checkoutRoomTotal">
+                                    ₹0.00
+                                </strong>
+
+                            </div>
+
+
+                            <div class="bill-row">
+
+                                <span>
+                                    Restaurant Charges
+                                </span>
+
+                                <strong id="checkoutRestaurantTotal">
+                                    ₹0.00
+                                </strong>
+
+                            </div>
+
+
+                            <div class="bill-row">
+
+                                <span>
+                                    Extra Charges
+                                </span>
+
+                                <strong id="checkoutExtraTotal">
+                                    ₹0.00
+                                </strong>
+
+                            </div>
+
+
+                            <div class="bill-row">
+
+                                <span>
+                                    Tax
+                                </span>
+
+                                <strong id="checkoutTaxTotal">
+                                    ₹0.00
+                                </strong>
+
+                            </div>
+
+
+                            <div class="bill-row discount">
+
+                                <span>
+                                    Discount
+                                </span>
+
+                                <strong id="checkoutDiscountTotal">
+                                    − ₹0.00
+                                </strong>
+
+                            </div>
+
+
+                            <div class="bill-row grand-total">
+
+                                <span>
+                                    Grand Total
+                                </span>
+
+                                <strong id="checkoutGrandTotal">
+                                    ₹0.00
+                                </strong>
+
+                            </div>
+
+
+                            <div class="bill-row balance">
+
+                                <span>
+                                    Balance Due
+                                </span>
+
+                                <strong id="checkoutBalanceDue">
+                                    ₹0.00
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- MESSAGE -->
+
+                        <div
+                            id="checkoutMessage"
+                            class="checkout-message">
+                        </div>
+
+
+                        <!-- BUTTONS -->
+
+                        <div class="button-row">
+
+
+                            <button
+                                type="button"
+                                id="refreshCheckoutBillButton"
+                                class="btn btn-light">
+
+                                ↻ Calculate Bill
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                id="generateCheckoutInvoiceButton"
+                                class="btn btn-primary">
+
+                                ✓ Generate Invoice
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                id="completeCheckoutButton"
+                                class="btn btn-success">
+
+                                Checkout Guest
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =============================================
+                     INVOICE PREVIEW
+                     ============================================= -->
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                Invoice Preview
+                            </h3>
+
+                            <p>
+                                Review the invoice before printing
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <div
+                            id="checkoutInvoicePreview"
+                            class="invoice-preview">
+
+                            <div class="preview-placeholder">
+
+                                Select an active stay,
+                                calculate the bill,
+                                and generate the invoice.
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="button-row">
+
+                            <button
+                                type="button"
+                                id="printCheckoutInvoiceButton"
+                                class="btn btn-light">
+
+                                🖨 Print Invoice
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 INVOICE HISTORY
+                 ================================================= -->
+
+            <div class="table-card">
+
+                <div class="table-card-header">
+
+                    <div>
+
+                        <h3>
+                            Billing Records
+                        </h3>
+
+                        <p>
+                            Previously generated guest invoices
+                        </p>
+
+                    </div>
+
+
+                    <input
+                        type="text"
+                        id="billingSearch"
+                        class="search-input"
+                        placeholder="Search guest, invoice or stay...">
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Invoice
+                                </th>
+
+                                <th>
+                                    Guest
+                                </th>
+
+                                <th>
+                                    Stay
+                                </th>
+
+                                <th>
+                                    Total
+                                </th>
+
+                                <th>
+                                    Paid
+                                </th>
+
+                                <th>
+                                    Balance
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="billingTableBody">
+
+                            <tr>
+
+                                <td colspan="8">
+
+                                    <div class="empty-table">
+                                        Loading billing records...
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     SCRIPTS
+     ========================================================= -->
+
+<script src="./js/config.js"></script>
+<script src="./js/supabase.js"></script>
+<script src="./js/checkout.js"></script>
+
+</body>
+
+</html>

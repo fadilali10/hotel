@@ -1,498 +1,2004 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Reports - Hotels</title>
 
-    <!-- Main Website CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
-    <!-- Reports Page CSS -->
-    <link rel="stylesheet" href="css/reports.css">
+    <style>
+
+        /* =====================================================
+           STAR HOTELS - REPORTS PAGE
+           ALL CSS INCLUDED IN THIS HTML
+        ===================================================== */
+
+        :root {
+
+            --primary: #6d4aff;
+            --primary-dark: #5436d6;
+            --primary-light: #eeeaff;
+
+            --dark: #17151f;
+            --dark-2: #24212f;
+            --dark-3: #312d3e;
+
+            --text: #24212f;
+            --text-light: #747181;
+            --muted: #96929f;
+
+            --white: #ffffff;
+
+            --background: #f7f7fb;
+            --border: #e9e7ef;
+
+            --green: #21a366;
+            --green-light: #e7f8ee;
+
+            --blue: #3d7eff;
+            --blue-light: #eaf1ff;
+
+            --orange: #f59e0b;
+            --orange-light: #fff4dc;
+
+            --red: #ef4444;
+            --red-light: #fdecec;
+
+            --purple: #8b5cf6;
+            --purple-light: #f1eaff;
+
+            --shadow:
+                0 4px 15px rgba(32, 24, 55, 0.06);
+
+            --shadow-large:
+                0 12px 35px rgba(32, 24, 55, 0.10);
+
+            --sidebar-width: 255px;
+        }
+
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+
+            font-family:
+                "Inter",
+                Arial,
+                sans-serif;
+
+            background:
+                var(--background);
+
+            color:
+                var(--text);
+
+            font-size: 13px;
+
+            min-height: 100vh;
+        }
+
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+
+        button {
+            border: none;
+        }
+
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+
+        /* =====================================================
+           APP
+        ===================================================== */
+
+        .app {
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+
+            position: fixed;
+
+            left: 0;
+            top: 0;
+            bottom: 0;
+
+            width: var(--sidebar-width);
+
+            background:
+                var(--dark);
+
+            color: #ffffff;
+
+            z-index: 1000;
+
+            display: flex;
+
+            flex-direction: column;
+
+            overflow-y: auto;
+
+            transition:
+                transform 0.25s ease;
+        }
+
+
+        .logo {
+
+            height: 76px;
+
+            padding:
+                0 20px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            border-bottom:
+                1px solid rgba(255,255,255,0.06);
+        }
+
+
+        .logo-icon {
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 10px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            background:
+                var(--primary);
+
+            color: white;
+
+            font-size: 20px;
+
+            box-shadow:
+                0 5px 15px rgba(109,74,255,0.30);
+        }
+
+
+        .logo-text {
+
+            display: flex;
+
+            flex-direction: column;
+
+            line-height: 1.05;
+        }
+
+
+        .logo-text strong {
+
+            font-size: 17px;
+
+            letter-spacing:
+                1.8px;
+        }
+
+
+        .logo-text span {
+
+            font-size: 9px;
+
+            color:
+                #a7a3b2;
+
+            letter-spacing:
+                3px;
+
+            margin-top: 4px;
+        }
+
+
+        .sidebar-nav {
+
+            padding:
+                18px 12px;
+
+            flex: 1;
+        }
+
+
+        .menu-title {
+
+            color:
+                #777283;
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            letter-spacing:
+                1.2px;
+
+            padding:
+                14px 12px 8px;
+        }
+
+
+        .nav-item {
+
+            min-height: 42px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            padding:
+                0 12px;
+
+            margin-bottom: 4px;
+
+            border-radius: 8px;
+
+            color:
+                #aaa6b4;
+
+            font-size: 12px;
+
+            font-weight: 500;
+
+            transition:
+                background 0.15s ease,
+                color 0.15s ease;
+        }
+
+
+        .nav-item:hover {
+
+            background:
+                rgba(255,255,255,0.06);
+
+            color:
+                #ffffff;
+        }
+
+
+        .nav-item.active {
+
+            background:
+                var(--primary);
+
+            color:
+                #ffffff;
+
+            box-shadow:
+                0 5px 15px
+                rgba(109,74,255,0.25);
+        }
+
+
+        .nav-icon {
+
+            width: 21px;
+
+            text-align: center;
+
+            font-size: 15px;
+
+            opacity: 0.9;
+        }
+
+
+        .sidebar-footer {
+
+            padding:
+                15px;
+
+            border-top:
+                1px solid rgba(255,255,255,0.06);
+        }
+
+
+        .hotel-status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding:
+                10px;
+
+            border-radius: 8px;
+
+            background:
+                rgba(255,255,255,0.04);
+        }
+
+
+        .hotel-status strong {
+
+            display: block;
+
+            color:
+                #ddd9e5;
+
+            font-size: 10px;
+        }
+
+
+        .hotel-status small {
+
+            display: block;
+
+            color:
+                #777283;
+
+            font-size: 9px;
+
+            margin-top: 3px;
+        }
+
+
+        .status-dot {
+
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background:
+                var(--green);
+
+            box-shadow:
+                0 0 0 4px
+                rgba(33,163,102,0.12);
+        }
+
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .main {
+
+            margin-left:
+                var(--sidebar-width);
+
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           TOPBAR
+        ===================================================== */
+
+        .topbar {
+
+            height: 76px;
+
+            background:
+                rgba(255,255,255,0.96);
+
+            border-bottom:
+                1px solid var(--border);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding:
+                0 28px;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 100;
+
+            backdrop-filter:
+                blur(10px);
+        }
+
+
+        .topbar-left {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+        }
+
+
+        .topbar-left h1 {
+
+            font-size: 20px;
+
+            line-height: 1.2;
+
+            font-weight: 700;
+
+            color:
+                var(--dark);
+        }
+
+
+        .topbar-left p {
+
+            margin-top: 4px;
+
+            font-size: 11px;
+
+            color:
+                var(--text-light);
+        }
+
+
+        .topbar-right {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+        }
+
+
+        .mobile-menu {
+
+            display: none;
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 8px;
+
+            background:
+                var(--primary-light);
+
+            color:
+                var(--primary);
+
+            cursor: pointer;
+
+            font-size: 18px;
+        }
+
+
+        .sidebar-link {
+
+            width: 36px;
+            height: 36px;
+
+            border-radius: 8px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            color:
+                var(--text-light);
+
+            background:
+                var(--gray-light, #f5f4f8);
+
+            font-size: 15px;
+        }
+
+
+        .sidebar-link:hover {
+
+            background:
+                var(--primary-light);
+
+            color:
+                var(--primary);
+        }
+
+
+        .user-profile {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+        }
+
+
+        .avatar {
+
+            width: 36px;
+            height: 36px;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            background:
+                var(--primary);
+
+            color:
+                white;
+
+            font-size: 12px;
+
+            font-weight: 700;
+        }
+
+
+        .user-info strong {
+
+            display: block;
+
+            font-size: 11px;
+
+            color:
+                var(--dark);
+        }
+
+
+        .user-info span {
+
+            display: block;
+
+            font-size: 9px;
+
+            color:
+                var(--muted);
+
+            margin-top: 3px;
+        }
+
+
+        /* =====================================================
+           CONTENT
+        ===================================================== */
+
+        .content {
+
+            padding:
+                28px;
+        }
+
+
+        .section-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 22px;
+        }
+
+
+        .section-header h2 {
+
+            font-size: 18px;
+
+            color:
+                var(--dark);
+        }
+
+
+        .section-header p {
+
+            color:
+                var(--text-light);
+
+            margin-top: 5px;
+
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           REPORT PERIOD
+        ===================================================== */
+
+        .report-period {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            background:
+                var(--white);
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 10px;
+
+            padding:
+                12px 14px;
+
+            margin-bottom: 16px;
+
+            box-shadow:
+                var(--shadow);
+        }
+
+
+        .report-period label {
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            color:
+                var(--text);
+        }
+
+
+        .report-period select {
+
+            min-width: 170px;
+
+            height: 36px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 7px;
+
+            padding:
+                0 10px;
+
+            background:
+                #ffffff;
+
+            color:
+                var(--text);
+
+            outline: none;
+
+            font-size: 11px;
+        }
+
+
+        .report-period select:focus {
+
+            border-color:
+                var(--primary);
+        }
+
+
+        /* =====================================================
+           REPORT MESSAGE
+        ===================================================== */
+
+        .report-message {
+
+            min-height: 0;
+
+            margin-bottom: 15px;
+
+            padding: 0;
+
+            border-radius: 8px;
+
+            font-size: 11px;
+
+            font-weight: 600;
+        }
+
+
+        .report-message.success,
+        .report-message.error,
+        .report-message.info {
+
+            padding:
+                10px 12px;
+        }
+
+
+        .report-message.success {
+
+            color:
+                #137547;
+
+            background:
+                var(--green-light);
+
+            border:
+                1px solid #c9ecd9;
+        }
+
+
+        .report-message.error {
+
+            color:
+                #b42318;
+
+            background:
+                var(--red-light);
+
+            border:
+                1px solid #f5caca;
+        }
+
+
+        .report-message.info {
+
+            color:
+                #51418c;
+
+            background:
+                var(--purple-light);
+
+            border:
+                1px solid #ddd2ff;
+        }
+
+
+        /* =====================================================
+           REPORT GRID
+        ===================================================== */
+
+        .reports-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 16px;
+
+            margin-bottom: 16px;
+        }
+
+
+        .report-card {
+
+            background:
+                var(--white);
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 11px;
+
+            padding:
+                19px;
+
+            box-shadow:
+                var(--shadow);
+
+            min-height: 125px;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+
+        .report-card::after {
+
+            content: "";
+
+            position: absolute;
+
+            right: -25px;
+
+            top: -25px;
+
+            width: 80px;
+            height: 80px;
+
+            border-radius: 50%;
+
+            background:
+                var(--primary-light);
+
+            opacity: 0.5;
+        }
+
+
+        .earning-card::after {
+
+            background:
+                var(--green-light);
+        }
+
+
+        .pending-card::after {
+
+            background:
+                var(--orange-light);
+        }
+
+
+        .profit-card::after {
+
+            background:
+                var(--purple-light);
+        }
+
+
+        .expense-card::after {
+
+            background:
+                var(--red-light);
+        }
+
+
+        .report-label {
+
+            color:
+                var(--text-light);
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+            position: relative;
+
+            z-index: 1;
+        }
+
+
+        .report-value {
+
+            margin-top: 10px;
+
+            color:
+                var(--dark);
+
+            font-size: 21px;
+
+            line-height: 1.2;
+
+            font-weight: 700;
+
+            position: relative;
+
+            z-index: 1;
+
+            word-break: break-word;
+        }
+
+
+        .report-small {
+
+            margin-top: 8px;
+
+            color:
+                var(--muted);
+
+            font-size: 9px;
+
+            position: relative;
+
+            z-index: 1;
+        }
+
+
+        /* =====================================================
+           REPORT SECTION
+        ===================================================== */
+
+        .report-section {
+
+            background:
+                var(--white);
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 11px;
+
+            padding:
+                20px;
+
+            margin-top: 16px;
+
+            box-shadow:
+                var(--shadow);
+        }
+
+
+        .report-section h2 {
+
+            font-size: 14px;
+
+            color:
+                var(--dark);
+
+            margin-bottom: 15px;
+        }
+
+
+        .report-section p {
+
+            color:
+                var(--text-light);
+
+            font-size: 11px;
+
+            line-height: 1.7;
+
+            margin-bottom: 10px;
+        }
+
+
+        .report-section p:last-child {
+
+            margin-bottom: 0;
+        }
+
+
+        /* =====================================================
+           REPORT TABLE
+        ===================================================== */
+
+        .report-table {
+
+            width: 100%;
+
+            border-collapse:
+                collapse;
+        }
+
+
+        .report-table th {
+
+            text-align: left;
+
+            padding:
+                11px 12px;
+
+            background:
+                #faf9fc;
+
+            border-bottom:
+                1px solid var(--border);
+
+            color:
+                var(--text-light);
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+
+        .report-table td {
+
+            padding:
+                13px 12px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            color:
+                var(--text);
+
+            font-size: 11px;
+        }
+
+
+        .report-table tr:last-child td {
+
+            border-bottom:
+                none;
+        }
+
+
+        .report-table td:last-child {
+
+            text-align: right;
+
+            font-weight: 600;
+        }
+
+
+        /* =====================================================
+           LOADING
+        ===================================================== */
+
+        .loading-state {
+
+            opacity: 0.65;
+
+            pointer-events: none;
+        }
+
+
+        /* =====================================================
+           MOBILE BACKDROP
+        ===================================================== */
+
+        .sidebar-backdrop {
+
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(0,0,0,0.45);
+
+            z-index: 999;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 1200px) {
+
+            .reports-grid {
+
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+
+                transform:
+                    translateX(-100%);
+            }
+
+
+            .sidebar.show {
+
+                transform:
+                    translateX(0);
+            }
+
+
+            .sidebar-backdrop.show {
+
+                display: block;
+            }
+
+
+            .main {
+
+                margin-left: 0;
+            }
+
+
+            .mobile-menu {
+
+                display: flex;
+
+                align-items: center;
+                justify-content: center;
+            }
+
+
+            .content {
+
+                padding: 20px;
+            }
+
+
+            .topbar {
+
+                padding:
+                    0 20px;
+            }
+
+        }
+
+
+        @media (max-width: 650px) {
+
+            .reports-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .report-period {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+            }
+
+
+            .report-period select {
+
+                width: 100%;
+            }
+
+
+            .user-info {
+
+                display: none;
+            }
+
+
+            .content {
+
+                padding: 15px;
+            }
+
+
+            .topbar {
+
+                height: 68px;
+
+                padding:
+                    0 15px;
+            }
+
+
+            .topbar-left h1 {
+
+                font-size: 17px;
+            }
+
+
+            .section-header {
+
+                margin-bottom: 15px;
+            }
+
+
+            .report-card {
+
+                min-height: 115px;
+            }
+
+
+            .report-value {
+
+                font-size: 19px;
+            }
+
+
+            .report-table {
+
+                min-width: 500px;
+            }
+
+
+            .report-section {
+
+                overflow-x: auto;
+            }
+
+        }
+
+
+        @media (max-width: 400px) {
+
+            .sidebar {
+
+                width: 235px;
+            }
+
+
+            .topbar-right .sidebar-link {
+
+                display: none;
+            }
+
+
+            .report-card {
+
+                padding: 16px;
+            }
+
+        }
+
+
+        /* =====================================================
+           PRINT
+        ===================================================== */
+
+        @media print {
+
+            body {
+
+                background:
+                    #ffffff;
+            }
+
+
+            .sidebar,
+            .topbar,
+            .report-period,
+            .report-message,
+            .sidebar-backdrop {
+
+                display: none !important;
+            }
+
+
+            .main {
+
+                margin-left: 0;
+            }
+
+
+            .content {
+
+                padding: 0;
+            }
+
+
+            .report-card,
+            .report-section {
+
+                box-shadow: none;
+
+                break-inside:
+                    avoid;
+            }
+
+
+            .reports-grid {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+
+            .report-section {
+
+                border:
+                    1px solid #ddd;
+            }
+
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-    <div class="reports-container">
+<div class="app">
 
-        <!-- =================================================
-             HEADER
-        ================================================== -->
+    <!-- =================================================
+         SIDEBAR
+    ================================================== -->
 
-        <div class="reports-header">
+    <aside class="sidebar" id="sidebar">
 
-            <div>
-                <h1>📊 Hotel Reports</h1>
+        <div class="logo">
 
-                <p id="hotelReportName">
-                     Hotels
-                </p>
+            <div class="logo-icon">
+                ★
             </div>
 
+            <div class="logo-text">
 
-            <div class="reports-actions">
+                <strong>HOTELS</strong>
 
-                <button
-                    type="button"
-                    class="refresh-btn"
-                    id="refreshReports">
-
-                    ↻ Refresh
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="print-btn"
-                    onclick="window.print()">
-
-                    🖨 Print
-
-                </button>
+                <span></span>
 
             </div>
 
         </div>
 
 
-        <!-- =================================================
-             REPORT PERIOD
-        ================================================== -->
+        <nav class="sidebar-nav">
 
-        <div class="report-period">
-
-            <label for="reportMonth">
-                Report Month:
-            </label>
-
-            <select id="reportMonth">
-
-                <option value="current">
-                    This Month
-                </option>
-
-                <option value="previous">
-                    Previous Month
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- =================================================
-             REPORT MESSAGE
-        ================================================== -->
-
-        <div
-            id="reportMessage"
-            class="report-message">
-        </div>
-
-
-        <!-- =================================================
-             MAIN REPORT CARDS
-        ================================================== -->
-
-        <div class="reports-grid">
-
-
-            <!-- MONTHLY EARNINGS -->
-
-            <div class="report-card earning-card">
-
-                <div class="report-label">
-                    Monthly Earnings
-                </div>
-
-                <div
-                    class="report-value"
-                    id="monthlyEarnings">
-
-                    ₹0.00
-
-                </div>
-
-                <div class="report-small">
-                    This month's payments received
-                </div>
-
+            <div class="menu-title">
+                MAIN
             </div>
 
 
-            <!-- TOTAL EARNINGS -->
+            <a
+                href="index.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
 
-            <div class="report-card">
 
-                <div class="report-label">
-                    Total Earnings
-                </div>
+            <a
+                href="bookings.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">▣</span>
+                Bookings
+            </a>
 
-                <div
-                    class="report-value"
-                    id="totalEarnings">
 
-                    ₹0.00
+            <a
+                href="guests.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">♙</span>
+                Guests
+            </a>
 
-                </div>
 
-                <div class="report-small">
-                    All-time payments received
-                </div>
+            <a
+                href="rooms.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">▤</span>
+                Rooms
+            </a>
 
+
+            <a
+                href="stays.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">⌂</span>
+                Check-in & Stays
+            </a>
+
+
+            <div class="menu-title">
+                SERVICES
             </div>
 
 
-            <!-- PENDING -->
+            <a
+                href="restaurant.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">♨</span>
+                Restaurant
+            </a>
 
-            <div class="report-card pending-card">
 
-                <div class="report-label">
-                    Pending Amount
-                </div>
+            <a
+                href="orders.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">☷</span>
+                Orders
+            </a>
 
-                <div
-                    class="report-value"
-                    id="pendingAmount">
 
-                    ₹0.00
+            <a
+                href="billing.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">▤</span>
+                Billing
+            </a>
 
-                </div>
 
-                <div class="report-small">
-                    Outstanding balance
-                </div>
+            <a
+                href="invoices.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">▥</span>
+                Invoices
+            </a>
 
+
+            <div class="menu-title">
+                MANAGEMENT
             </div>
 
 
-            <!-- PROFIT -->
-
-            <div class="report-card profit-card">
-
-                <div class="report-label">
-                    Monthly Profit
-                </div>
-
-                <div
-                    class="report-value"
-                    id="monthlyProfit">
-
-                    ₹0.00
-
-                </div>
-
-                <div class="report-small">
-                    Before expenses
-                </div>
-
-            </div>
-
-        </div>
+            <a
+                href="reports.html"
+                class="nav-item active"
+            >
+                <span class="nav-icon">▥</span>
+                Reports
+            </a>
 
 
-        <!-- =================================================
-             REVENUE CARDS
-        ================================================== -->
+            <a
+                href="settings.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">⚙</span>
+                Settings
+            </a>
 
-        <div class="reports-grid">
-
-
-            <!-- ROOM REVENUE -->
-
-            <div class="report-card">
-
-                <div class="report-label">
-                    🛏 Room Revenue
-                </div>
-
-                <div
-                    class="report-value"
-                    id="roomRevenue">
-
-                    ₹0.00
-
-                </div>
-
-                <div class="report-small">
-                    Room / stay charges
-                </div>
-
-            </div>
+        </nav>
 
 
-            <!-- RESTAURANT REVENUE -->
+        <div class="sidebar-footer">
 
-            <div class="report-card">
+            <div class="hotel-status">
 
-                <div class="report-label">
-                    🍽 Restaurant Revenue
-                </div>
+                <span class="status-dot"></span>
 
-                <div
-                    class="report-value"
-                    id="restaurantRevenue">
+                <div>
 
-                    ₹0.00
+                    <strong>
+                        System Online
+                    </strong>
 
-                </div>
+                    <small>
+                        All services running
+                    </small>
 
-                <div class="report-small">
-                    Restaurant charges
-                </div>
-
-            </div>
-
-
-            <!-- INVOICES -->
-
-            <div class="report-card">
-
-                <div class="report-label">
-                    🧾 Invoices
-                </div>
-
-                <div
-                    class="report-value"
-                    id="invoiceCount">
-
-                    0
-
-                </div>
-
-                <div class="report-small">
-                    Invoices this month
-                </div>
-
-            </div>
-
-
-            <!-- EXPENSES -->
-
-            <div class="report-card expense-card">
-
-                <div class="report-label">
-                    💸 Expenses
-                </div>
-
-                <div
-                    class="report-value"
-                    id="expenseAmount">
-
-                    ₹0.00
-
-                </div>
-
-                <div class="report-small">
-                    Expenses not configured
                 </div>
 
             </div>
 
         </div>
 
+    </aside>
 
-        <!-- =================================================
-             MONTHLY SUMMARY
-        ================================================== -->
 
-        <div class="report-section">
-
-            <h2>
-                Monthly Summary
-            </h2>
-
-
-            <table class="report-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Description
-                        </th>
-
-                        <th>
-                            Amount
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-
-                    <!-- TOTAL BILLED -->
-
-                    <tr>
-
-                        <td>
-                            Total Billed
-                        </td>
-
-                        <td id="totalBilled">
-                            ₹0.00
-                        </td>
-
-                    </tr>
-
-
-                    <!-- PAYMENTS -->
-
-                    <tr>
-
-                        <td>
-                            Payments Received
-                        </td>
-
-                        <td id="monthlyPayments">
-                            ₹0.00
-                        </td>
-
-                    </tr>
-
-
-                    <!-- ROOM -->
-
-                    <tr>
-
-                        <td>
-                            Room Revenue
-                        </td>
-
-                        <td id="tableRoomRevenue">
-                            ₹0.00
-                        </td>
-
-                    </tr>
-
-
-                    <!-- RESTAURANT -->
-
-                    <tr>
-
-                        <td>
-                            Restaurant Revenue
-                        </td>
-
-                        <td id="tableRestaurantRevenue">
-                            ₹0.00
-                        </td>
-
-                    </tr>
-
-
-                    <!-- PENDING -->
-
-                    <tr>
-
-                        <td>
-                            Outstanding
-                        </td>
-
-                        <td id="tablePending">
-                            ₹0.00
-                        </td>
-
-                    </tr>
-
-
-                    <!-- PROFIT -->
-
-                    <tr>
-
-                        <td>
-                            <strong>
-                                Profit Before Expenses
-                            </strong>
-                        </td>
-
-                        <td>
-                            <strong id="tableProfit">
-                                ₹0.00
-                            </strong>
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <!-- =================================================
-             REPORT INFORMATION
-        ================================================== -->
-
-        <div class="report-section">
-
-            <h2>
-                ℹ️ Report Information
-            </h2>
-
-
-            <p>
-                This report uses your hotel's
-                invoice and payment information
-                stored in Supabase.
-            </p>
-
-
-            <p>
-                <strong>
-                    Monthly Earnings
-                </strong>
-
-                = payments received during
-                the selected month.
-            </p>
-
-
-            <p>
-                <strong>
-                    Total Earnings
-                </strong>
-
-                = all payments received by
-                this hotel.
-            </p>
-
-
-            <p>
-                <strong>
-                    Profit Before Expenses
-                </strong>
-
-                is currently shown before
-                expenses because an
-                expense-management table has
-                not yet been added to the system.
-            </p>
-
-        </div>
-
-    </div>
+    <div
+        class="sidebar-backdrop"
+        id="sidebarBackdrop"
+    ></div>
 
 
     <!-- =================================================
-         SUPABASE
+         MAIN
     ================================================== -->
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <main class="main">
 
-    <script src="js/config.js"></script>
+        <!-- TOPBAR -->
 
-    <script src="js/supabase.js"></script>
+        <header class="topbar">
 
-    <script src="js/reports.js"></script>
+            <div class="topbar-left">
+
+                <button
+                    type="button"
+                    id="mobileMenu"
+                    class="mobile-menu"
+                >
+                    ☰
+                </button>
+
+
+                <div>
+
+                    <h1>
+                        Reports
+                    </h1>
+
+                    <p>
+                        Hotel financial and revenue reports
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <a
+                    href="settings.html"
+                    class="sidebar-link"
+                    title="Settings"
+                >
+                    ⚙
+                </a>
+
+
+                <a
+                    href="settings.html"
+                    class="user-profile"
+                >
+
+                    <div class="avatar">
+                        U
+                    </div>
+
+
+                    <div class="user-info">
+
+                        <strong id="topUserName">
+                            User
+                        </strong>
+
+                        <span>
+                            Hotel Manager
+                        </span>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             CONTENT
+        ================================================== -->
+
+        <section class="content">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Hotel Reports
+                    </h2>
+
+                    <p id="hotelReportName">
+                        Hotel
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- REPORT PERIOD -->
+
+            <div class="report-period">
+
+                <label for="reportMonth">
+                    Report Month
+                </label>
+
+
+                <select id="reportMonth">
+
+                    <option value="current">
+                        This Month
+                    </option>
+
+                    <option value="previous">
+                        Previous Month
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- MESSAGE -->
+
+            <div
+                id="reportMessage"
+                class="report-message"
+            ></div>
+
+
+            <!-- =================================================
+                 FINANCIAL SUMMARY
+            ================================================== -->
+
+            <div class="reports-grid">
+
+
+                <div class="report-card earning-card">
+
+                    <div class="report-label">
+                        Monthly Earnings
+                    </div>
+
+                    <div
+                        class="report-value"
+                        id="monthlyEarnings"
+                    >
+                        ₹0.00
+                    </div>
+
+                    <div class="report-small">
+                        Payments received this month
+                    </div>
+
+                </div>
+
+
+                <div class="report-card">
+
+                    <div class="report-label">
+                        Total Earnings
+                    </div>
+
+                    <div
+                        class="report-value"
+                        id="totalEarnings"
+                    >
+                        ₹0.00
+                    </div>
+
+                    <div class="report-small">
+                        All-time payments received
+                    </div>
+
+                </div>
+
+
+                <div class="report-card pending-card">
+
+                    <div class="report-label">
+                        Pending Amount
+                    </div>
+
+                    <div
+                        class="report-value"
+                        id="pendingAmount"
+                    >
+                        ₹0.00
+                    </div>
+
+                    <div class="report-small">
+                        Outstanding from selected month
+                    </div>
+
+                </div>
+
+
+                <div class="report-card profit-card">
+
+                    <div class="report-label">
+                        Profit Before Expenses
+                    </div>
+
+                    <div
+                        class="report-value"
+                        id="monthlyProfit"
+                    >
+                        ₹0.00
+                    </div>
+
+                    <div class="report-small">
+                        Payments received before expenses
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 REVENUE SUMMARY
+            ================================================== -->
+
+            <div class="reports-grid">
+
+
+                <div class="report-card">
+
+                    <div class="report-label">
+                        🛏 Room Revenue
+                    </div>
+
+                    <div
+                        class="report-value"
+                        id="roomRevenue"
+                    >
+                        ₹0.00
+                    </div>
+
+                    <div class="report-small">
+                        Room and stay charges
+                    </div>
+
+                </div>
+
+
+                <div class="report-card">
+
+                    <div class="report-label">
+                        🍽 Restaurant Revenue
+                    </div>
+
+                    <div
+                        class="report-value"
+                        id="restaurantRevenue"
+                    >
+                        ₹0.00
+                    </div>
+
+                    <div class="report-small">
+                        Restaurant charges
+                    </div>
+
+                </div>
+
+
+                <div class="report-card">
+
+                    <div class="report-label">
+                        🧾 Invoices
+                    </div>
+
+                    <div
+                        class="report-value"
+                        id="invoiceCount"
+                    >
+                        0
+                    </div>
+
+                    <div class="report-small">
+                        Invoices generated this month
+                    </div>
+
+                </div>
+
+
+                <div class="report-card expense-card">
+
+                    <div class="report-label">
+                        💸 Expenses
+                    </div>
+
+                    <div
+                        class="report-value"
+                        id="expenseAmount"
+                    >
+                        ₹0.00
+                    </div>
+
+                    <div class="report-small">
+                        Expense management not configured
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 MONTHLY SUMMARY
+            ================================================== -->
+
+            <div class="report-section">
+
+                <h2>
+                    Monthly Summary
+                </h2>
+
+
+                <table class="report-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>
+                                Total Billed
+                            </td>
+
+                            <td id="totalBilled">
+                                ₹0.00
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Payments Received
+                            </td>
+
+                            <td id="monthlyPayments">
+                                ₹0.00
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Room Revenue
+                            </td>
+
+                            <td id="tableRoomRevenue">
+                                ₹0.00
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Restaurant Revenue
+                            </td>
+
+                            <td id="tableRestaurantRevenue">
+                                ₹0.00
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Outstanding
+                            </td>
+
+                            <td id="tablePending">
+                                ₹0.00
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    Profit Before Expenses
+                                </strong>
+                            </td>
+
+                            <td>
+
+                                <strong id="tableProfit">
+                                    ₹0.00
+                                </strong>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- =================================================
+                 REPORT INFORMATION
+            ================================================== -->
+
+            <div class="report-section">
+
+                <h2>
+                    ℹ️ Report Information
+                </h2>
+
+
+                <p>
+                    This report uses your hotel's
+                    invoice, invoice item, and payment
+                    information stored in Supabase.
+                </p>
+
+
+                <p>
+                    <strong>
+                        Monthly Earnings
+                    </strong>
+                    = payments received during the
+                    selected month.
+                </p>
+
+
+                <p>
+                    <strong>
+                        Total Earnings
+                    </strong>
+                    = all payments received by this hotel.
+                </p>
+
+
+                <p>
+                    <strong>
+                        Room Revenue
+                    </strong>
+                    = invoice items identified as
+                    room or stay charges.
+                </p>
+
+
+                <p>
+                    <strong>
+                        Restaurant Revenue
+                    </strong>
+                    = invoice items identified as
+                    restaurant, food, or order charges.
+                </p>
+
+
+                <p>
+                    <strong>
+                        Profit Before Expenses
+                    </strong>
+                    currently represents payments received
+                    before expenses because an expense
+                    management table has not been added.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =====================================================
+     SUPABASE
+===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="./js/config.js"></script>
+
+<script src="./js/supabase.js"></script>
+
+<script src="./js/reports.js"></script>
+
 
 </body>
 </html>

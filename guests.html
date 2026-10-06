@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Guests - Hotels</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="./css/style.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="brand-logo">
+                ★
+            </div>
+
+            <div class="brand-text">
+                <h2>HOTELS</h2>
+             
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <div class="nav-section-title">
+                MAIN
+            </div>
+
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">⌂</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="bookings.html" class="nav-item">
+                <span class="nav-icon">▣</span>
+                <span>Bookings</span>
+            </a>
+
+            <a href="guests.html" class="nav-item active">
+                <span class="nav-icon">♙</span>
+                <span>Guests</span>
+            </a>
+
+            <a href="rooms.html" class="nav-item">
+                <span class="nav-icon">▤</span>
+                <span>Rooms</span>
+            </a>
+
+            <a href="stays.html" class="nav-item">
+                <span class="nav-icon">◫</span>
+                <span>Check-in &amp; Stays</span>
+            </a>
+
+
+            <div class="nav-section-title">
+                HOTEL
+            </div>
+
+            <a href="restaurant.html" class="nav-item">
+                <span class="nav-icon">♨</span>
+                <span>Restaurant</span>
+            </a>
+
+            <a href="orders.html" class="nav-item">
+                <span class="nav-icon">☷</span>
+                <span>Orders</span>
+            </a>
+
+            <a href="billing.html" class="nav-item">
+                <span class="nav-icon">▧</span>
+                <span>Billing</span>
+            </a>
+
+            <a href="invoices.html" class="nav-item">
+                <span class="nav-icon">▤</span>
+                <span>Invoices</span>
+            </a>
+
+
+            <div class="nav-section-title">
+                MANAGEMENT
+            </div>
+
+            <a href="reports.html" class="nav-item">
+                <span class="nav-icon">◒</span>
+                <span>Reports</span>
+            </a>
+
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="sidebar-help">
+
+                <div class="help-icon">
+                    ?
+                </div>
+
+                <div>
+                    <strong>Need Help?</strong>
+                    <small>Manage your hotel easily</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="main">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button
+                    type="button"
+                    class="mobile-menu"
+                    id="mobileMenu"
+                    aria-label="Open menu"
+                >
+                    ☰
+                </button>
+
+                <div class="breadcrumb">
+
+                    <span>Hotel</span>
+
+                    <span class="breadcrumb-arrow">
+                        /
+                    </span>
+
+                    <strong>Guests</strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <div class="topbar-user">
+
+                    <div class="topbar-avatar">
+                        <span id="topUserInitial">U</span>
+                    </div>
+
+                    <div class="topbar-user-info">
+
+                        <strong id="topUserName">
+                            User
+                        </strong>
+
+                        <span id="topHotelName">
+                            Hotel
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             PAGE CONTENT
+             ===================================================== -->
+
+        <section class="content guests-page">
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="page-header">
+
+                <div class="page-header-left">
+
+                    <div>
+
+                        <h1 class="page-title">
+                            Guests
+                        </h1>
+
+                        <p class="page-subtitle">
+                            Manage your hotel guests and guest information
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="page-header-actions">
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="addGuestBtn"
+                    >
+                        <span class="btn-icon">+</span>
+                        Add Guest
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 STATISTICS
+                 ===================================================== -->
+
+            <div class="stats-grid guest-stats">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-icon purple">
+                        ♙
+                    </div>
+
+                    <div class="stat-card-content">
+
+                        <span class="stat-label">
+                            Total Guests
+                        </span>
+
+                        <strong
+                            class="stat-value"
+                            id="totalGuestsCount"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-icon green">
+                        ☎
+                    </div>
+
+                    <div class="stat-card-content">
+
+                        <span class="stat-label">
+                            With Phone
+                        </span>
+
+                        <strong
+                            class="stat-value"
+                            id="guestsWithPhoneCount"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-icon blue">
+                        @
+                    </div>
+
+                    <div class="stat-card-content">
+
+                        <span class="stat-label">
+                            With Email
+                        </span>
+
+                        <strong
+                            class="stat-value"
+                            id="guestsWithEmailCount"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-icon orange">
+                        IN
+                    </div>
+
+                    <div class="stat-card-content">
+
+                        <span class="stat-label">
+                            Indian Guests
+                        </span>
+
+                        <strong
+                            class="stat-value"
+                            id="indianGuestsCount"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 SEARCH / FILTER
+                 ===================================================== -->
+
+            <div class="card guest-filter-card">
+
+                <div class="card-body">
+
+                    <div class="toolbar">
+
+                        <div class="search-box guest-search">
+
+                            <span class="search-icon">
+                                ⌕
+                            </span>
+
+                            <input
+                                type="search"
+                                id="guestSearch"
+                                placeholder="Search name, phone, email, city or ID..."
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <select
+                            id="guestGenderFilter"
+                            class="filter-select"
+                        >
+
+                            <option value="">
+                                All Gender
+                            </option>
+
+                            <option value="Male">
+                                Male
+                            </option>
+
+                            <option value="Female">
+                                Female
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            id="clearGuestFilters"
+                        >
+                            Clear
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 GUEST TABLE
+                 ===================================================== -->
+
+            <div class="card guests-table-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h3>
+                            All Guests
+                        </h3>
+
+                        <p>
+                            Guests registered in your hotel
+                        </p>
+
+                    </div>
+
+                    <span
+                        class="table-count"
+                        id="guestResultCount"
+                    >
+                        0 guests
+                    </span>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="data-table guests-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Guest
+                                </th>
+
+                                <th>
+                                    Phone
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    ID Type
+                                </th>
+
+                                <th>
+                                    City
+                                </th>
+
+                                <th class="text-right">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="guestsTableBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="table-loading"
+                                >
+
+                                    <div class="loading-spinner"></div>
+
+                                    Loading guests...
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- EMPTY STATE -->
+
+                <div
+                    id="guestEmptyState"
+                    class="empty-state hidden"
+                >
+
+                    <div class="empty-state-icon">
+                        ♙
+                    </div>
+
+                    <h3>
+                        No guests found
+                    </h3>
+
+                    <p>
+                        Add your first guest or change the search filter.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="emptyAddGuestBtn"
+                    >
+                        + Add Guest
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =====================================================
+     MOBILE SIDEBAR OVERLAY
+     ===================================================== -->
+
+<div
+    class="sidebar-backdrop"
+    id="sidebarBackdrop"
+></div>
+
+
+<!-- =====================================================
+     GUEST DRAWER OVERLAY
+     ===================================================== -->
+
+<div
+    class="drawer-overlay"
+    id="guestDrawerOverlay"
+></div>
+
+
+<!-- =====================================================
+     ADD / EDIT GUEST DRAWER
+     ===================================================== -->
+
+<aside
+    class="drawer guest-drawer"
+    id="guestDrawer"
+    aria-hidden="true"
+>
+
+
+    <!-- DRAWER HEADER -->
+
+    <div class="drawer-header">
+
+        <div class="drawer-heading">
+
+            <div class="drawer-heading-icon">
+                ♙
+            </div>
+
+            <div>
+
+                <h2 id="guestDrawerTitle">
+                    Add Guest
+                </h2>
+
+                <p>
+                    Add guest information
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="drawer-close"
+            id="closeGuestDrawer"
+            aria-label="Close"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <!-- DRAWER BODY -->
+
+    <div class="drawer-body">
+
+        <form
+            id="guestForm"
+            autocomplete="off"
+        >
+
+
+            <!-- NAME -->
+
+            <div class="form-group">
+
+                <label for="guestName">
+                    Full Name
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="guestName"
+                    placeholder="Enter guest full name"
+                    required
+                >
+
+            </div>
+
+
+            <!-- PHONE / EMAIL -->
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="guestPhone">
+                        Phone
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="guestPhone"
+                        placeholder="Phone number"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="guestEmail">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="guestEmail"
+                        placeholder="Email address"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- GENDER / DOB -->
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="guestGender">
+                        Gender
+                    </label>
+
+                    <select id="guestGender">
+
+                        <option value="">
+                            Select Gender
+                        </option>
+
+                        <option value="Male">
+                            Male
+                        </option>
+
+                        <option value="Female">
+                            Female
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="guestDateOfBirth">
+                        Date of Birth
+                    </label>
+
+                    <input
+                        type="date"
+                        id="guestDateOfBirth"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- ID -->
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="guestIdType">
+                        ID Type
+                    </label>
+
+                    <select id="guestIdType">
+
+                        <option value="">
+                            Select ID Type
+                        </option>
+
+                        <option value="Aadhaar">
+                            Aadhaar
+                        </option>
+
+                        <option value="Passport">
+                            Passport
+                        </option>
+
+                        <option value="Driving License">
+                            Driving License
+                        </option>
+
+                        <option value="Voter ID">
+                            Voter ID
+                        </option>
+
+                        <option value="PAN Card">
+                            PAN Card
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="guestIdNumber">
+                        ID Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="guestIdNumber"
+                        placeholder="ID number"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- NATIONALITY -->
+
+            <div class="form-group">
+
+                <label for="guestNationality">
+                    Nationality
+                </label>
+
+                <input
+                    type="text"
+                    id="guestNationality"
+                    value="Indian"
+                    placeholder="Nationality"
+                >
+
+            </div>
+
+
+            <!-- ADDRESS -->
+
+            <div class="form-group">
+
+                <label for="guestAddress">
+                    Address
+                </label>
+
+                <textarea
+                    id="guestAddress"
+                    rows="3"
+                    placeholder="Street address..."
+                ></textarea>
+
+            </div>
+
+
+            <!-- CITY / STATE -->
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="guestCity">
+                        City
+                    </label>
+
+                    <input
+                        type="text"
+                        id="guestCity"
+                        placeholder="City"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="guestState">
+                        State
+                    </label>
+
+                    <input
+                        type="text"
+                        id="guestState"
+                        placeholder="State"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- COUNTRY -->
+
+            <div class="form-group">
+
+                <label for="guestCountry">
+                    Country
+                </label>
+
+                <input
+                    type="text"
+                    id="guestCountry"
+                    value="India"
+                    placeholder="Country"
+                >
+
+            </div>
+
+
+            <!-- NOTES -->
+
+            <div class="form-group">
+
+                <label for="guestNotes">
+                    Notes
+                </label>
+
+                <textarea
+                    id="guestNotes"
+                    rows="3"
+                    placeholder="Internal notes about this guest..."
+                ></textarea>
+
+            </div>
+
+
+            <input
+                type="hidden"
+                id="guestId"
+            >
+
+        </form>
+
+    </div>
+
+
+    <!-- DRAWER FOOTER -->
+
+    <div class="drawer-footer">
+
+        <button
+            type="button"
+            id="cancelGuestButton"
+            class="btn btn-light"
+        >
+            Cancel
+        </button>
+
+        <button
+            type="button"
+            id="saveGuestButton"
+            class="btn btn-primary"
+        >
+            Save Guest
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- =====================================================
+     SCRIPTS
+     ===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="./js/config.js"></script>
+
+<script src="./js/supabase.js"></script>
+
+<script src="./js/guests.js"></script>
+
+</body>
+</html>

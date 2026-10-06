@@ -1,235 +1,355 @@
-document.addEventListener("DOMContentLoaded", async () => {
+/* =========================================================
+   STAR HOTELS
+   BOOKINGS MODULE
+   ========================================================= */
 
-    console.log("Bookings module loaded");
+(function () {
 
-    if (!window.supabaseClient) {
-        console.error("Supabase client not initialized.");
-        return;
-    }
+    "use strict";
 
-    const supabase = window.supabaseClient;
+
+    /* =====================================================
+       STATE
+       ===================================================== */
 
     let currentHotelId = null;
+
+    let currentUser = null;
+
+    let currentProfile = null;
+
     let bookings = [];
+
     let guests = [];
+
     let rooms = [];
 
+    let editingBookingId = null;
 
-    /* =========================================
-       ELEMENTS
-    ========================================= */
 
-    const addBookingButton =
-        document.getElementById("addBookingButton");
+    /* =====================================================
+       DOM READY
+       ===================================================== */
 
-    const bookingDrawer =
-        document.getElementById("bookingDrawer");
+    document.addEventListener("DOMContentLoaded", async function () {
 
-    const bookingDrawerOverlay =
-        document.getElementById("bookingDrawerOverlay");
+        console.log("====================================");
+        console.log("STAR HOTELS - BOOKINGS");
+        console.log("====================================");
 
-    const closeBookingDrawer =
-        document.getElementById("closeBookingDrawer");
 
-    const saveBookingButton =
-        document.getElementById("saveBookingButton");
+        if (!window.supabaseClient) {
 
-    const cancelBookingButton =
-        document.getElementById("cancelBookingButton");
-
-    const bookingId =
-        document.getElementById("bookingId");
-
-    const bookingNumber =
-        document.getElementById("bookingNumber");
-
-    const bookingGuest =
-        document.getElementById("bookingGuest");
-
-    const bookingRoom =
-        document.getElementById("bookingRoom");
-
-    const bookingCheckIn =
-        document.getElementById("bookingCheckIn");
-
-    const bookingCheckOut =
-        document.getElementById("bookingCheckOut");
-
-    const bookingAdults =
-        document.getElementById("bookingAdults");
-
-    const bookingChildren =
-        document.getElementById("bookingChildren");
-
-    const bookingStatus =
-        document.getElementById("bookingStatus");
-
-    const bookingSource =
-        document.getElementById("bookingSource");
-
-    const bookingSpecialRequests =
-        document.getElementById("bookingSpecialRequests");
-
-    const bookingNotes =
-        document.getElementById("bookingNotes");
-
-    const bookingDrawerTitle =
-        document.getElementById("bookingDrawerTitle");
-
-    const bookingSearch =
-        document.getElementById("bookingSearch");
-
-    const bookingStatusFilter =
-        document.getElementById("bookingStatusFilter");
-
-    const bookingsTableBody =
-        document.getElementById("bookingsTableBody");
-
-
-    /* =========================================
-       HELPERS
-    ========================================= */
-
-    function escapeHtml(value) {
-
-        if (value === null || value === undefined) {
-            return "";
-        }
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-
-    function getToday() {
-
-        const date = new Date();
-
-        const year =
-            date.getFullYear();
-
-        const month =
-            String(date.getMonth() + 1).padStart(2, "0");
-
-        const day =
-            String(date.getDate()).padStart(2, "0");
-
-        return `${year}-${month}-${day}`;
-    }
-
-
-    function getTomorrow() {
-
-        const date = new Date();
-
-        date.setDate(date.getDate() + 1);
-
-        const year =
-            date.getFullYear();
-
-        const month =
-            String(date.getMonth() + 1).padStart(2, "0");
-
-        const day =
-            String(date.getDate()).padStart(2, "0");
-
-        return `${year}-${month}-${day}`;
-    }
-
-
-    function formatDate(value) {
-
-        if (!value) {
-            return "-";
-        }
-
-        const parts =
-            String(value).split("-");
-
-        if (parts.length !== 3) {
-            return value;
-        }
-
-        return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-
-
-    function getGuestName(guest) {
-
-        if (!guest) {
-            return "Unknown Guest";
-        }
-
-        if (guest.full_name) {
-            return guest.full_name;
-        }
-
-        return [
-            guest.first_name,
-            guest.last_name
-        ]
-            .filter(Boolean)
-            .join(" ");
-    }
-
-
-    function getGuestById(id) {
-
-        return guests.find(
-            guest =>
-                String(guest.id) === String(id)
-        );
-    }
-
-
-    function getRoomById(id) {
-
-        return rooms.find(
-            room =>
-                String(room.id) === String(id)
-        );
-    }
-
-
-    function getRoomLabel(room) {
-
-        if (!room) {
-            return "Unknown Room";
-        }
-
-        return `Room ${room.room_number}`;
-    }
-
-
-    function getStatusClass(status) {
-
-        return String(status || "")
-            .toLowerCase()
-            .replace(/_/g, "-");
-    }
-
-
-    function generateBookingNumber() {
-
-        const date =
-            getToday().replace(/-/g, "");
-
-        const random =
-            Math.floor(
-                1000 + Math.random() * 9000
+            console.error(
+                "Supabase client is not available."
             );
 
-        return `BK-${date}-${random}`;
+            showPageError(
+                "Supabase is not connected. Please check config.js and supabase.js."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            await initializeBookings();
+
+        } catch (error) {
+
+            console.error(
+                "Bookings initialization error:",
+                error
+            );
+
+            showPageError(
+                error.message ||
+                "Unable to load bookings."
+            );
+
+        }
+
+    });
+
+
+    /* =====================================================
+       INITIALIZE
+       ===================================================== */
+
+    async function initializeBookings() {
+
+        setupUI();
+
+        await loadCurrentHotel();
+
+        await Promise.all([
+            loadGuests(),
+            loadRooms()
+        ]);
+
+        populateBookingDefaults();
+
+        await loadBookings();
+
+        console.log(
+            "✓ Bookings module initialized"
+        );
+
     }
 
 
-    /* =========================================
-       GET CURRENT HOTEL
-    ========================================= */
+    /* =====================================================
+       SETUP UI
+       ===================================================== */
+
+    function setupUI() {
+
+        const newBookingBtn =
+            document.getElementById("newBookingBtn");
+
+        const emptyNewBookingBtn =
+            document.getElementById("emptyNewBookingBtn");
+
+        const closeBookingDrawer =
+            document.getElementById("closeBookingDrawer");
+
+        const cancelBookingButton =
+            document.getElementById("cancelBookingButton");
+
+        const saveBookingButton =
+            document.getElementById("saveBookingButton");
+
+        const drawerOverlay =
+            document.getElementById("bookingDrawerOverlay");
+
+        const search =
+            document.getElementById("bookingSearch");
+
+        const statusFilter =
+            document.getElementById("bookingStatusFilter");
+
+        const dateFilter =
+            document.getElementById("bookingDateFilter");
+
+        const clearFilters =
+            document.getElementById("clearBookingFilters");
+
+        const bookingForm =
+            document.getElementById("bookingForm");
+
+        const tableBody =
+            document.getElementById("bookingsTableBody");
+
+
+        /* -----------------------------------------------
+           New booking
+           ----------------------------------------------- */
+
+        if (newBookingBtn) {
+
+            newBookingBtn.addEventListener(
+                "click",
+                openNewBooking
+            );
+
+        }
+
+
+        if (emptyNewBookingBtn) {
+
+            emptyNewBookingBtn.addEventListener(
+                "click",
+                openNewBooking
+            );
+
+        }
+
+
+        /* -----------------------------------------------
+           Drawer
+           ----------------------------------------------- */
+
+        if (closeBookingDrawer) {
+
+            closeBookingDrawer.addEventListener(
+                "click",
+                closeDrawer
+            );
+
+        }
+
+
+        if (cancelBookingButton) {
+
+            cancelBookingButton.addEventListener(
+                "click",
+                closeDrawer
+            );
+
+        }
+
+
+        if (drawerOverlay) {
+
+            drawerOverlay.addEventListener(
+                "click",
+                closeDrawer
+            );
+
+        }
+
+
+        /* -----------------------------------------------
+           Save
+           ----------------------------------------------- */
+
+        if (saveBookingButton) {
+
+            saveBookingButton.addEventListener(
+                "click",
+                saveBooking
+            );
+
+        }
+
+
+        if (bookingForm) {
+
+            bookingForm.addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+                    saveBooking();
+
+                }
+            );
+
+        }
+
+
+        /* -----------------------------------------------
+           Search
+           ----------------------------------------------- */
+
+        if (search) {
+
+            search.addEventListener(
+                "input",
+                renderBookings
+            );
+
+        }
+
+
+        if (statusFilter) {
+
+            statusFilter.addEventListener(
+                "change",
+                renderBookings
+            );
+
+        }
+
+
+        if (dateFilter) {
+
+            dateFilter.addEventListener(
+                "change",
+                renderBookings
+            );
+
+        }
+
+
+        if (clearFilters) {
+
+            clearFilters.addEventListener(
+                "click",
+                clearBookingFilters
+            );
+
+        }
+
+
+        /* -----------------------------------------------
+           Table actions
+           ----------------------------------------------- */
+
+        if (tableBody) {
+
+            tableBody.addEventListener(
+                "click",
+                handleTableAction
+            );
+
+        }
+
+
+        /* -----------------------------------------------
+           Mobile sidebar
+           ----------------------------------------------- */
+
+        setupMobileMenu();
+
+
+        /* -----------------------------------------------
+           Escape key
+           ----------------------------------------------- */
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (event.key === "Escape") {
+
+                    closeDrawer();
+
+                    closeMobileMenu();
+
+                }
+
+            }
+        );
+
+
+        /* -----------------------------------------------
+           Date change
+           ----------------------------------------------- */
+
+        const checkIn =
+            document.getElementById("bookingCheckIn");
+
+        const checkOut =
+            document.getElementById("bookingCheckOut");
+
+
+        if (checkIn) {
+
+            checkIn.addEventListener(
+                "change",
+                function () {
+
+                    if (checkOut) {
+
+                        checkOut.min =
+                            checkIn.value || getTomorrow();
+
+                    }
+
+                }
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       CURRENT HOTEL
+       ===================================================== */
 
     async function loadCurrentHotel() {
 
@@ -238,67 +358,184 @@ document.addEventListener("DOMContentLoaded", async () => {
                 user
             },
             error: userError
-        } = await supabase.auth.getUser();
+        } = await window.supabaseClient.auth.getUser();
 
 
-        if (userError || !user) {
+        if (userError) {
 
-            console.log(
-                "No logged-in user."
-            );
+            throw userError;
 
-            return false;
         }
+
+
+        if (!user) {
+
+            window.location.href = "login.html";
+
+            return;
+
+        }
+
+
+        currentUser = user;
 
 
         const {
             data: profile,
             error: profileError
-        } = await supabase
+        } = await window.supabaseClient
             .from("profiles")
-            .select("hotel_id")
-            .eq("id", user.id)
-            .single();
+            .select(
+                "id, hotel_id, full_name, phone, role"
+            )
+            .eq(
+                "id",
+                user.id
+            )
+            .maybeSingle();
 
 
         if (profileError) {
 
-            console.error(
-                "Profile error:",
-                profileError
-            );
+            throw profileError;
 
-            return false;
         }
 
 
-        currentHotelId =
-            profile.hotel_id;
+        if (!profile || !profile.hotel_id) {
+
+            throw new Error(
+                "Your account is not connected to a hotel."
+            );
+
+        }
 
 
-        return true;
+        currentProfile = profile;
+
+        currentHotelId = profile.hotel_id;
+
+
+        updateTopbar();
+
     }
 
 
-    /* =========================================
-       LOAD GUESTS
-    ========================================= */
+    /* =====================================================
+       TOPBAR
+       ===================================================== */
 
-    async function loadGuests() {
+    function updateTopbar() {
+
+        const userName =
+            document.getElementById("topUserName");
+
+        const userInitial =
+            document.getElementById("topUserInitial");
+
+        const hotelName =
+            document.getElementById("topHotelName");
+
+
+        const name =
+            currentProfile?.full_name ||
+            currentUser?.email ||
+            "User";
+
+
+        if (userName) {
+
+            userName.textContent =
+                name;
+
+        }
+
+
+        if (userInitial) {
+
+            userInitial.textContent =
+                name
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase();
+
+        }
+
+
+        if (hotelName) {
+
+            loadHotelName(hotelName);
+
+        }
+
+    }
+
+
+    async function loadHotelName(element) {
+
+        if (!currentHotelId) {
+
+            return;
+
+        }
+
 
         const {
             data,
             error
-        } = await supabase
+        } = await window.supabaseClient
+            .from("hotels")
+            .select("name")
+            .eq(
+                "id",
+                currentHotelId
+            )
+            .maybeSingle();
+
+
+        if (!error && data?.name) {
+
+            element.textContent =
+                data.name;
+
+        } else {
+
+            element.textContent =
+                "Hotel";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       LOAD GUESTS
+       ===================================================== */
+
+    async function loadGuests() {
+
+        if (!currentHotelId) {
+
+            return;
+
+        }
+
+
+        const {
+            data,
+            error
+        } = await window.supabaseClient
             .from("guests")
-            .select(`
+            .select(
+                `
                 id,
                 first_name,
                 last_name,
                 full_name,
                 phone,
                 email
-            `)
+                `
+            )
             .eq(
                 "hotel_id",
                 currentHotelId
@@ -314,71 +551,109 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (error) {
 
             console.error(
-                "Guests loading error:",
+                "Guest loading error:",
                 error
             );
 
-            return;
+            throw error;
+
         }
 
 
-        guests =
-            data || [];
+        guests = data || [];
 
         populateGuestSelect();
+
     }
 
+
+    /* =====================================================
+       GUEST SELECT
+       ===================================================== */
 
     function populateGuestSelect() {
 
-        if (!bookingGuest) {
+        const select =
+            document.getElementById(
+                "bookingGuest"
+            );
+
+
+        if (!select) {
+
             return;
+
         }
 
 
-        bookingGuest.innerHTML =
+        select.innerHTML =
             `<option value="">Select Guest</option>`;
 
 
-        guests.forEach(guest => {
+        guests.forEach(function (guest) {
 
-            const name =
+            const fullName =
                 getGuestName(guest);
 
-            const phone =
+
+            const option =
+                document.createElement("option");
+
+
+            option.value =
+                guest.id;
+
+
+            option.textContent =
                 guest.phone
-                    ? ` • ${guest.phone}`
-                    : "";
+                    ? `${fullName} — ${guest.phone}`
+                    : fullName;
 
 
-            bookingGuest.innerHTML += `
-                <option value="${guest.id}">
-                    ${escapeHtml(name)}${escapeHtml(phone)}
-                </option>
-            `;
+            select.appendChild(option);
+
         });
+
     }
 
 
-    /* =========================================
+    /* =====================================================
        LOAD ROOMS
-    ========================================= */
+       ===================================================== */
 
     async function loadRooms() {
+
+        if (!currentHotelId) {
+
+            return;
+
+        }
+
 
         const {
             data,
             error
-        } = await supabase
+        } = await window.supabaseClient
             .from("rooms")
-            .select(`
+            .select(
+                `
                 id,
+                hotel_id,
                 room_number,
+                room_type_id,
                 floor,
-                price,
                 status,
-                room_type_id
-            `)
+                price,
+                notes,
+                room_types (
+                    id,
+                    name,
+                    max_guests,
+                    price_per_night,
+                    base_price
+                )
+                `
+            )
             .eq(
                 "hotel_id",
                 currentHotelId
@@ -394,64 +669,150 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (error) {
 
             console.error(
-                "Rooms loading error:",
+                "Room loading error:",
                 error
             );
 
-            return;
+            throw error;
+
         }
 
 
-        rooms =
-            data || [];
+        rooms = data || [];
 
         populateRoomSelect();
+
     }
 
+
+    /* =====================================================
+       ROOM SELECT
+       ===================================================== */
 
     function populateRoomSelect() {
 
-        if (!bookingRoom) {
+        const select =
+            document.getElementById(
+                "bookingRoom"
+            );
+
+
+        if (!select) {
+
             return;
+
         }
 
 
-        bookingRoom.innerHTML =
+        select.innerHTML =
             `<option value="">Select Room</option>`;
 
 
-        rooms.forEach(room => {
+        rooms.forEach(function (room) {
+
+            const option =
+                document.createElement("option");
+
+
+            option.value =
+                room.id;
+
+
+            const typeName =
+                room.room_types?.name ||
+                "Room";
+
 
             const status =
-                room.status || "AVAILABLE";
+                String(
+                    room.status || "AVAILABLE"
+                ).toUpperCase();
 
 
-            bookingRoom.innerHTML += `
-                <option value="${room.id}">
-                    Room ${escapeHtml(room.room_number)}
-                    — ${escapeHtml(status)}
-                </option>
-            `;
+            const roomText =
+                `Room ${room.room_number} — ${typeName} — ${formatRoomStatus(status)}`;
+
+
+            option.textContent =
+                roomText;
+
+
+            /*
+             * Do not disable the room when editing
+             * the current booking's room.
+             */
+
+            const unavailableStatuses = [
+                "OCCUPIED",
+                "CLEANING",
+                "MAINTENANCE"
+            ];
+
+
+            if (
+                unavailableStatuses.includes(status) &&
+                String(room.id) !==
+                String(getCurrentBookingRoomId())
+            ) {
+
+                option.disabled = true;
+
+            }
+
+
+            select.appendChild(option);
+
         });
+
     }
 
 
-    /* =========================================
+    function getCurrentBookingRoomId() {
+
+        if (!editingBookingId) {
+
+            return null;
+
+        }
+
+
+        const booking =
+            bookings.find(function (item) {
+
+                return String(item.id) ===
+                    String(editingBookingId);
+
+            });
+
+
+        return booking?.room_id || null;
+
+    }
+
+
+    /* =====================================================
        LOAD BOOKINGS
-       
-       DATABASE COLUMNS:
-       check_in_date
-       check_out_date
-    ========================================= */
+       ===================================================== */
 
     async function loadBookings() {
+
+        if (!currentHotelId) {
+
+            return;
+
+        }
+
+
+        setTableLoading();
+
 
         const {
             data,
             error
-        } = await supabase
+        } = await window.supabaseClient
             .from("bookings")
-            .select(`
+            .select(
+                `
                 id,
                 hotel_id,
                 booking_number,
@@ -467,7 +828,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 notes,
                 created_at,
                 updated_at
-            `)
+                `
+            )
             .eq(
                 "hotel_id",
                 currentHotelId
@@ -487,691 +849,882 @@ document.addEventListener("DOMContentLoaded", async () => {
                 error
             );
 
-            if (bookingsTableBody) {
-
-                bookingsTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="empty-table">
-                            Failed to load bookings.
-                        </td>
-                    </tr>
-                `;
-            }
+            showTableError(
+                error.message
+            );
 
             return;
+
         }
 
 
-        bookings =
-            data || [];
+        bookings = data || [];
+
+
+        updateStatistics();
 
         renderBookings();
 
-        updateBookingSummary();
     }
 
 
-    /* =========================================
-       SUMMARY
-    ========================================= */
+    /* =====================================================
+       RENDER BOOKINGS
+       ===================================================== */
 
-    function updateBookingSummary() {
+    function renderBookings() {
+
+        const tbody =
+            document.getElementById(
+                "bookingsTableBody"
+            );
+
+
+        const emptyState =
+            document.getElementById(
+                "bookingEmptyState"
+            );
+
+
+        const countElement =
+            document.getElementById(
+                "bookingResultCount"
+            );
+
+
+        if (!tbody) {
+
+            return;
+
+        }
+
+
+        const searchInput =
+            document.getElementById(
+                "bookingSearch"
+            );
+
+
+        const statusFilter =
+            document.getElementById(
+                "bookingStatusFilter"
+            );
+
+
+        const dateFilter =
+            document.getElementById(
+                "bookingDateFilter"
+            );
+
+
+        const search =
+            String(
+                searchInput?.value || ""
+            )
+                .trim()
+                .toLowerCase();
+
+
+        const status =
+            String(
+                statusFilter?.value || ""
+            )
+                .toUpperCase();
+
+
+        const dateType =
+            String(
+                dateFilter?.value || ""
+            )
+                .toUpperCase();
+
 
         const today =
             getToday();
 
 
-        const total =
-            bookings.length;
-
-
-        const confirmed =
-            bookings.filter(
-                booking =>
-                    booking.status === "PENDING" ||
-                    booking.status === "CONFIRMED"
-            ).length;
-
-
-        const checkIns =
-            bookings.filter(
-                booking =>
-                    booking.check_in_date === today &&
-                    booking.status !== "CANCELLED" &&
-                    booking.status !== "NO_SHOW"
-            ).length;
-
-
-        const checkOuts =
-            bookings.filter(
-                booking =>
-                    booking.check_out_date === today &&
-                    booking.status !== "CANCELLED" &&
-                    booking.status !== "NO_SHOW"
-            ).length;
-
-
-        const totalBookingsElement =
-            document.getElementById(
-                "totalBookingsCount"
-            );
-
-        const confirmedBookingsElement =
-            document.getElementById(
-                "confirmedBookingsCount"
-            );
-
-        const checkInsElement =
-            document.getElementById(
-                "checkInsTodayCount"
-            );
-
-        const checkOutsElement =
-            document.getElementById(
-                "checkOutsTodayCount"
-            );
-
-
-        if (totalBookingsElement) {
-            totalBookingsElement.textContent =
-                total;
-        }
-
-
-        if (confirmedBookingsElement) {
-            confirmedBookingsElement.textContent =
-                confirmed;
-        }
-
-
-        if (checkInsElement) {
-            checkInsElement.textContent =
-                checkIns;
-        }
-
-
-        if (checkOutsElement) {
-            checkOutsElement.textContent =
-                checkOuts;
-        }
-    }
-
-
-    /* =========================================
-       RENDER BOOKINGS
-    ========================================= */
-
-    function renderBookings() {
-
-        if (!bookingsTableBody) {
-            return;
-        }
-
-
-        const search =
-            bookingSearch
-                ? bookingSearch.value
-                    .trim()
-                    .toLowerCase()
-                : "";
-
-
-        const statusFilter =
-            bookingStatusFilter
-                ? bookingStatusFilter.value
-                : "";
-
-
         const filtered =
-            bookings.filter(booking => {
-
-                const guest =
-                    getGuestById(
-                        booking.guest_id
-                    );
+            bookings.filter(function (booking) {
 
 
-                const room =
-                    getRoomById(
-                        booking.room_id
-                    );
+                /* Search */
+
+                if (search) {
+
+                    const guest =
+                        findGuest(
+                            booking.guest_id
+                        );
 
 
-                const guestName =
-                    getGuestName(
-                        guest
-                    ).toLowerCase();
+                    const room =
+                        findRoom(
+                            booking.room_id
+                        );
 
 
-                const roomNumber =
-                    room
-                        ? String(
-                            room.room_number
-                        ).toLowerCase()
-                        : "";
+                    const searchable = [
+
+                        booking.booking_number,
+
+                        getGuestName(guest),
+
+                        guest?.phone,
+
+                        room?.room_number,
+
+                        booking.source,
+
+                        booking.status
+
+                    ]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
 
 
-                const bookingNumber =
+                    if (
+                        !searchable.includes(search)
+                    ) {
+
+                        return false;
+
+                    }
+
+                }
+
+
+                /* Status */
+
+                if (
+                    status &&
                     String(
-                        booking.booking_number || ""
-                    ).toLowerCase();
+                        booking.status || ""
+                    ).toUpperCase() !== status
+                ) {
+
+                    return false;
+
+                }
 
 
-                const matchesSearch =
-                    !search ||
-                    bookingNumber.includes(search) ||
-                    guestName.includes(search) ||
-                    roomNumber.includes(search);
+                /* Date */
+
+                if (dateType === "TODAY") {
+
+                    if (
+                        booking.check_in_date !==
+                        today
+                    ) {
+
+                        return false;
+
+                    }
+
+                }
 
 
-                const matchesStatus =
-                    !statusFilter ||
-                    booking.status === statusFilter;
+                if (dateType === "UPCOMING") {
+
+                    if (
+                        !booking.check_in_date ||
+                        booking.check_in_date < today
+                    ) {
+
+                        return false;
+
+                    }
+
+                }
 
 
-                return (
-                    matchesSearch &&
-                    matchesStatus
-                );
+                if (dateType === "PAST") {
+
+                    if (
+                        !booking.check_out_date ||
+                        booking.check_out_date >= today
+                    ) {
+
+                        return false;
+
+                    }
+
+                }
+
+
+                return true;
+
             });
+
+
+        if (countElement) {
+
+            countElement.textContent =
+                `${filtered.length} ${
+                    filtered.length === 1
+                        ? "booking"
+                        : "bookings"
+                }`;
+
+        }
 
 
         if (!filtered.length) {
 
-            bookingsTableBody.innerHTML = `
-                <tr>
-                    <td colspan="8" class="empty-table">
-                        No bookings found.
-                    </td>
-                </tr>
-            `;
+            tbody.innerHTML = "";
+
+            if (emptyState) {
+
+                emptyState.classList.remove(
+                    "hidden"
+                );
+
+            }
 
             return;
+
         }
 
 
-        bookingsTableBody.innerHTML =
-            filtered.map(booking => {
+        if (emptyState) {
 
-                const guest =
-                    getGuestById(
-                        booking.guest_id
-                    );
-
-
-                const room =
-                    getRoomById(
-                        booking.room_id
-                    );
-
-
-                const totalGuests =
-                    Number(
-                        booking.adults || 0
-                    ) +
-                    Number(
-                        booking.children || 0
-                    );
-
-
-                return `
-                    <tr>
-
-                        <td>
-                            <strong>
-                                ${escapeHtml(
-                                    booking.booking_number || "-"
-                                )}
-                            </strong>
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                getGuestName(guest)
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                getRoomLabel(room)
-                            )}
-                        </td>
-
-                        <td>
-                            ${formatDate(
-                                booking.check_in_date
-                            )}
-                        </td>
-
-                        <td>
-                            ${formatDate(
-                                booking.check_out_date
-                            )}
-                        </td>
-
-                        <td>
-                            ${totalGuests}
-                        </td>
-
-                        <td>
-                            <span class="booking-status ${getStatusClass(booking.status)}">
-                                ${escapeHtml(
-                                    String(
-                                        booking.status || ""
-                                    ).replace(
-                                        /_/g,
-                                        " "
-                                    )
-                                )}
-                            </span>
-                        </td>
-
-                        <td>
-
-                            <div class="booking-actions">
-
-                                <button
-                                    type="button"
-                                    class="small-btn booking-edit-btn"
-                                    data-id="${booking.id}">
-                                    Edit
-                                </button>
-
-                                ${
-                                    booking.status !== "CANCELLED" &&
-                                    booking.status !== "CHECKED_OUT"
-                                    ? `
-                                        <button
-                                            type="button"
-                                            class="small-btn danger-btn booking-cancel-btn"
-                                            data-id="${booking.id}">
-                                            Cancel
-                                        </button>
-                                    `
-                                    : ""
-                                }
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-                `;
-
-            }).join("");
-    }
-
-
-    /* =========================================
-       OPEN DRAWER
-    ========================================= */
-
-    function openBookingDrawer(
-        booking = null
-    ) {
-
-        if (!booking) {
-
-            bookingDrawerTitle.textContent =
-                "New Booking";
-
-            bookingId.value =
-                "";
-
-            bookingNumber.value =
-                generateBookingNumber();
-
-            bookingGuest.value =
-                "";
-
-            bookingRoom.value =
-                "";
-
-            bookingCheckIn.value =
-                getToday();
-
-            bookingCheckOut.value =
-                getTomorrow();
-
-            bookingAdults.value =
-                1;
-
-            bookingChildren.value =
-                0;
-
-            bookingStatus.value =
-                "CONFIRMED";
-
-            bookingSource.value =
-                "DIRECT";
-
-            bookingSpecialRequests.value =
-                "";
-
-            bookingNotes.value =
-                "";
-
-        } else {
-
-            bookingDrawerTitle.textContent =
-                "Edit Booking";
-
-            bookingId.value =
-                booking.id;
-
-            bookingNumber.value =
-                booking.booking_number || "";
-
-            bookingGuest.value =
-                booking.guest_id || "";
-
-            bookingRoom.value =
-                booking.room_id || "";
-
-            bookingCheckIn.value =
-                booking.check_in_date || "";
-
-            bookingCheckOut.value =
-                booking.check_out_date || "";
-
-            bookingAdults.value =
-                booking.adults || 1;
-
-            bookingChildren.value =
-                booking.children || 0;
-
-            bookingStatus.value =
-                booking.status || "CONFIRMED";
-
-            bookingSource.value =
-                booking.source || "DIRECT";
-
-            bookingSpecialRequests.value =
-                booking.special_requests || "";
-
-            bookingNotes.value =
-                booking.notes || "";
-        }
-
-
-        bookingDrawer.classList.add("show");
-
-        bookingDrawerOverlay.classList.add("show");
-
-        document.body.style.overflow =
-            "hidden";
-    }
-
-
-    /* =========================================
-       CLOSE DRAWER
-    ========================================= */
-
-    function closeBookingDrawerFunction() {
-
-        bookingDrawer.classList.remove("show");
-
-        bookingDrawerOverlay.classList.remove("show");
-
-        document.body.style.overflow =
-            "";
-    }
-
-
-    /* =========================================
-       ROOM AVAILABILITY
-    ========================================= */
-
-    function hasRoomConflict(
-        roomId,
-        checkIn,
-        checkOut,
-        currentBookingId
-    ) {
-
-        const activeStatuses = [
-            "PENDING",
-            "CONFIRMED",
-            "CHECKED_IN"
-        ];
-
-
-        return bookings.some(booking => {
-
-            if (
-                String(booking.room_id) !==
-                String(roomId)
-            ) {
-                return false;
-            }
-
-
-            if (
-                currentBookingId &&
-                String(booking.id) ===
-                String(currentBookingId)
-            ) {
-                return false;
-            }
-
-
-            if (
-                !activeStatuses.includes(
-                    booking.status
-                )
-            ) {
-                return false;
-            }
-
-
-            return (
-                booking.check_in_date < checkOut &&
-                booking.check_out_date > checkIn
+            emptyState.classList.add(
+                "hidden"
             );
-        });
+
+        }
+
+
+        tbody.innerHTML =
+            filtered
+                .map(renderBookingRow)
+                .join("");
+
     }
 
 
-    /* =========================================
-       UPDATE ROOM STATUS
-    ========================================= */
+    /* =====================================================
+       BOOKING ROW
+       ===================================================== */
 
-    async function updateRoomStatusAfterBooking(
-        roomId,
-        status
-    ) {
+    function renderBookingRow(booking) {
 
-        if (!roomId) {
-            return;
-        }
+        const guest =
+            findGuest(
+                booking.guest_id
+            );
 
 
         const room =
-            getRoomById(roomId);
-
-
-        if (!room) {
-            return;
-        }
-
-
-        let newRoomStatus =
-            null;
-
-
-        if (status === "CHECKED_IN") {
-
-            newRoomStatus =
-                "OCCUPIED";
-
-        } else if (
-            status === "PENDING" ||
-            status === "CONFIRMED"
-        ) {
-
-            if (
-                room.status === "AVAILABLE" ||
-                room.status === "RESERVED"
-            ) {
-
-                newRoomStatus =
-                    "RESERVED";
-            }
-
-        } else if (
-            status === "CHECKED_OUT"
-        ) {
-
-            newRoomStatus =
-                "CLEANING";
-
-        } else if (
-            status === "CANCELLED" ||
-            status === "NO_SHOW"
-        ) {
-
-            const anotherBooking =
-                bookings.some(booking => {
-
-                    if (
-                        String(booking.room_id) !==
-                        String(roomId)
-                    ) {
-                        return false;
-                    }
-
-
-                    if (
-                        ["CANCELLED", "NO_SHOW", "CHECKED_OUT"]
-                            .includes(booking.status)
-                    ) {
-                        return false;
-                    }
-
-
-                    return true;
-                });
-
-
-            if (!anotherBooking) {
-
-                if (
-                    room.status === "RESERVED"
-                ) {
-
-                    newRoomStatus =
-                        "AVAILABLE";
-                }
-            }
-        }
-
-
-        if (
-            !newRoomStatus ||
-            newRoomStatus === room.status
-        ) {
-            return;
-        }
-
-
-        const {
-            error
-        } = await supabase
-            .from("rooms")
-            .update({
-                status: newRoomStatus
-            })
-            .eq(
-                "id",
-                roomId
-            )
-            .eq(
-                "hotel_id",
-                currentHotelId
+            findRoom(
+                booking.room_id
             );
 
 
-        if (error) {
+        const guestName =
+            getGuestName(guest);
 
-            console.error(
-                "Room status update error:",
-                error
+
+        const roomNumber =
+            room?.room_number ||
+            "—";
+
+
+        const totalGuests =
+            Number(
+                booking.adults || 0
+            ) +
+            Number(
+                booking.children || 0
             );
 
-            return;
-        }
+
+        const status =
+            String(
+                booking.status ||
+                "PENDING"
+            ).toUpperCase();
 
 
-        room.status =
-            newRoomStatus;
+        const bookingNumber =
+            booking.booking_number ||
+            `#${booking.id}`;
 
-        populateRoomSelect();
+
+        return `
+
+            <tr data-booking-id="${escapeHtml(booking.id)}">
+
+                <td>
+
+                    <div class="booking-number-cell">
+
+                        <strong>
+                            ${escapeHtml(bookingNumber)}
+                        </strong>
+
+                        <small>
+                            ${formatSource(booking.source)}
+                        </small>
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <div class="guest-cell">
+
+                        <div class="table-avatar">
+                            ${escapeHtml(
+                                getInitials(guestName)
+                            )}
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                ${escapeHtml(guestName)}
+                            </strong>
+
+                            <small>
+                                ${escapeHtml(
+                                    guest?.phone || ""
+                                )}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <div class="room-cell">
+
+                        <strong>
+                            ${escapeHtml(roomNumber)}
+                        </strong>
+
+                        <small>
+                            ${escapeHtml(
+                                room?.room_types?.name ||
+                                "Room"
+                            )}
+                        </small>
+
+                    </div>
+
+                </td>
+
+
+                <td>
+                    <span class="date-cell">
+                        ${formatDate(
+                            booking.check_in_date
+                        )}
+                    </span>
+                </td>
+
+
+                <td>
+                    <span class="date-cell">
+                        ${formatDate(
+                            booking.check_out_date
+                        )}
+                    </span>
+                </td>
+
+
+                <td>
+
+                    <span class="guest-count">
+                        ${escapeHtml(totalGuests)}
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span class="status-badge ${getStatusClass(status)}">
+                        ${formatStatus(status)}
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <div class="table-actions">
+
+                        <button
+                            type="button"
+                            class="table-action edit-booking"
+                            data-id="${escapeHtml(booking.id)}"
+                            title="Edit booking"
+                        >
+                            Edit
+                        </button>
+
+                        ${
+                            status !== "CANCELLED" &&
+                            status !== "CHECKED_OUT"
+                                ? `
+                                    <button
+                                        type="button"
+                                        class="table-action danger cancel-booking"
+                                        data-id="${escapeHtml(booking.id)}"
+                                        title="Cancel booking"
+                                    >
+                                        Cancel
+                                    </button>
+                                  `
+                                : ""
+                        }
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
     }
 
 
-    /* =========================================
+    /* =====================================================
+       NEW BOOKING
+       ===================================================== */
+
+    function openNewBooking() {
+
+        editingBookingId = null;
+
+
+        const form =
+            document.getElementById(
+                "bookingForm"
+            );
+
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        document.getElementById(
+            "bookingId"
+        ).value = "";
+
+
+        document.getElementById(
+            "bookingDrawerTitle"
+        ).textContent =
+            "New Booking";
+
+
+        const saveText =
+            document.getElementById(
+                "saveBookingButtonText"
+            );
+
+
+        if (saveText) {
+
+            saveText.textContent =
+                "Save Booking";
+
+        }
+
+
+        document.getElementById(
+            "bookingNumber"
+        ).value =
+            generateBookingNumber();
+
+
+        document.getElementById(
+            "bookingCheckIn"
+        ).value =
+            getToday();
+
+
+        document.getElementById(
+            "bookingCheckOut"
+        ).value =
+            getTomorrow();
+
+
+        document.getElementById(
+            "bookingAdults"
+        ).value = 1;
+
+
+        document.getElementById(
+            "bookingChildren"
+        ).value = 0;
+
+
+        document.getElementById(
+            "bookingStatus"
+        ).value =
+            "CONFIRMED";
+
+
+        document.getElementById(
+            "bookingSource"
+        ).value =
+            "DIRECT";
+
+
+        populateRoomSelect();
+
+        openDrawer();
+
+    }
+
+
+    /* =====================================================
+       EDIT BOOKING
+       ===================================================== */
+
+    function openEditBooking(bookingId) {
+
+        const booking =
+            bookings.find(function (item) {
+
+                return String(item.id) ===
+                    String(bookingId);
+
+            });
+
+
+        if (!booking) {
+
+            alert(
+                "Booking not found."
+            );
+
+            return;
+
+        }
+
+
+        editingBookingId =
+            booking.id;
+
+
+        document.getElementById(
+            "bookingId"
+        ).value =
+            booking.id;
+
+
+        document.getElementById(
+            "bookingDrawerTitle"
+        ).textContent =
+            "Edit Booking";
+
+
+        const saveText =
+            document.getElementById(
+                "saveBookingButtonText"
+            );
+
+
+        if (saveText) {
+
+            saveText.textContent =
+                "Update Booking";
+
+        }
+
+
+        document.getElementById(
+            "bookingNumber"
+        ).value =
+            booking.booking_number || "";
+
+
+        document.getElementById(
+            "bookingGuest"
+        ).value =
+            booking.guest_id || "";
+
+
+        /*
+         * Rebuild room options so the current
+         * room is selectable even if occupied.
+         */
+
+        populateRoomSelect();
+
+
+        document.getElementById(
+            "bookingRoom"
+        ).value =
+            booking.room_id || "";
+
+
+        document.getElementById(
+            "bookingCheckIn"
+        ).value =
+            booking.check_in_date || "";
+
+
+        document.getElementById(
+            "bookingCheckOut"
+        ).value =
+            booking.check_out_date || "";
+
+
+        document.getElementById(
+            "bookingAdults"
+        ).value =
+            booking.adults ?? 1;
+
+
+        document.getElementById(
+            "bookingChildren"
+        ).value =
+            booking.children ?? 0;
+
+
+        document.getElementById(
+            "bookingStatus"
+        ).value =
+            booking.status || "PENDING";
+
+
+        document.getElementById(
+            "bookingSource"
+        ).value =
+            booking.source || "DIRECT";
+
+
+        document.getElementById(
+            "bookingSpecialRequests"
+        ).value =
+            booking.special_requests || "";
+
+
+        document.getElementById(
+            "bookingNotes"
+        ).value =
+            booking.notes || "";
+
+
+        openDrawer();
+
+    }
+
+
+    /* =====================================================
+       OPEN DRAWER
+       ===================================================== */
+
+    function openDrawer() {
+
+        const drawer =
+            document.getElementById(
+                "bookingDrawer"
+            );
+
+
+        const overlay =
+            document.getElementById(
+                "bookingDrawerOverlay"
+            );
+
+
+        if (!drawer) {
+
+            return;
+
+        }
+
+
+        drawer.classList.add("show");
+
+        drawer.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+
+        if (overlay) {
+
+            overlay.classList.add("show");
+
+        }
+
+
+        document.body.classList.add(
+            "drawer-open"
+        );
+
+
+        setTimeout(function () {
+
+            const guest =
+                document.getElementById(
+                    "bookingGuest"
+                );
+
+
+            if (guest) {
+
+                guest.focus();
+
+            }
+
+        }, 300);
+
+    }
+
+
+    /* =====================================================
+       CLOSE DRAWER
+       ===================================================== */
+
+    function closeDrawer() {
+
+        const drawer =
+            document.getElementById(
+                "bookingDrawer"
+            );
+
+
+        const overlay =
+            document.getElementById(
+                "bookingDrawerOverlay"
+            );
+
+
+        if (drawer) {
+
+            drawer.classList.remove(
+                "show"
+            );
+
+            drawer.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+        }
+
+
+        if (overlay) {
+
+            overlay.classList.remove(
+                "show"
+            );
+
+        }
+
+
+        document.body.classList.remove(
+            "drawer-open"
+        );
+
+
+        editingBookingId = null;
+
+    }
+
+
+    /* =====================================================
        SAVE BOOKING
-    ========================================= */
+       ===================================================== */
 
     async function saveBooking() {
 
-        const id =
-            bookingId.value.trim();
+        if (!currentHotelId) {
+
+            alert(
+                "Hotel information is not available."
+            );
+
+            return;
+
+        }
 
 
         const guestId =
-            Number(
-                bookingGuest.value
-            );
+            document.getElementById(
+                "bookingGuest"
+            ).value;
 
 
         const roomId =
-            Number(
-                bookingRoom.value
-            );
+            document.getElementById(
+                "bookingRoom"
+            ).value;
 
 
         const checkIn =
-            bookingCheckIn.value;
+            document.getElementById(
+                "bookingCheckIn"
+            ).value;
 
 
         const checkOut =
-            bookingCheckOut.value;
+            document.getElementById(
+                "bookingCheckOut"
+            ).value;
 
 
         const adults =
             Number(
-                bookingAdults.value
+                document.getElementById(
+                    "bookingAdults"
+                ).value || 1
             );
 
 
         const children =
             Number(
-                bookingChildren.value
+                document.getElementById(
+                    "bookingChildren"
+                ).value || 0
             );
 
 
         const status =
-            bookingStatus.value;
+            document.getElementById(
+                "bookingStatus"
+            ).value;
 
 
         const source =
-            bookingSource.value;
+            document.getElementById(
+                "bookingSource"
+            ).value;
 
 
         const specialRequests =
-            bookingSpecialRequests.value
-                .trim();
+            document.getElementById(
+                "bookingSpecialRequests"
+            ).value.trim();
 
 
         const notes =
-            bookingNotes.value
-                .trim();
+            document.getElementById(
+                "bookingNotes"
+            ).value.trim();
 
 
-        /* =====================================
-           VALIDATION
-        ===================================== */
+        /* -----------------------------------------------
+           Validation
+           ----------------------------------------------- */
 
         if (!guestId) {
 
@@ -1180,6 +1733,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
             return;
+
         }
 
 
@@ -1190,16 +1744,29 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
             return;
+
         }
 
 
-        if (!checkIn || !checkOut) {
+        if (!checkIn) {
 
             alert(
-                "Please select check-in and check-out dates."
+                "Please select check-in date."
             );
 
             return;
+
+        }
+
+
+        if (!checkOut) {
+
+            alert(
+                "Please select check-out date."
+            );
+
+            return;
+
         }
 
 
@@ -1210,16 +1777,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
             return;
+
         }
 
 
         if (adults < 1) {
 
             alert(
-                "At least 1 adult is required."
+                "At least one adult is required."
             );
 
             return;
+
         }
 
 
@@ -1230,101 +1799,175 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
             return;
+
         }
 
 
+        /* -----------------------------------------------
+           Check room
+           ----------------------------------------------- */
+
         const selectedRoom =
-            getRoomById(roomId);
+            findRoom(roomId);
 
 
         if (!selectedRoom) {
 
             alert(
-                "Selected room was not found."
+                "Selected room could not be found."
             );
 
             return;
+
         }
 
 
-        /* =====================================
-           ROOM STATUS CHECK
-        ===================================== */
-
-        if (!id) {
-
-            const unavailableStatuses = [
-                "OCCUPIED",
-                "CLEANING",
-                "MAINTENANCE"
-            ];
+        const roomStatus =
+            String(
+                selectedRoom.status ||
+                "AVAILABLE"
+            ).toUpperCase();
 
 
-            if (
-                unavailableStatuses.includes(
-                    selectedRoom.status
-                )
-            ) {
-
-                alert(
-                    `Room ${selectedRoom.room_number} is currently ${selectedRoom.status}. Please choose another room.`
-                );
-
-                return;
-            }
-        }
+        const isEditing =
+            Boolean(editingBookingId);
 
 
-        /* =====================================
-           ROOM DATE CONFLICT
-        ===================================== */
+        const originalBooking =
+            isEditing
+                ? bookings.find(function (item) {
+
+                    return String(item.id) ===
+                        String(editingBookingId);
+
+                })
+                : null;
+
+
+        const originalRoomId =
+            originalBooking?.room_id || null;
+
+
+        /*
+         * Do not allow unavailable rooms for
+         * a new booking.
+         */
+
+        const unavailableStatuses = [
+            "OCCUPIED",
+            "CLEANING",
+            "MAINTENANCE"
+        ];
+
 
         if (
-            status !== "CANCELLED" &&
-            status !== "NO_SHOW" &&
-            hasRoomConflict(
-                roomId,
-                checkIn,
-                checkOut,
-                id
-            )
+            !isEditing &&
+            unavailableStatuses.includes(roomStatus)
         ) {
 
             alert(
-                "This room is already booked for the selected dates."
+                `Room ${selectedRoom.room_number} is currently ${formatRoomStatus(roomStatus)}. Please select another room.`
             );
 
             return;
+
         }
 
 
-        saveBookingButton.disabled =
-            true;
+        /*
+         * If editing and changing room,
+         * check the new room too.
+         */
 
-        saveBookingButton.textContent =
-            "Saving...";
+        if (
+            isEditing &&
+            String(originalRoomId) !==
+            String(roomId) &&
+            unavailableStatuses.includes(roomStatus)
+        ) {
+
+            alert(
+                `Room ${selectedRoom.room_number} is currently ${formatRoomStatus(roomStatus)}. Please select another room.`
+            );
+
+            return;
+
+        }
+
+
+        /* -----------------------------------------------
+           Date conflict
+           ----------------------------------------------- */
+
+        const conflict =
+            await hasBookingConflict(
+                roomId,
+                checkIn,
+                checkOut,
+                editingBookingId
+            );
+
+
+        if (conflict) {
+
+            alert(
+                "This room already has another booking during the selected dates."
+            );
+
+            return;
+
+        }
+
+
+        /* -----------------------------------------------
+           Button loading
+           ----------------------------------------------- */
+
+        const saveButton =
+            document.getElementById(
+                "saveBookingButton"
+            );
+
+
+        const saveText =
+            document.getElementById(
+                "saveBookingButtonText"
+            );
+
+
+        if (saveButton) {
+
+            saveButton.disabled = true;
+
+        }
+
+
+        if (saveText) {
+
+            saveText.textContent =
+                isEditing
+                    ? "Updating..."
+                    : "Saving...";
+
+        }
 
 
         try {
 
-            /* =================================
-               DATABASE DATA
+            const bookingNumber =
+                document.getElementById(
+                    "bookingNumber"
+                ).value ||
+                generateBookingNumber();
 
-               IMPORTANT:
-               Exact DB columns:
 
-               check_in_date
-               check_out_date
-            ================================= */
-
-            const data = {
+            const bookingData = {
 
                 hotel_id:
                     currentHotelId,
 
                 booking_number:
-                    bookingNumber.value ||
-                    generateBookingNumber(),
+                    bookingNumber,
 
                 guest_id:
                     guestId,
@@ -1358,154 +2001,452 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 updated_at:
                     new Date().toISOString()
+
             };
 
 
-            let error;
+            let savedBooking = null;
 
 
-            /* =================================
-               UPDATE EXISTING BOOKING
-            ================================= */
+            /* -------------------------------------------
+               UPDATE
+               ------------------------------------------- */
 
-            if (id) {
+            if (isEditing) {
 
-                const response =
-                    await supabase
-                        .from("bookings")
-                        .update(data)
-                        .eq(
-                            "id",
-                            id
-                        )
-                        .eq(
-                            "hotel_id",
-                            currentHotelId
-                        );
+                const {
+                    data,
+                    error
+                } = await window.supabaseClient
+                    .from("bookings")
+                    .update(
+                        bookingData
+                    )
+                    .eq(
+                        "id",
+                        editingBookingId
+                    )
+                    .eq(
+                        "hotel_id",
+                        currentHotelId
+                    )
+                    .select()
+                    .single();
 
 
-                error =
-                    response.error;
+                if (error) {
+
+                    throw error;
+
+                }
+
+
+                savedBooking = data;
 
             }
 
-            /* =================================
-               CREATE NEW BOOKING
-            ================================= */
+
+            /* -------------------------------------------
+               INSERT
+               ------------------------------------------- */
 
             else {
 
-                const response =
-                    await supabase
-                        .from("bookings")
-                        .insert(data);
-
-
-                error =
-                    response.error;
-            }
-
-
-            /* =================================
-               DATABASE ERROR
-            ================================= */
-
-            if (error) {
-
-                console.error(
-                    "Booking save error:",
+                const {
+                    data,
                     error
-                );
+                } = await window.supabaseClient
+                    .from("bookings")
+                    .insert(
+                        bookingData
+                    )
+                    .select()
+                    .single();
 
-                alert(
-                    "Failed to save booking:\n" +
-                    error.message
-                );
 
-                return;
+                if (error) {
+
+                    throw error;
+
+                }
+
+
+                savedBooking = data;
+
             }
 
 
-            /* =================================
-               UPDATE ROOM STATUS
-            ================================= */
+            /* -------------------------------------------
+               Room status
+               ------------------------------------------- */
 
-            await updateRoomStatusAfterBooking(
-                roomId,
-                status
+            await synchronizeBookingRooms(
+                savedBooking,
+                originalBooking
             );
 
 
-            /* =================================
-               CLOSE + REFRESH
-            ================================= */
+            closeDrawer();
 
-            closeBookingDrawerFunction();
-
-            await loadBookings();
 
             await loadRooms();
 
+            await loadBookings();
 
-            alert(
-                id
+
+            showSuccessMessage(
+                isEditing
                     ? "Booking updated successfully."
                     : "Booking created successfully."
             );
 
+        } catch (error) {
+
+            console.error(
+                "Save booking error:",
+                error
+            );
+
+
+            alert(
+                getFriendlyError(
+                    error
+                )
+            );
+
         } finally {
 
-            saveBookingButton.disabled =
-                false;
+            if (saveButton) {
 
-            saveBookingButton.textContent =
-                "Save Booking";
+                saveButton.disabled =
+                    false;
+
+            }
+
+
+            if (saveText) {
+
+                saveText.textContent =
+                    isEditing
+                        ? "Update Booking"
+                        : "Save Booking";
+
+            }
+
         }
+
     }
 
 
-    /* =========================================
-       CANCEL BOOKING
-    ========================================= */
+    /* =====================================================
+       BOOKING CONFLICT
+       ===================================================== */
 
-    async function cancelBooking(id) {
+    async function hasBookingConflict(
+        roomId,
+        checkIn,
+        checkOut,
+        excludeBookingId
+    ) {
 
-        const booking =
-            bookings.find(
-                item =>
-                    String(item.id) ===
-                    String(id)
-            );
+        let query =
+            window.supabaseClient
+                .from("bookings")
+                .select(
+                    "id, room_id, check_in_date, check_out_date, status"
+                )
+                .eq(
+                    "hotel_id",
+                    currentHotelId
+                )
+                .eq(
+                    "room_id",
+                    roomId
+                )
+                .in(
+                    "status",
+                    [
+                        "PENDING",
+                        "CONFIRMED",
+                        "CHECKED_IN"
+                    ]
+                )
+                .lt(
+                    "check_in_date",
+                    checkOut
+                )
+                .gt(
+                    "check_out_date",
+                    checkIn
+                );
 
 
-        if (!booking) {
-            return;
-        }
+        if (excludeBookingId) {
 
+            query =
+                query.neq(
+                    "id",
+                    excludeBookingId
+                );
 
-        const confirmed =
-            confirm(
-                `Cancel booking ${booking.booking_number}?`
-            );
-
-
-        if (!confirmed) {
-            return;
         }
 
 
         const {
+            data,
             error
-        } = await supabase
+        } = await query;
+
+
+        if (error) {
+
+            console.error(
+                "Conflict check error:",
+                error
+            );
+
+            throw error;
+
+        }
+
+
+        return Boolean(
+            data &&
+            data.length
+        );
+
+    }
+
+
+    /* =====================================================
+       ROOM STATUS SYNCHRONIZATION
+       ===================================================== */
+
+    async function synchronizeBookingRooms(
+        savedBooking,
+        originalBooking
+    ) {
+
+        const roomIds = [];
+
+
+        if (savedBooking?.room_id) {
+
+            roomIds.push(
+                savedBooking.room_id
+            );
+
+        }
+
+
+        if (
+            originalBooking?.room_id &&
+            !roomIds.includes(
+                originalBooking.room_id
+            )
+        ) {
+
+            roomIds.push(
+                originalBooking.room_id
+            );
+
+        }
+
+
+        for (const roomId of roomIds) {
+
+            await synchronizeRoomStatus(
+                roomId,
+                savedBooking
+            );
+
+        }
+
+    }
+
+
+    async function synchronizeRoomStatus(
+        roomId,
+        savedBooking
+    ) {
+
+        if (!roomId) {
+
+            return;
+
+        }
+
+
+        const room =
+            findRoom(roomId);
+
+
+        if (!room) {
+
+            return;
+
+        }
+
+
+        const {
+            data: activeBookings,
+            error
+        } = await window.supabaseClient
             .from("bookings")
+            .select(
+                `
+                id,
+                room_id,
+                status,
+                check_in_date,
+                check_out_date
+                `
+            )
+            .eq(
+                "hotel_id",
+                currentHotelId
+            )
+            .eq(
+                "room_id",
+                roomId
+            )
+            .in(
+                "status",
+                [
+                    "PENDING",
+                    "CONFIRMED",
+                    "CHECKED_IN"
+                ]
+            );
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        const hasCheckedIn =
+            (activeBookings || [])
+                .some(function (booking) {
+
+                    return String(
+                        booking.status
+                    ).toUpperCase() ===
+                        "CHECKED_IN";
+
+                });
+
+
+        const hasReservation =
+            (activeBookings || [])
+                .some(function (booking) {
+
+                    return [
+                        "PENDING",
+                        "CONFIRMED"
+                    ].includes(
+                        String(
+                            booking.status
+                        ).toUpperCase()
+                    );
+
+                });
+
+
+        let desiredStatus = null;
+
+
+        if (hasCheckedIn) {
+
+            desiredStatus =
+                "OCCUPIED";
+
+        } else if (hasReservation) {
+
+            desiredStatus =
+                "RESERVED";
+
+        } else if (
+            savedBooking &&
+            String(
+                savedBooking.room_id
+            ) === String(roomId) &&
+            String(
+                savedBooking.status
+            ).toUpperCase() ===
+            "CHECKED_OUT"
+        ) {
+
+            desiredStatus =
+                "CLEANING";
+
+        } else if (
+            String(
+                room.status
+            ).toUpperCase() ===
+            "RESERVED"
+        ) {
+
+            desiredStatus =
+                "AVAILABLE";
+
+        }
+
+
+        if (!desiredStatus) {
+
+            return;
+
+        }
+
+
+        if (
+            String(
+                room.status
+            ).toUpperCase() ===
+            desiredStatus
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+         * Never automatically overwrite
+         * maintenance rooms.
+         */
+
+        if (
+            String(
+                room.status
+            ).toUpperCase() ===
+            "MAINTENANCE"
+        ) {
+
+            return;
+
+        }
+
+
+        const {
+            error: updateError
+        } = await window.supabaseClient
+            .from("rooms")
             .update({
-                status: "CANCELLED",
+
+                status:
+                    desiredStatus,
+
                 updated_at:
                     new Date().toISOString()
+
             })
             .eq(
                 "id",
-                id
+                roomId
             )
             .eq(
                 "hotel_id",
@@ -1513,189 +2454,1091 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
 
 
-        if (error) {
+        if (updateError) {
+
+            throw updateError;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       CANCEL BOOKING
+       ===================================================== */
+
+    async function cancelBooking(
+        bookingId
+    ) {
+
+        const booking =
+            bookings.find(function (item) {
+
+                return String(item.id) ===
+                    String(bookingId);
+
+            });
+
+
+        if (!booking) {
+
+            return;
+
+        }
+
+
+        const confirmed =
+            window.confirm(
+                `Cancel booking ${booking.booking_number || "#" + booking.id}?`
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        try {
+
+            const {
+                data,
+                error
+            } = await window.supabaseClient
+                .from("bookings")
+                .update({
+
+                    status:
+                        "CANCELLED",
+
+                    updated_at:
+                        new Date().toISOString()
+
+                })
+                .eq(
+                    "id",
+                    bookingId
+                )
+                .eq(
+                    "hotel_id",
+                    currentHotelId
+                )
+                .select()
+                .single();
+
+
+            if (error) {
+
+                throw error;
+
+            }
+
+
+            await synchronizeRoomStatus(
+                booking.room_id,
+                data
+            );
+
+
+            await loadRooms();
+
+            await loadBookings();
+
+
+            showSuccessMessage(
+                "Booking cancelled successfully."
+            );
+
+        } catch (error) {
 
             console.error(
                 "Cancel booking error:",
                 error
             );
 
+
             alert(
-                "Failed to cancel booking:\n" +
-                error.message
+                getFriendlyError(
+                    error
+                )
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       TABLE ACTIONS
+       ===================================================== */
+
+    function handleTableAction(event) {
+
+        const editButton =
+            event.target.closest(
+                ".edit-booking"
+            );
+
+
+        if (editButton) {
+
+            openEditBooking(
+                editButton.dataset.id
             );
 
             return;
+
         }
 
 
-        await loadBookings();
+        const cancelButton =
+            event.target.closest(
+                ".cancel-booking"
+            );
 
 
-        await updateRoomStatusAfterBooking(
-            booking.room_id,
-            "CANCELLED"
-        );
+        if (cancelButton) {
 
+            cancelBooking(
+                cancelButton.dataset.id
+            );
 
-        await loadRooms();
+        }
 
-
-        alert(
-            "Booking cancelled successfully."
-        );
     }
 
 
-    /* =========================================
-       EVENTS
-    ========================================= */
+    /* =====================================================
+       DEFAULTS
+       ===================================================== */
 
-    if (addBookingButton) {
+    function populateBookingDefaults() {
 
-        addBookingButton.addEventListener(
+        const checkIn =
+            document.getElementById(
+                "bookingCheckIn"
+            );
+
+
+        const checkOut =
+            document.getElementById(
+                "bookingCheckOut"
+            );
+
+
+        if (checkIn) {
+
+            checkIn.value =
+                getToday();
+
+        }
+
+
+        if (checkOut) {
+
+            checkOut.value =
+                getTomorrow();
+
+        }
+
+    }
+
+
+    /* =====================================================
+       STATISTICS
+       ===================================================== */
+
+    function updateStatistics() {
+
+        const total =
+            bookings.length;
+
+
+        const confirmed =
+            bookings.filter(function (booking) {
+
+                return String(
+                    booking.status || ""
+                ).toUpperCase() ===
+                    "CONFIRMED";
+
+            }).length;
+
+
+        const today =
+            getToday();
+
+
+        const checkIns =
+            bookings.filter(function (booking) {
+
+                return (
+                    booking.check_in_date ===
+                    today &&
+                    [
+                        "PENDING",
+                        "CONFIRMED"
+                    ].includes(
+                        String(
+                            booking.status || ""
+                        ).toUpperCase()
+                    )
+                );
+
+            }).length;
+
+
+        const checkOuts =
+            bookings.filter(function (booking) {
+
+                return (
+                    booking.check_out_date ===
+                    today &&
+                    String(
+                        booking.status || ""
+                    ).toUpperCase() ===
+                    "CHECKED_IN"
+                );
+
+            }).length;
+
+
+        setText(
+            "totalBookingsCount",
+            total
+        );
+
+
+        setText(
+            "confirmedBookingsCount",
+            confirmed
+        );
+
+
+        setText(
+            "checkInsTodayCount",
+            checkIns
+        );
+
+
+        setText(
+            "checkOutsTodayCount",
+            checkOuts
+        );
+
+    }
+
+
+    /* =====================================================
+       FILTERS
+       ===================================================== */
+
+    function clearBookingFilters() {
+
+        const search =
+            document.getElementById(
+                "bookingSearch"
+            );
+
+
+        const status =
+            document.getElementById(
+                "bookingStatusFilter"
+            );
+
+
+        const date =
+            document.getElementById(
+                "bookingDateFilter"
+            );
+
+
+        if (search) {
+
+            search.value = "";
+
+        }
+
+
+        if (status) {
+
+            status.value = "";
+
+        }
+
+
+        if (date) {
+
+            date.value = "";
+
+        }
+
+
+        renderBookings();
+
+    }
+
+
+    /* =====================================================
+       MOBILE MENU
+       ===================================================== */
+
+    function setupMobileMenu() {
+
+        const menu =
+            document.getElementById(
+                "mobileMenu"
+            );
+
+
+        const sidebar =
+            document.getElementById(
+                "sidebar"
+            );
+
+
+        const backdrop =
+            document.getElementById(
+                "sidebarBackdrop"
+            );
+
+
+        if (!menu || !sidebar) {
+
+            return;
+
+        }
+
+
+        menu.addEventListener(
             "click",
-            () => openBookingDrawer()
-        );
-    }
+            function () {
+
+                sidebar.classList.toggle(
+                    "show"
+                );
+
+                sidebar.classList.toggle(
+                    "open"
+                );
 
 
-    if (closeBookingDrawer) {
+                if (backdrop) {
 
-        closeBookingDrawer.addEventListener(
-            "click",
-            closeBookingDrawerFunction
-        );
-    }
-
-
-    if (cancelBookingButton) {
-
-        cancelBookingButton.addEventListener(
-            "click",
-            closeBookingDrawerFunction
-        );
-    }
-
-
-    if (bookingDrawerOverlay) {
-
-        bookingDrawerOverlay.addEventListener(
-            "click",
-            closeBookingDrawerFunction
-        );
-    }
-
-
-    if (saveBookingButton) {
-
-        saveBookingButton.addEventListener(
-            "click",
-            saveBooking
-        );
-    }
-
-
-    if (bookingSearch) {
-
-        bookingSearch.addEventListener(
-            "input",
-            renderBookings
-        );
-    }
-
-
-    if (bookingStatusFilter) {
-
-        bookingStatusFilter.addEventListener(
-            "change",
-            renderBookings
-        );
-    }
-
-
-    /* =========================================
-       TABLE ACTIONS
-    ========================================= */
-
-    if (bookingsTableBody) {
-
-        bookingsTableBody.addEventListener(
-            "click",
-            event => {
-
-                const editButton =
-                    event.target.closest(
-                        ".booking-edit-btn"
+                    backdrop.classList.toggle(
+                        "show"
                     );
 
-
-                const cancelButton =
-                    event.target.closest(
-                        ".booking-cancel-btn"
-                    );
-
-
-                /* EDIT */
-
-                if (editButton) {
-
-                    const id =
-                        editButton.dataset.id;
-
-
-                    const booking =
-                        bookings.find(
-                            item =>
-                                String(item.id) ===
-                                String(id)
-                        );
-
-
-                    if (booking) {
-
-                        openBookingDrawer(
-                            booking
-                        );
-                    }
-
-                    return;
-                }
-
-
-                /* CANCEL */
-
-                if (cancelButton) {
-
-                    const id =
-                        cancelButton.dataset.id;
-
-
-                    cancelBooking(id);
                 }
 
             }
         );
+
+
+        if (backdrop) {
+
+            backdrop.addEventListener(
+                "click",
+                closeMobileMenu
+            );
+
+        }
+
+
+        sidebar
+            .querySelectorAll("a")
+            .forEach(function (link) {
+
+                link.addEventListener(
+                    "click",
+                    closeMobileMenu
+                );
+
+            });
+
     }
 
 
-    /* =========================================
-       INITIALIZE
-    ========================================= */
+    function closeMobileMenu() {
 
-    const hotelLoaded =
-        await loadCurrentHotel();
+        const sidebar =
+            document.getElementById(
+                "sidebar"
+            );
 
 
-    if (!hotelLoaded) {
-        return;
+        const backdrop =
+            document.getElementById(
+                "sidebarBackdrop"
+            );
+
+
+        if (sidebar) {
+
+            sidebar.classList.remove(
+                "show",
+                "open"
+            );
+
+        }
+
+
+        if (backdrop) {
+
+            backdrop.classList.remove(
+                "show"
+            );
+
+        }
+
     }
 
 
-    await loadGuests();
+    /* =====================================================
+       HELPERS
+       ===================================================== */
 
-    await loadRooms();
+    function findGuest(id) {
 
-    await loadBookings();
+        return guests.find(function (guest) {
 
-});
+            return String(guest.id) ===
+                String(id);
+
+        }) || null;
+
+    }
+
+
+    function findRoom(id) {
+
+        return rooms.find(function (room) {
+
+            return String(room.id) ===
+                String(id);
+
+        }) || null;
+
+    }
+
+
+    function getGuestName(guest) {
+
+        if (!guest) {
+
+            return "Unknown Guest";
+
+        }
+
+
+        if (guest.full_name) {
+
+            return guest.full_name;
+
+        }
+
+
+        const name = [
+            guest.first_name,
+            guest.last_name
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .trim();
+
+
+        return name ||
+            guest.email ||
+            "Guest";
+
+    }
+
+
+    function getInitials(name) {
+
+        if (!name) {
+
+            return "G";
+
+        }
+
+
+        const parts =
+            String(name)
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean);
+
+
+        if (parts.length === 1) {
+
+            return parts[0]
+                .substring(0, 2)
+                .toUpperCase();
+
+        }
+
+
+        return (
+            parts[0][0] +
+            parts[parts.length - 1][0]
+        ).toUpperCase();
+
+    }
+
+
+    function formatDate(value) {
+
+        if (!value) {
+
+            return "—";
+
+        }
+
+
+        const date =
+            new Date(
+                `${value}T00:00:00`
+            );
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return value;
+
+        }
+
+
+        return date.toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            }
+        );
+
+    }
+
+
+    function getToday() {
+
+        const date =
+            new Date();
+
+
+        const year =
+            date.getFullYear();
+
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(
+                2,
+                "0"
+            );
+
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(
+                2,
+                "0"
+            );
+
+
+        return `${year}-${month}-${day}`;
+
+    }
+
+
+    function getTomorrow() {
+
+        const date =
+            new Date();
+
+
+        date.setDate(
+            date.getDate() + 1
+        );
+
+
+        const year =
+            date.getFullYear();
+
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(
+                2,
+                "0"
+            );
+
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(
+                2,
+                "0"
+            );
+
+
+        return `${year}-${month}-${day}`;
+
+    }
+
+
+    function generateBookingNumber() {
+
+        const now =
+            new Date();
+
+
+        const year =
+            now.getFullYear();
+
+
+        const random =
+            Math.floor(
+                1000 +
+                Math.random() * 9000
+            );
+
+
+        return `BK-${year}-${random}`;
+
+    }
+
+
+    function formatStatus(status) {
+
+        const map = {
+
+            PENDING:
+                "Pending",
+
+            CONFIRMED:
+                "Confirmed",
+
+            CHECKED_IN:
+                "Checked In",
+
+            CHECKED_OUT:
+                "Checked Out",
+
+            CANCELLED:
+                "Cancelled",
+
+            NO_SHOW:
+                "No Show"
+
+        };
+
+
+        return map[status] ||
+            String(status)
+                .replaceAll("_", " ");
+
+    }
+
+
+    function getStatusClass(status) {
+
+        const map = {
+
+            PENDING:
+                "status-pending",
+
+            CONFIRMED:
+                "status-confirmed",
+
+            CHECKED_IN:
+                "status-checked-in",
+
+            CHECKED_OUT:
+                "status-checked-out",
+
+            CANCELLED:
+                "status-cancelled",
+
+            NO_SHOW:
+                "status-no-show"
+
+        };
+
+
+        return map[status] ||
+            "status-default";
+
+    }
+
+
+    function formatSource(source) {
+
+        if (!source) {
+
+            return "Direct";
+
+        }
+
+
+        const map = {
+
+            DIRECT:
+                "Direct",
+
+            PHONE:
+                "Phone",
+
+            WEBSITE:
+                "Website",
+
+            OTA:
+                "OTA",
+
+            WALK_IN:
+                "Walk-in",
+
+            OTHER:
+                "Other"
+
+        };
+
+
+        return map[source] ||
+            String(source)
+                .replaceAll("_", " ");
+
+    }
+
+
+    function formatRoomStatus(status) {
+
+        const map = {
+
+            AVAILABLE:
+                "Available",
+
+            RESERVED:
+                "Reserved",
+
+            OCCUPIED:
+                "Occupied",
+
+            CLEANING:
+                "Cleaning",
+
+            MAINTENANCE:
+                "Maintenance"
+
+        };
+
+
+        return map[status] ||
+            String(status)
+                .replaceAll("_", " ");
+
+    }
+
+
+    function escapeHtml(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
+            return "";
+
+        }
+
+
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+    }
+
+
+    function setText(
+        id,
+        value
+    ) {
+
+        const element =
+            document.getElementById(id);
+
+
+        if (element) {
+
+            element.textContent =
+                value;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       LOADING / ERROR
+       ===================================================== */
+
+    function setTableLoading() {
+
+        const tbody =
+            document.getElementById(
+                "bookingsTableBody"
+            );
+
+
+        if (!tbody) {
+
+            return;
+
+        }
+
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    class="table-loading"
+                >
+
+                    <div class="loading-spinner"></div>
+
+                    Loading bookings...
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+
+    function showTableError(message) {
+
+        const tbody =
+            document.getElementById(
+                "bookingsTableBody"
+            );
+
+
+        if (!tbody) {
+
+            return;
+
+        }
+
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    class="table-error"
+                >
+
+                    <div class="error-icon">
+                        !
+                    </div>
+
+                    <strong>
+                        Unable to load bookings
+                    </strong>
+
+                    <p>
+                        ${escapeHtml(message)}
+                    </p>
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        onclick="location.reload()"
+                    >
+                        Try Again
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+
+    function showPageError(message) {
+
+        const tbody =
+            document.getElementById(
+                "bookingsTableBody"
+            );
+
+
+        if (tbody) {
+
+            tbody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="8"
+                        class="table-error"
+                    >
+
+                        <div class="error-icon">
+                            !
+                        </div>
+
+                        <strong>
+                            Something went wrong
+                        </strong>
+
+                        <p>
+                            ${escapeHtml(message)}
+                        </p>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+    }
+
+
+    function showSuccessMessage(message) {
+
+        /*
+         * Use a lightweight temporary toast.
+         */
+
+        let toast =
+            document.getElementById(
+                "bookingToast"
+            );
+
+
+        if (!toast) {
+
+            toast =
+                document.createElement(
+                    "div"
+                );
+
+            toast.id =
+                "bookingToast";
+
+            toast.className =
+                "booking-toast";
+
+            document.body.appendChild(
+                toast
+            );
+
+        }
+
+
+        toast.textContent =
+            message;
+
+
+        toast.classList.add(
+            "show"
+        );
+
+
+        clearTimeout(
+            toast._timer
+        );
+
+
+        toast._timer =
+            setTimeout(
+                function () {
+
+                    toast.classList.remove(
+                        "show"
+                    );
+
+                },
+                3000
+            );
+
+    }
+
+
+    function getFriendlyError(error) {
+
+        if (!error) {
+
+            return "Something went wrong.";
+
+        }
+
+
+        const message =
+            String(
+                error.message ||
+                error.details ||
+                error.hint ||
+                error
+            );
+
+
+        if (
+            message
+                .toLowerCase()
+                .includes(
+                    "duplicate"
+                )
+        ) {
+
+            return "This booking number already exists. Please try again.";
+
+        }
+
+
+        if (
+            message
+                .toLowerCase()
+                .includes(
+                    "permission"
+                ) ||
+            message
+                .toLowerCase()
+                .includes(
+                    "row-level security"
+                )
+        ) {
+
+            return "You do not have permission to perform this action.";
+
+        }
+
+
+        return message;
+
+    }
+
+})();

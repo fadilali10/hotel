@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Invoices - Hotels</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+
+        /* =========================================================
+           STAR HOTELS - INVOICES PAGE
+           Page CSS included directly in HTML
+           ========================================================= */
+
+        :root {
+            --primary: #6d4aff;
+            --primary-dark: #5436d6;
+            --primary-light: #eeeaff;
+
+            --dark: #17151f;
+            --dark-2: #24212f;
+            --dark-3: #312d3e;
+
+            --text: #24212f;
+            --text-light: #747181;
+            --muted: #96929f;
+
+            --white: #ffffff;
+            --background: #f7f7fb;
+
+            --border: #e9e7ef;
+            --green: #21a366;
+            --orange: #f59e0b;
+            --red: #ef4444;
+            --blue: #3d7eff;
+
+            --shadow:
+                0 5px 20px rgba(30, 24, 60, 0.06);
+
+            --shadow-large:
+                0 20px 60px rgba(30, 24, 60, 0.18);
+        }
+
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--background);
+            color: var(--text);
+            font-size: 13px;
+        }
+
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+
+        button {
+            border: none;
+        }
+
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+
+        /* =========================================================
+           APP
+           ========================================================= */
+
+        .app {
+            min-height: 100vh;
+        }
+
+
+        /* =========================================================
+           SIDEBAR
+           ========================================================= */
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+
+            width: 255px;
+
+            background: var(--dark);
+            color: #ffffff;
+
+            display: flex;
+            flex-direction: column;
+
+            z-index: 1000;
+
+            transition: transform 0.25s ease;
+
+            box-shadow:
+                5px 0 25px rgba(0, 0, 0, 0.08);
+        }
+
+
+        .logo {
+            height: 78px;
+
+            padding: 0 22px;
+
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            border-bottom: 1px solid
+                rgba(255, 255, 255, 0.07);
+        }
+
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: var(--primary);
+
+            border-radius: 10px;
+
+            font-size: 20px;
+            font-weight: 700;
+
+            box-shadow:
+                0 5px 15px rgba(109, 74, 255, 0.35);
+        }
+
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+
+        .logo-text strong {
+            font-size: 17px;
+            letter-spacing: 1px;
+        }
+
+
+        .logo-text span {
+            margin-top: 3px;
+
+            font-size: 9px;
+            letter-spacing: 3px;
+
+            color: #aaa6b8;
+        }
+
+
+        .sidebar-nav {
+            flex: 1;
+
+            padding: 18px 12px;
+
+            overflow-y: auto;
+        }
+
+
+        .menu-title {
+            padding: 13px 12px 7px;
+
+            color: #777284;
+
+            font-size: 9px;
+            font-weight: 700;
+
+            letter-spacing: 1.3px;
+        }
+
+
+        .nav-item {
+            min-height: 42px;
+
+            padding: 0 12px;
+
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            color: #aaa7b4;
+
+            border-radius: 8px;
+
+            margin-bottom: 3px;
+
+            font-size: 12px;
+            font-weight: 500;
+
+            transition:
+                background 0.15s ease,
+                color 0.15s ease;
+        }
+
+
+        .nav-item:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+
+        .nav-item.active {
+            color: #ffffff;
+            background: var(--primary);
+
+            box-shadow:
+                0 5px 15px rgba(109, 74, 255, 0.22);
+        }
+
+
+        .nav-icon {
+            width: 20px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 15px;
+        }
+
+
+        .sidebar-footer {
+            padding: 15px;
+
+            border-top: 1px solid
+                rgba(255, 255, 255, 0.07);
+        }
+
+
+        .hotel-status {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            padding: 10px;
+
+            border-radius: 8px;
+
+            background:
+                rgba(255, 255, 255, 0.04);
+        }
+
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+
+            flex: 0 0 auto;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+
+            box-shadow:
+                0 0 0 4px
+                rgba(34, 197, 94, 0.1);
+        }
+
+
+        .hotel-status strong {
+            display: block;
+
+            color: #ffffff;
+
+            font-size: 10px;
+        }
+
+
+        .hotel-status small {
+            display: block;
+
+            margin-top: 2px;
+
+            color: #85818f;
+
+            font-size: 9px;
+        }
+
+
+        /* =========================================================
+           MAIN
+           ========================================================= */
+
+        .main {
+            min-height: 100vh;
+
+            margin-left: 255px;
+        }
+
+
+        /* =========================================================
+           TOPBAR
+           ========================================================= */
+
+        .topbar {
+            height: 78px;
+
+            padding: 0 30px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: #ffffff;
+
+            border-bottom: 1px solid var(--border);
+
+            position: sticky;
+            top: 0;
+
+            z-index: 500;
+        }
+
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+
+        .topbar h1 {
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+
+        .topbar p {
+            margin-top: 3px;
+
+            color: var(--text-light);
+
+            font-size: 11px;
+        }
+
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+
+        .sidebar-link {
+            width: 36px;
+            height: 36px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            color: var(--text-light);
+
+            background: #ffffff;
+        }
+
+
+        .sidebar-link:hover {
+            color: var(--primary);
+            border-color: #dcd7ff;
+            background: var(--primary-light);
+        }
+
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: var(--primary-light);
+            color: var(--primary);
+
+            border-radius: 50%;
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .user-info strong {
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+
+        .user-info span {
+            margin-top: 2px;
+
+            color: var(--muted);
+
+            font-size: 9px;
+        }
+
+
+        .mobile-menu {
+            display: none;
+
+            width: 36px;
+            height: 36px;
+
+            border-radius: 8px;
+
+            background: var(--primary-light);
+            color: var(--primary);
+
+            cursor: pointer;
+
+            font-size: 18px;
+        }
+
+
+        /* =========================================================
+           CONTENT
+           ========================================================= */
+
+        .content {
+            padding: 28px 30px 40px;
+        }
+
+
+        .section-header {
+            margin-bottom: 22px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+
+        .section-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+
+        .section-header p {
+            margin-top: 5px;
+
+            color: var(--text-light);
+
+            font-size: 11px;
+        }
+
+
+        /* =========================================================
+           MESSAGE
+           ========================================================= */
+
+        .invoice-message {
+            min-height: 18px;
+
+            margin-bottom: 12px;
+
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+
+        /* =========================================================
+           STATS
+           ========================================================= */
+
+        .stats-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 15px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .stat-card {
+            min-height: 105px;
+
+            padding: 17px;
+
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            background: #ffffff;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            box-shadow: var(--shadow);
+        }
+
+
+        .stat-icon {
+            width: 43px;
+            height: 43px;
+
+            flex: 0 0 auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background: var(--primary-light);
+
+            color: var(--primary);
+
+            font-size: 18px;
+        }
+
+
+        .stat-label {
+            color: var(--text-light);
+
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+
+        .stat-value {
+            margin-top: 5px;
+
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+
+        /* =========================================================
+           TABLE CARD
+           ========================================================= */
+
+        .table-card {
+            overflow: hidden;
+
+            background: #ffffff;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            box-shadow: var(--shadow);
+        }
+
+
+        .table-toolbar {
+            padding: 16px 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+
+            border-bottom: 1px solid var(--border);
+
+            flex-wrap: wrap;
+        }
+
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+
+        .search-input,
+        .filter-select,
+        .date-input {
+            height: 38px;
+
+            padding: 0 11px;
+
+            background: #ffffff;
+
+            border: 1px solid var(--border);
+            border-radius: 7px;
+
+            outline: none;
+
+            color: var(--text);
+
+            font-size: 11px;
+        }
+
+
+        .search-input {
+            width: 300px;
+        }
+
+
+        .date-input {
+            width: 145px;
+        }
+
+
+        .filter-select {
+            min-width: 130px;
+        }
+
+
+        .search-input:focus,
+        .filter-select:focus,
+        .date-input:focus {
+            border-color: var(--primary);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(109, 74, 255, 0.08);
+        }
+
+
+        .btn {
+            height: 38px;
+
+            padding: 0 14px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-size: 11px;
+            font-weight: 600;
+
+            transition: 0.15s ease;
+        }
+
+
+        .btn-primary {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+
+        .btn-light {
+            background: #ffffff;
+            color: var(--text);
+
+            border: 1px solid var(--border);
+        }
+
+
+        .btn-light:hover {
+            background: #f8f7fb;
+            border-color: #dcd8e8;
+        }
+
+
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+
+        /* =========================================================
+           TABLE
+           ========================================================= */
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+
+        .data-table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 900px;
+        }
+
+
+        .data-table th {
+            padding: 12px 15px;
+
+            text-align: left;
+
+            background: #faf9fc;
+
+            border-bottom: 1px solid var(--border);
+
+            color: #777381;
+
+            font-size: 9px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+
+            white-space: nowrap;
+        }
+
+
+        .data-table td {
+            padding: 13px 15px;
+
+            border-bottom: 1px solid #f0eef4;
+
+            font-size: 11px;
+
+            vertical-align: middle;
+        }
+
+
+        .data-table tbody tr:hover {
+            background: #fcfbff;
+        }
+
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+
+        .invoice-number {
+            color: var(--primary);
+
+            font-weight: 700;
+        }
+
+
+        .stay-number {
+            color: var(--text-light);
+        }
+
+
+        .amount {
+            font-weight: 600;
+        }
+
+
+        .balance-due {
+            color: var(--red);
+            font-weight: 700;
+        }
+
+
+        .balance-zero {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+
+            min-height: 25px;
+
+            padding: 0 9px;
+
+            border-radius: 20px;
+
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+
+        .status-paid {
+            background: #e7f8ee;
+            color: #137547;
+        }
+
+
+        .status-partial {
+            background: #fff3d6;
+            color: #8a5a00;
+        }
+
+
+        .status-unpaid {
+            background: #fde8e7;
+            color: #b42318;
+        }
+
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+
+        .invoice-action-btn {
+            height: 29px;
+
+            padding: 0 9px;
+
+            border-radius: 6px;
+
+            border: 1px solid var(--border);
+
+            background: #ffffff;
+
+            color: var(--text-light);
+
+            cursor: pointer;
+
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+
+        .invoice-action-btn:hover {
+            color: var(--primary);
+
+            border-color: #d7d0ff;
+
+            background: var(--primary-light);
+        }
+
+
+        .empty-table {
+            padding: 45px 20px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 11px;
+        }
+
+
+        /* =========================================================
+           SIDEBAR BACKDROP
+           ========================================================= */
+
+        .sidebar-backdrop {
+            display: none;
+
+            position: fixed;
+            inset: 0;
+
+            background: rgba(15, 12, 25, 0.5);
+
+            z-index: 900;
+        }
+
+
+        /* =========================================================
+           MODAL
+           ========================================================= */
+
+        .invoice-modal {
+            display: none;
+
+            position: fixed;
+            inset: 0;
+
+            z-index: 2000;
+
+            padding: 25px;
+
+            background:
+                rgba(20, 15, 40, 0.62);
+
+            overflow-y: auto;
+        }
+
+
+        .invoice-modal.show {
+            display: block;
+        }
+
+
+        .invoice-modal-box {
+            width: min(900px, 100%);
+
+            margin: 15px auto;
+
+            background: #ffffff;
+
+            border-radius: 14px;
+
+            box-shadow: var(--shadow-large);
+
+            overflow: hidden;
+        }
+
+
+        .invoice-modal-header {
+            min-height: 65px;
+
+            padding: 15px 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+
+        .invoice-modal-header h3 {
+            font-size: 15px;
+        }
+
+
+        .invoice-modal-header p {
+            margin-top: 3px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+        }
+
+
+        .modal-close {
+            width: 34px;
+            height: 34px;
+
+            border-radius: 7px;
+
+            background: #f5f4f8;
+
+            color: var(--text);
+
+            cursor: pointer;
+
+            font-size: 18px;
+        }
+
+
+        .modal-close:hover {
+            background: #eceaf1;
+        }
+
+
+        .invoice-modal-body {
+            padding: 25px;
+        }
+
+
+        .invoice-modal-footer {
+            padding: 14px 20px;
+
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+
+            border-top: 1px solid var(--border);
+        }
+
+
+        /* =========================================================
+           PRINTABLE INVOICE
+           ========================================================= */
+
+        .print-invoice {
+            color: #29243a;
+            background: #ffffff;
+        }
+
+
+        .invoice-hotel-header {
+            padding-bottom: 20px;
+
+            text-align: center;
+
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+
+        .invoice-hotel-logo {
+            max-width: 110px;
+            max-height: 75px;
+
+            object-fit: contain;
+
+            margin-bottom: 10px;
+        }
+
+
+        .invoice-hotel-header h2 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+
+        .invoice-hotel-header p {
+            margin: 3px 0;
+
+            color: #666;
+
+            font-size: 11px;
+        }
+
+
+        .invoice-title {
+            margin-top: 18px;
+
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+
+
+        .invoice-meta-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 30px;
+
+            margin: 22px 0;
+        }
+
+
+        .invoice-meta-box {
+            padding: 13px;
+
+            border: 1px solid #e7e5eb;
+            border-radius: 7px;
+
+            background: #fafafa;
+        }
+
+
+        .invoice-meta-box strong {
+            font-size: 10px;
+        }
+
+
+        .invoice-meta-box p {
+            margin: 4px 0 12px;
+
+            font-size: 11px;
+        }
+
+
+        .invoice-items {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin: 20px 0;
+        }
+
+
+        .invoice-items th {
+            padding: 10px;
+
+            text-align: left;
+
+            background: #f7f7f7;
+
+            border-bottom: 1px solid #ddd;
+
+            font-size: 10px;
+        }
+
+
+        .invoice-items td {
+            padding: 10px;
+
+            border-bottom: 1px solid #eeeeee;
+
+            font-size: 10px;
+        }
+
+
+        .text-right {
+            text-align: right !important;
+        }
+
+
+        .invoice-totals {
+            width: min(350px, 100%);
+
+            margin-left: auto;
+        }
+
+
+        .invoice-total-row {
+            padding: 7px 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+
+            font-size: 11px;
+        }
+
+
+        .invoice-total-row.grand {
+            padding-top: 12px;
+
+            margin-top: 5px;
+
+            border-top: 1px solid #ddd;
+
+            font-size: 15px;
+        }
+
+
+        .invoice-footer-message {
+            margin-top: 30px;
+
+            text-align: center;
+
+            color: #777;
+
+            font-size: 10px;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+        @media (max-width: 1200px) {
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+
+            .main {
+                margin-left: 0;
+            }
+
+
+            .mobile-menu {
+                display: block;
+            }
+
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+
+
+            .content {
+                padding: 22px 18px 35px;
+            }
+
+
+            .topbar {
+                padding: 0 18px;
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .topbar {
+                height: 68px;
+            }
+
+
+            .topbar h1 {
+                font-size: 16px;
+            }
+
+
+            .topbar p {
+                display: none;
+            }
+
+
+            .user-info {
+                display: none;
+            }
+
+
+            .section-header {
+                align-items: flex-start;
+            }
+
+
+            .toolbar-left {
+                width: 100%;
+            }
+
+
+            .search-input {
+                width: 100%;
+            }
+
+
+            .filter-select,
+            .date-input {
+                flex: 1;
+            }
+
+
+            .invoice-modal {
+                padding: 10px;
+            }
+
+
+            .invoice-modal-body {
+                padding: 15px;
+            }
+
+
+            .invoice-meta-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+        }
+
+
+        @media (max-width: 480px) {
+
+            .content {
+                padding: 16px 12px 30px;
+            }
+
+
+            .topbar {
+                padding: 0 12px;
+            }
+
+
+            .sidebar-link {
+                display: none;
+            }
+
+
+            .stat-card {
+                min-height: 90px;
+            }
+
+
+            .table-toolbar {
+                padding: 12px;
+            }
+
+
+            .invoice-modal-header {
+                padding: 12px 15px;
+            }
+
+
+            .invoice-modal-footer {
+                padding: 12px 15px;
+            }
+
+        }
+
+
+        /* =========================================================
+           PRINT
+           ========================================================= */
+
+        @media print {
+
+            body {
+                background: #ffffff;
+            }
+
+
+            .sidebar,
+            .topbar,
+            .section-header,
+            .stats-grid,
+            .table-card,
+            .invoice-modal-header,
+            .invoice-modal-footer {
+                display: none !important;
+            }
+
+
+            .main {
+                margin-left: 0;
+            }
+
+
+            .content {
+                padding: 0;
+            }
+
+
+            .invoice-modal {
+                position: static;
+
+                display: block !important;
+
+                padding: 0;
+
+                background: #ffffff;
+            }
+
+
+            .invoice-modal-box {
+                width: 100%;
+
+                margin: 0;
+
+                box-shadow: none;
+            }
+
+
+            .invoice-modal-body {
+                padding: 0;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+    <!-- =========================================================
+         SIDEBAR
+         ========================================================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ★
+            </div>
+
+            <div class="logo-text">
+                <strong>HOTELS</strong>
+                <span></span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
+
+
+            <a href="bookings.html" class="nav-item">
+                <span class="nav-icon">▣</span>
+                Bookings
+            </a>
+
+
+            <a href="guests.html" class="nav-item">
+                <span class="nav-icon">♙</span>
+                Guests
+            </a>
+
+
+            <a href="rooms.html" class="nav-item">
+                <span class="nav-icon">▤</span>
+                Rooms
+            </a>
+
+
+            <a href="stays.html" class="nav-item">
+                <span class="nav-icon">⌂</span>
+                Check-in & Stays
+            </a>
+
+
+            <div class="menu-title">
+                SERVICES
+            </div>
+
+
+            <a href="restaurant.html" class="nav-item">
+                <span class="nav-icon">♨</span>
+                Restaurant
+            </a>
+
+
+            <a href="orders.html" class="nav-item">
+                <span class="nav-icon">☷</span>
+                Orders
+            </a>
+
+
+            <a href="billing.html" class="nav-item">
+                <span class="nav-icon">▤</span>
+                Billing
+            </a>
+
+
+            <a href="invoices.html" class="nav-item active">
+                <span class="nav-icon">▥</span>
+                Invoices
+            </a>
+
+
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+
+            <a href="reports.html" class="nav-item">
+                <span class="nav-icon">▥</span>
+                Reports
+            </a>
+
+
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                Settings
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="hotel-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>System Online</strong>
+                    <small>All services running</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <div
+        id="sidebarBackdrop"
+        class="sidebar-backdrop"
+    ></div>
+
+
+    <!-- =========================================================
+         MAIN
+         ========================================================= -->
+
+    <main class="main">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button
+                    type="button"
+                    id="mobileMenu"
+                    class="mobile-menu"
+                >
+                    ☰
+                </button>
+
+
+                <div>
+
+                    <h1>
+                        Invoices
+                    </h1>
+
+                    <p>
+                        View and manage hotel invoices
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <a
+                    href="settings.html"
+                    class="sidebar-link"
+                >
+                    ⚙
+                </a>
+
+
+                <a
+                    href="settings.html"
+                    class="user-profile"
+                >
+
+                    <div
+                        class="avatar"
+                        id="topUserAvatar"
+                    >
+                        U
+                    </div>
+
+
+                    <div class="user-info">
+
+                        <strong id="topUserName">
+                            User
+                        </strong>
+
+                        <span>
+                            Hotel Manager
+                        </span>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+
+        <section class="content">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Invoice Management
+                    </h2>
+
+                    <p>
+                        All generated guest invoices for your hotel
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="invoiceMessage"
+                class="invoice-message"
+            ></div>
+
+
+            <!-- =================================================
+                 STATS
+                 ================================================= -->
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ▥
+                    </div>
+
+                    <div>
+
+                        <div class="stat-label">
+                            Total Invoices
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="invoiceCount"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div
+                        class="stat-icon"
+                        style="
+                            background:#e7f8ee;
+                            color:#137547;
+                        "
+                    >
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <div class="stat-label">
+                            Paid Invoices
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="paidInvoiceCount"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div
+                        class="stat-icon"
+                        style="
+                            background:#fff3d6;
+                            color:#8a5a00;
+                        "
+                    >
+                        ◷
+                    </div>
+
+                    <div>
+
+                        <div class="stat-label">
+                            Pending Invoices
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="pendingInvoiceCount"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div
+                        class="stat-icon"
+                        style="
+                            background:#fde8e7;
+                            color:#b42318;
+                        "
+                    >
+                        ₹
+                    </div>
+
+                    <div>
+
+                        <div class="stat-label">
+                            Outstanding Amount
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="outstandingInvoiceAmount"
+                        >
+                            ₹0.00
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 INVOICE TABLE
+                 ================================================= -->
+
+            <div class="table-card">
+
+                <div class="table-toolbar">
+
+                    <div class="toolbar-left">
+
+                        <input
+                            type="text"
+                            id="invoiceSearch"
+                            class="search-input"
+                            placeholder="Search invoice, guest or stay..."
+                        >
+
+
+                        <select
+                            id="invoiceStatusFilter"
+                            class="filter-select"
+                        >
+
+                            <option value="">
+                                All Status
+                            </option>
+
+                            <option value="paid">
+                                Paid
+                            </option>
+
+                            <option value="partial">
+                                Partially Paid
+                            </option>
+
+                            <option value="unpaid">
+                                Unpaid
+                            </option>
+
+                        </select>
+
+
+                        <input
+                            type="date"
+                            id="invoiceFromDate"
+                            class="date-input"
+                            title="From date"
+                        >
+
+
+                        <input
+                            type="date"
+                            id="invoiceToDate"
+                            class="date-input"
+                            title="To date"
+                        >
+
+
+                        <button
+                            type="button"
+                            id="filterInvoicesButton"
+                            class="btn btn-primary"
+                        >
+                            Filter
+                        </button>
+
+
+                        <button
+                            type="button"
+                            id="resetInvoiceFiltersButton"
+                            class="btn btn-light"
+                        >
+                            Reset
+                        </button>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="refreshInvoicesButton"
+                        class="btn btn-light"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Invoice
+                                </th>
+
+                                <th>
+                                    Guest
+                                </th>
+
+                                <th>
+                                    Stay
+                                </th>
+
+                                <th>
+                                    Subtotal
+                                </th>
+
+                                <th>
+                                    Tax
+                                </th>
+
+                                <th>
+                                    Total
+                                </th>
+
+                                <th>
+                                    Paid
+                                </th>
+
+                                <th>
+                                    Balance
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Issued
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="invoicesTableBody">
+
+                            <tr>
+
+                                <td colspan="11">
+
+                                    <div class="empty-table">
+                                        Loading invoices...
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     INVOICE DETAILS MODAL
+     ========================================================= -->
+
+<div
+    id="invoiceDetailsModal"
+    class="invoice-modal"
+>
+
+    <div class="invoice-modal-box">
+
+        <div class="invoice-modal-header">
+
+            <div>
+
+                <h3>
+                    Invoice Details
+                </h3>
+
+                <p>
+                    Guest invoice information
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="closeInvoiceDetailsButton"
+                class="modal-close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div
+            id="invoiceDetailsContent"
+            class="invoice-modal-body"
+        ></div>
+
+
+        <div class="invoice-modal-footer">
+
+            <button
+                type="button"
+                id="modalPrintInvoiceButton"
+                class="btn btn-primary"
+            >
+                🖨 Print Invoice
+            </button>
+
+
+            <button
+                type="button"
+                id="modalCloseBottomButton"
+                class="btn btn-light"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="./js/config.js"></script>
+<script src="./js/supabase.js"></script>
+<script src="./js/invoices.js"></script>
+
+</body>
+
+</html>
