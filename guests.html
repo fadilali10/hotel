@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Guests - Hotels</title>
+    <title>Guests - Star Hotels</title>
 
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
     <link
         rel="preconnect"
         href="https://fonts.gstatic.com"
@@ -19,186 +22,206 @@
     >
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet"
     >
 
-    <!-- Main CSS -->
-    <link rel="stylesheet" href="./css/style.css">
-
+    <!-- Existing Star Hotels CSS -->
+    <link
+        rel="stylesheet"
+        href="./css/style.css"
+    >
 </head>
 
 <body>
 
-<div class="app">
-
-    <!-- =====================================================
+    <!-- =========================================================
          SIDEBAR
-         ===================================================== -->
+    ========================================================== -->
 
     <aside class="sidebar" id="sidebar">
 
-        <div class="sidebar-brand">
-
-            <div class="brand-logo">
+        <div class="sidebar-logo">
+            <div class="logo-icon">
                 ★
             </div>
 
-            <div class="brand-text">
-                <h2>HOTELS</h2>
-             
-            </div>
+            <div>
+                <div class="logo-title">
+                    Star Hotels
+                </div>
 
+                <div class="logo-subtitle">
+                    Hotel Management
+                </div>
+            </div>
         </div>
 
 
         <nav class="sidebar-nav">
 
-            <div class="nav-section-title">
-                MAIN
-            </div>
-
-            <a href="index.html" class="nav-item">
+            <a
+                href="./index.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">⌂</span>
                 <span>Dashboard</span>
             </a>
 
-            <a href="bookings.html" class="nav-item">
+
+            <a
+                href="./bookings.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">▣</span>
                 <span>Bookings</span>
             </a>
 
-            <a href="guests.html" class="nav-item active">
+
+            <a
+                href="./guests.html"
+                class="nav-item active"
+            >
                 <span class="nav-icon">♙</span>
                 <span>Guests</span>
             </a>
 
-            <a href="rooms.html" class="nav-item">
+
+            <a
+                href="./rooms.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">▤</span>
                 <span>Rooms</span>
             </a>
 
-            <a href="stays.html" class="nav-item">
-                <span class="nav-icon">◫</span>
-                <span>Check-in &amp; Stays</span>
+
+            <a
+                href="./stays.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">⌂</span>
+                <span>Stays</span>
             </a>
 
 
-            <div class="nav-section-title">
-                HOTEL
-            </div>
-
-            <a href="restaurant.html" class="nav-item">
-                <span class="nav-icon">♨</span>
+            <a
+                href="./restaurant.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">☕</span>
                 <span>Restaurant</span>
             </a>
 
-            <a href="orders.html" class="nav-item">
+
+            <a
+                href="./orders.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">☷</span>
                 <span>Orders</span>
             </a>
 
-            <a href="billing.html" class="nav-item">
-                <span class="nav-icon">▧</span>
+
+            <a
+                href="./billing.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">₹</span>
                 <span>Billing</span>
             </a>
 
-            <a href="invoices.html" class="nav-item">
+
+            <a
+                href="./invoices.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">▤</span>
                 <span>Invoices</span>
             </a>
 
 
-            <div class="nav-section-title">
-                MANAGEMENT
-            </div>
-
-            <a href="reports.html" class="nav-item">
-                <span class="nav-icon">◒</span>
+            <a
+                href="./reports.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">▥</span>
                 <span>Reports</span>
             </a>
 
-            <a href="settings.html" class="nav-item">
+
+            <a
+                href="./settings.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">⚙</span>
                 <span>Settings</span>
             </a>
 
         </nav>
 
-
-        <div class="sidebar-bottom">
-
-            <div class="sidebar-help">
-
-                <div class="help-icon">
-                    ?
-                </div>
-
-                <div>
-                    <strong>Need Help?</strong>
-                    <small>Manage your hotel easily</small>
-                </div>
-
-            </div>
-
-        </div>
-
     </aside>
 
 
-    <!-- =====================================================
-         MAIN
-         ===================================================== -->
+    <!-- =========================================================
+         MAIN CONTENT
+    ========================================================== -->
 
-    <main class="main">
+    <main class="main-content">
 
-        <!-- TOPBAR -->
+        <!-- =====================================================
+             TOPBAR
+        ====================================================== -->
 
         <header class="topbar">
 
+            <button
+                type="button"
+                class="mobile-menu-btn"
+                id="mobileMenu"
+                aria-label="Open menu"
+            >
+                ☰
+            </button>
+
+
             <div class="topbar-left">
+                <h1>
+                    Guests
+                </h1>
 
-                <button
-                    type="button"
-                    class="mobile-menu"
-                    id="mobileMenu"
-                    aria-label="Open menu"
-                >
-                    ☰
-                </button>
-
-                <div class="breadcrumb">
-
-                    <span>Hotel</span>
-
-                    <span class="breadcrumb-arrow">
-                        /
-                    </span>
-
-                    <strong>Guests</strong>
-
-                </div>
-
+                <p>
+                    Manage hotel guests and their information
+                </p>
             </div>
 
 
             <div class="topbar-right">
 
-                <div class="topbar-user">
+                <div class="top-user">
 
-                    <div class="topbar-avatar">
-                        <span id="topUserInitial">U</span>
+                    <div
+                        class="top-user-avatar"
+                        id="topUserInitial"
+                    >
+                        U
                     </div>
 
-                    <div class="topbar-user-info">
+                    <div class="top-user-info">
 
-                        <strong id="topUserName">
+                        <div
+                            class="top-user-name"
+                            id="topUserName"
+                        >
                             User
-                        </strong>
+                        </div>
 
-                        <span id="topHotelName">
-                            Hotel
-                        </span>
+                        <div
+                            class="top-hotel-name"
+                            id="topHotelName"
+                        >
+                            Star Hotels
+                        </div>
 
                     </div>
 
@@ -211,73 +234,60 @@
 
         <!-- =====================================================
              PAGE CONTENT
-             ===================================================== -->
+        ====================================================== -->
 
-        <section class="content guests-page">
+        <section class="page-content">
 
-
-            <!-- PAGE HEADER -->
+            <!-- Page Heading -->
 
             <div class="page-header">
 
-                <div class="page-header-left">
+                <div>
+                    <h2>
+                        Guest Management
+                    </h2>
 
-                    <div>
-
-                        <h1 class="page-title">
-                            Guests
-                        </h1>
-
-                        <p class="page-subtitle">
-                            Manage your hotel guests and guest information
-                        </p>
-
-                    </div>
-
+                    <p>
+                        Add, edit and manage your hotel guests.
+                    </p>
                 </div>
 
 
-                <div class="page-header-actions">
-
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        id="addGuestBtn"
-                    >
-                        <span class="btn-icon">+</span>
-                        Add Guest
-                    </button>
-
-                </div>
+                <button
+                    type="button"
+                    class="primary-button"
+                    id="addGuestBtn"
+                >
+                    + Add Guest
+                </button>
 
             </div>
 
 
-            <!-- =====================================================
-                 STATISTICS
-                 ===================================================== -->
+            <!-- =================================================
+                 STAT CARDS
+            ================================================== -->
 
-            <div class="stats-grid guest-stats">
-
+            <div class="stats-grid">
 
                 <div class="stat-card">
 
-                    <div class="stat-card-icon purple">
-                        ♙
+                    <div class="stat-card-icon">
+                        👥
                     </div>
 
                     <div class="stat-card-content">
 
-                        <span class="stat-label">
+                        <div class="stat-card-label">
                             Total Guests
-                        </span>
+                        </div>
 
-                        <strong
-                            class="stat-value"
+                        <div
+                            class="stat-card-value"
                             id="totalGuestsCount"
                         >
                             0
-                        </strong>
+                        </div>
 
                     </div>
 
@@ -286,22 +296,22 @@
 
                 <div class="stat-card">
 
-                    <div class="stat-card-icon green">
-                        ☎
+                    <div class="stat-card-icon">
+                        📱
                     </div>
 
                     <div class="stat-card-content">
 
-                        <span class="stat-label">
-                            With Phone
-                        </span>
+                        <div class="stat-card-label">
+                            Guests With Phone
+                        </div>
 
-                        <strong
-                            class="stat-value"
+                        <div
+                            class="stat-card-value"
                             id="guestsWithPhoneCount"
                         >
                             0
-                        </strong>
+                        </div>
 
                     </div>
 
@@ -310,22 +320,22 @@
 
                 <div class="stat-card">
 
-                    <div class="stat-card-icon blue">
-                        @
+                    <div class="stat-card-icon">
+                        ✉
                     </div>
 
                     <div class="stat-card-content">
 
-                        <span class="stat-label">
-                            With Email
-                        </span>
+                        <div class="stat-card-label">
+                            Guests With Email
+                        </div>
 
-                        <strong
-                            class="stat-value"
+                        <div
+                            class="stat-card-value"
                             id="guestsWithEmailCount"
                         >
                             0
-                        </strong>
+                        </div>
 
                     </div>
 
@@ -334,22 +344,22 @@
 
                 <div class="stat-card">
 
-                    <div class="stat-card-icon orange">
-                        IN
+                    <div class="stat-card-icon">
+                        🇮🇳
                     </div>
 
                     <div class="stat-card-content">
 
-                        <span class="stat-label">
+                        <div class="stat-card-label">
                             Indian Guests
-                        </span>
+                        </div>
 
-                        <strong
-                            class="stat-value"
+                        <div
+                            class="stat-card-value"
                             id="indianGuestsCount"
                         >
                             0
-                        </strong>
+                        </div>
 
                     </div>
 
@@ -358,39 +368,39 @@
             </div>
 
 
-            <!-- =====================================================
-                 SEARCH / FILTER
-                 ===================================================== -->
+            <!-- =================================================
+                 GUEST TABLE CARD
+            ================================================== -->
 
-            <div class="card guest-filter-card">
+            <div class="content-card">
 
-                <div class="card-body">
+                <!-- Filters -->
 
-                    <div class="toolbar">
+                <div class="table-toolbar">
 
-                        <div class="search-box guest-search">
+                    <div class="search-box">
 
-                            <span class="search-icon">
-                                ⌕
-                            </span>
+                        <span class="search-icon">
+                            🔍
+                        </span>
 
-                            <input
-                                type="search"
-                                id="guestSearch"
-                                placeholder="Search name, phone, email, city or ID..."
-                                autocomplete="off"
-                            >
+                        <input
+                            type="text"
+                            id="guestSearch"
+                            placeholder="Search guests by name, phone or email..."
+                            autocomplete="off"
+                        >
 
-                        </div>
+                    </div>
 
+
+                    <div class="filter-group">
 
                         <select
                             id="guestGenderFilter"
-                            class="filter-select"
                         >
-
                             <option value="">
-                                All Gender
+                                All Genders
                             </option>
 
                             <option value="Male">
@@ -404,13 +414,12 @@
                             <option value="Other">
                                 Other
                             </option>
-
                         </select>
 
 
                         <button
                             type="button"
-                            class="btn btn-light"
+                            class="secondary-button"
                             id="clearGuestFilters"
                         >
                             Clear
@@ -420,42 +429,29 @@
 
                 </div>
 
-            </div>
 
+                <!-- Table Header -->
 
-            <!-- =====================================================
-                 GUEST TABLE
-                 ===================================================== -->
-
-            <div class="card guests-table-card">
-
-                <div class="card-header">
+                <div class="table-header-row">
 
                     <div>
-
-                        <h3>
-                            All Guests
-                        </h3>
-
-                        <p>
-                            Guests registered in your hotel
-                        </p>
-
+                        <strong>Guests</strong>
                     </div>
 
-                    <span
-                        class="table-count"
-                        id="guestResultCount"
-                    >
-                        0 guests
-                    </span>
+                    <div>
+                        <span id="guestResultCount">
+                            0 guests
+                        </span>
+                    </div>
 
                 </div>
 
 
+                <!-- Guest Table -->
+
                 <div class="table-responsive">
 
-                    <table class="data-table guests-table">
+                    <table class="data-table">
 
                         <thead>
 
@@ -474,15 +470,19 @@
                                 </th>
 
                                 <th>
-                                    ID Type
+                                    Gender
                                 </th>
 
                                 <th>
-                                    City
+                                    Nationality
                                 </th>
 
-                                <th class="text-right">
-                                    Action
+                                <th>
+                                    ID
+                                </th>
+
+                                <th>
+                                    Actions
                                 </th>
 
                             </tr>
@@ -492,20 +492,7 @@
 
                         <tbody id="guestsTableBody">
 
-                            <tr>
-
-                                <td
-                                    colspan="6"
-                                    class="table-loading"
-                                >
-
-                                    <div class="loading-spinner"></div>
-
-                                    Loading guests...
-
-                                </td>
-
-                            </tr>
+                            <!-- Guests are loaded by guests.js -->
 
                         </tbody>
 
@@ -514,15 +501,16 @@
                 </div>
 
 
-                <!-- EMPTY STATE -->
+                <!-- Empty State -->
 
                 <div
+                    class="empty-state"
                     id="guestEmptyState"
-                    class="empty-state hidden"
+                    style="display: none;"
                 >
 
                     <div class="empty-state-icon">
-                        ♙
+                        👥
                     </div>
 
                     <h3>
@@ -530,12 +518,12 @@
                     </h3>
 
                     <p>
-                        Add your first guest or change the search filter.
+                        There are no guests matching your current search or filters.
                     </p>
 
                     <button
                         type="button"
-                        class="btn btn-primary"
+                        class="primary-button"
                         id="emptyAddGuestBtn"
                     >
                         + Add Guest
@@ -549,49 +537,27 @@
 
     </main>
 
-</div>
+
+    <!-- =========================================================
+         GUEST DRAWER OVERLAY
+    ========================================================== -->
+
+    <div
+        class="drawer-overlay"
+        id="guestDrawerOverlay"
+    ></div>
 
 
-<!-- =====================================================
-     MOBILE SIDEBAR OVERLAY
-     ===================================================== -->
+    <!-- =========================================================
+         GUEST DRAWER
+    ========================================================== -->
 
-<div
-    class="sidebar-backdrop"
-    id="sidebarBackdrop"
-></div>
+    <aside
+        class="side-drawer"
+        id="guestDrawer"
+    >
 
-
-<!-- =====================================================
-     GUEST DRAWER OVERLAY
-     ===================================================== -->
-
-<div
-    class="drawer-overlay"
-    id="guestDrawerOverlay"
-></div>
-
-
-<!-- =====================================================
-     ADD / EDIT GUEST DRAWER
-     ===================================================== -->
-
-<aside
-    class="drawer guest-drawer"
-    id="guestDrawer"
-    aria-hidden="true"
->
-
-
-    <!-- DRAWER HEADER -->
-
-    <div class="drawer-header">
-
-        <div class="drawer-heading">
-
-            <div class="drawer-heading-icon">
-                ♙
-            </div>
+        <div class="drawer-header">
 
             <div>
 
@@ -600,354 +566,632 @@
                 </h2>
 
                 <p>
-                    Add guest information
+                    Enter guest information
                 </p>
 
             </div>
 
+
+            <button
+                type="button"
+                class="drawer-close"
+                id="closeGuestDrawer"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
         </div>
 
 
-        <button
-            type="button"
-            class="drawer-close"
-            id="closeGuestDrawer"
-            aria-label="Close"
-        >
-            ×
-        </button>
-
-    </div>
-
-
-    <!-- DRAWER BODY -->
-
-    <div class="drawer-body">
+        <!-- =====================================================
+             GUEST FORM
+        ====================================================== -->
 
         <form
             id="guestForm"
             autocomplete="off"
         >
 
-
-            <!-- NAME -->
-
-            <div class="form-group">
-
-                <label for="guestName">
-                    Full Name
-                    <span class="required">*</span>
-                </label>
-
-                <input
-                    type="text"
-                    id="guestName"
-                    placeholder="Enter guest full name"
-                    required
-                >
-
-            </div>
-
-
-            <!-- PHONE / EMAIL -->
-
-            <div class="form-row">
-
-                <div class="form-group">
-
-                    <label for="guestPhone">
-                        Phone
-                    </label>
-
-                    <input
-                        type="tel"
-                        id="guestPhone"
-                        placeholder="Phone number"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="guestEmail">
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="guestEmail"
-                        placeholder="Email address"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <!-- GENDER / DOB -->
-
-            <div class="form-row">
-
-                <div class="form-group">
-
-                    <label for="guestGender">
-                        Gender
-                    </label>
-
-                    <select id="guestGender">
-
-                        <option value="">
-                            Select Gender
-                        </option>
-
-                        <option value="Male">
-                            Male
-                        </option>
-
-                        <option value="Female">
-                            Female
-                        </option>
-
-                        <option value="Other">
-                            Other
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="guestDateOfBirth">
-                        Date of Birth
-                    </label>
-
-                    <input
-                        type="date"
-                        id="guestDateOfBirth"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <!-- ID -->
-
-            <div class="form-row">
-
-                <div class="form-group">
-
-                    <label for="guestIdType">
-                        ID Type
-                    </label>
-
-                    <select id="guestIdType">
-
-                        <option value="">
-                            Select ID Type
-                        </option>
-
-                        <option value="Aadhaar">
-                            Aadhaar
-                        </option>
-
-                        <option value="Passport">
-                            Passport
-                        </option>
-
-                        <option value="Driving License">
-                            Driving License
-                        </option>
-
-                        <option value="Voter ID">
-                            Voter ID
-                        </option>
-
-                        <option value="PAN Card">
-                            PAN Card
-                        </option>
-
-                        <option value="Other">
-                            Other
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="guestIdNumber">
-                        ID Number
-                    </label>
-
-                    <input
-                        type="text"
-                        id="guestIdNumber"
-                        placeholder="ID number"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <!-- NATIONALITY -->
-
-            <div class="form-group">
-
-                <label for="guestNationality">
-                    Nationality
-                </label>
-
-                <input
-                    type="text"
-                    id="guestNationality"
-                    value="Indian"
-                    placeholder="Nationality"
-                >
-
-            </div>
-
-
-            <!-- ADDRESS -->
-
-            <div class="form-group">
-
-                <label for="guestAddress">
-                    Address
-                </label>
-
-                <textarea
-                    id="guestAddress"
-                    rows="3"
-                    placeholder="Street address..."
-                ></textarea>
-
-            </div>
-
-
-            <!-- CITY / STATE -->
-
-            <div class="form-row">
-
-                <div class="form-group">
-
-                    <label for="guestCity">
-                        City
-                    </label>
-
-                    <input
-                        type="text"
-                        id="guestCity"
-                        placeholder="City"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="guestState">
-                        State
-                    </label>
-
-                    <input
-                        type="text"
-                        id="guestState"
-                        placeholder="State"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <!-- COUNTRY -->
-
-            <div class="form-group">
-
-                <label for="guestCountry">
-                    Country
-                </label>
-
-                <input
-                    type="text"
-                    id="guestCountry"
-                    value="India"
-                    placeholder="Country"
-                >
-
-            </div>
-
-
-            <!-- NOTES -->
-
-            <div class="form-group">
-
-                <label for="guestNotes">
-                    Notes
-                </label>
-
-                <textarea
-                    id="guestNotes"
-                    rows="3"
-                    placeholder="Internal notes about this guest..."
-                ></textarea>
-
-            </div>
-
+            <!-- Hidden Guest ID -->
 
             <input
                 type="hidden"
                 id="guestId"
+                name="guestId"
             >
+
+
+            <!-- =================================================
+                 BASIC INFORMATION
+            ================================================== -->
+
+            <div class="form-section">
+
+                <div class="form-section-title">
+                    Basic Information
+                </div>
+
+
+                <div class="form-grid">
+
+                    <!-- Name -->
+
+                    <div class="form-group full-width">
+
+                        <label for="guestName">
+                            Full Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="guestName"
+                            name="guestName"
+                            placeholder="Enter guest full name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Phone -->
+
+                    <div class="form-group">
+
+                        <label for="guestPhone">
+                            Phone
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="guestPhone"
+                            name="guestPhone"
+                            placeholder="Enter phone number"
+                        >
+
+                    </div>
+
+
+                    <!-- Email -->
+
+                    <div class="form-group">
+
+                        <label for="guestEmail">
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="guestEmail"
+                            name="guestEmail"
+                            placeholder="Enter email address"
+                        >
+
+                    </div>
+
+
+                    <!-- Gender -->
+
+                    <div class="form-group">
+
+                        <label for="guestGender">
+                            Gender
+                        </label>
+
+                        <select
+                            id="guestGender"
+                            name="guestGender"
+                        >
+
+                            <option value="">
+                                Select gender
+                            </option>
+
+                            <option value="Male">
+                                Male
+                            </option>
+
+                            <option value="Female">
+                                Female
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Date of Birth -->
+
+                    <div class="form-group">
+
+                        <label for="guestDateOfBirth">
+                            Date of Birth
+                        </label>
+
+                        <input
+                            type="date"
+                            id="guestDateOfBirth"
+                            name="guestDateOfBirth"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 IDENTITY INFORMATION
+            ================================================== -->
+
+            <div class="form-section">
+
+                <div class="form-section-title">
+                    Identity Information
+                </div>
+
+
+                <div class="form-grid">
+
+                    <!-- ID Type -->
+
+                    <div class="form-group">
+
+                        <label for="guestIdType">
+                            ID Type
+                        </label>
+
+                        <select
+                            id="guestIdType"
+                            name="guestIdType"
+                        >
+
+                            <option value="">
+                                Select ID type
+                            </option>
+
+                            <option value="Aadhaar">
+                                Aadhaar
+                            </option>
+
+                            <option value="Passport">
+                                Passport
+                            </option>
+
+                            <option value="Driving License">
+                                Driving License
+                            </option>
+
+                            <option value="Voter ID">
+                                Voter ID
+                            </option>
+
+                            <option value="PAN Card">
+                                PAN Card
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- ID Number -->
+
+                    <div class="form-group">
+
+                        <label for="guestIdNumber">
+                            ID Number
+                        </label>
+
+                        <input
+                            type="text"
+                            id="guestIdNumber"
+                            name="guestIdNumber"
+                            placeholder="Enter ID number"
+                        >
+
+                    </div>
+
+
+                    <!-- Nationality -->
+
+                    <div class="form-group full-width">
+
+                        <label for="guestNationality">
+                            Nationality
+                        </label>
+
+                        <input
+                            type="text"
+                            id="guestNationality"
+                            name="guestNationality"
+                            placeholder="e.g. Indian"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 ADDRESS
+            ================================================== -->
+
+            <div class="form-section">
+
+                <div class="form-section-title">
+                    Address
+                </div>
+
+
+                <div class="form-grid">
+
+                    <!-- Address -->
+
+                    <div class="form-group full-width">
+
+                        <label for="guestAddress">
+                            Address
+                        </label>
+
+                        <textarea
+                            id="guestAddress"
+                            name="guestAddress"
+                            rows="3"
+                            placeholder="Enter address"
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- City -->
+
+                    <div class="form-group">
+
+                        <label for="guestCity">
+                            City
+                        </label>
+
+                        <input
+                            type="text"
+                            id="guestCity"
+                            name="guestCity"
+                            placeholder="Enter city"
+                        >
+
+                    </div>
+
+
+                    <!-- State -->
+
+                    <div class="form-group">
+
+                        <label for="guestState">
+                            State
+                        </label>
+
+                        <input
+                            type="text"
+                            id="guestState"
+                            name="guestState"
+                            placeholder="Enter state"
+                        >
+
+                    </div>
+
+
+                    <!-- Country -->
+
+                    <div class="form-group full-width">
+
+                        <label for="guestCountry">
+                            Country
+                        </label>
+
+                        <input
+                            type="text"
+                            id="guestCountry"
+                            name="guestCountry"
+                            value="India"
+                            placeholder="Enter country"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 NOTES
+            ================================================== -->
+
+            <div class="form-section">
+
+                <div class="form-section-title">
+                    Notes
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="guestNotes">
+                        Additional Notes
+                    </label>
+
+                    <textarea
+                        id="guestNotes"
+                        name="guestNotes"
+                        rows="4"
+                        placeholder="Enter any additional information about the guest"
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 FORM FOOTER
+            ================================================== -->
+
+            <div class="drawer-footer">
+
+                <button
+                    type="button"
+                    class="secondary-button"
+                    id="cancelGuestButton"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                    id="saveGuestButton"
+                >
+                    Save Guest
+                </button>
+
+            </div>
 
         </form>
 
-    </div>
+    </aside>
 
 
-    <!-- DRAWER FOOTER -->
+    <!-- =========================================================
+         SUPABASE
+    ========================================================== -->
 
-    <div class="drawer-footer">
+    <!--
+        IMPORTANT:
+        Do NOT use ./js/config.js here.
 
-        <button
-            type="button"
-            id="cancelGuestButton"
-            class="btn btn-light"
-        >
-            Cancel
-        </button>
+        GitHub Pages previously tried to load:
+        http://hotel.co.in/js/config.js
 
-        <button
-            type="button"
-            id="saveGuestButton"
-            class="btn btn-primary"
-        >
-            Save Guest
-        </button>
+        That caused a Mixed Content error.
 
-    </div>
+        The configuration is now loaded directly using HTTPS.
+    -->
 
-</aside>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
-<!-- =====================================================
-     SCRIPTS
-     ===================================================== -->
+    <!-- =========================================================
+         STAR HOTELS INLINE SUPABASE CONFIGURATION
+    ========================================================== -->
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (function () {
+            "use strict";
 
-<script src="./js/config.js"></script>
+            window.SUPABASE_URL =
+                "https://hrnstfsldgrwkyporytg.supabase.co";
 
-<script src="./js/supabase.js"></script>
+            window.SUPABASE_KEY =
+                "sb_publishable_qRadst_H3W0sWwVKOrl3Eg_jYIbigZi";
 
-<script src="./js/guests.js"></script>
+            window.STAR_HOTELS_CONFIG_READY = true;
+
+            window.STAR_HOTELS_CONFIG = {
+                supabaseUrl: window.SUPABASE_URL,
+                isReady: true
+            };
+
+            console.log("=================================");
+            console.log("STAR HOTELS - GUESTS CONFIGURATION");
+            console.log("=================================");
+
+            console.log("✓ SUPABASE_URL loaded");
+            console.log("✓ SUPABASE_KEY loaded");
+            console.log("✓ Supabase configuration is ready.");
+        })();
+    </script>
+
+
+    <!-- =========================================================
+         SUPABASE CLIENT
+    ========================================================== -->
+
+    <script src="https://fadilali10.github.io/hotel/js/supabase.js"></script>
+
+
+    <!-- =========================================================
+         GUESTS JAVASCRIPT
+    ========================================================== -->
+
+    <script src="https://fadilali10.github.io/hotel/js/guests.js"></script>
+
+
+    <!-- =========================================================
+         FINAL CONNECTION CHECK
+    ========================================================== -->
+
+    <script>
+        (function () {
+            "use strict";
+
+            window.addEventListener("load", async function () {
+
+                console.log("=================================");
+                console.log("STAR HOTELS - GUESTS CONNECTION CHECK");
+                console.log("=================================");
+
+
+                /* -----------------------------------------------
+                   CHECK SUPABASE LIBRARY
+                ------------------------------------------------ */
+
+                if (typeof window.supabase === "undefined") {
+
+                    console.error(
+                        "❌ Supabase JavaScript library is NOT loaded."
+                    );
+
+                    return;
+                }
+
+                console.log(
+                    "✓ Supabase JavaScript library loaded."
+                );
+
+
+                /* -----------------------------------------------
+                   CHECK CONFIGURATION
+                ------------------------------------------------ */
+
+                if (
+                    !window.SUPABASE_URL ||
+                    !window.SUPABASE_KEY
+                ) {
+
+                    console.error(
+                        "❌ Supabase configuration is missing."
+                    );
+
+                    return;
+                }
+
+                console.log(
+                    "✓ Supabase configuration loaded."
+                );
+
+
+                /* -----------------------------------------------
+                   CHECK SUPABASE CLIENT
+                ------------------------------------------------ */
+
+                if (!window.supabaseClient) {
+
+                    console.error(
+                        "❌ Supabase client was NOT initialized."
+                    );
+
+                    console.error(
+                        "Check js/supabase.js."
+                    );
+
+                    return;
+                }
+
+                console.log(
+                    "✓ Supabase client initialized."
+                );
+
+
+                /* -----------------------------------------------
+                   CHECK AUTH / CONNECTION
+                ------------------------------------------------ */
+
+                try {
+
+                    const result =
+                        await window.supabaseClient.auth.getSession();
+
+
+                    if (result.error) {
+
+                        console.error(
+                            "❌ Supabase connection/auth check failed."
+                        );
+
+                        console.error(
+                            result.error
+                        );
+
+                        return;
+                    }
+
+
+                    console.log(
+                        "✓ Supabase connection is working."
+                    );
+
+
+                    /* -------------------------------------------
+                       SESSION CHECK
+                    -------------------------------------------- */
+
+                    if (
+                        result.data &&
+                        result.data.session
+                    ) {
+
+                        console.log(
+                            "✓ User session detected."
+                        );
+
+                        console.log(
+                            "✓ Guests page is ready."
+                        );
+
+                    } else {
+
+                        console.log(
+                            "ℹ No active session."
+                        );
+
+                        console.log(
+                            "Please login to use guest management."
+                        );
+                    }
+
+
+                    console.log(
+                        "================================="
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "❌ Supabase connection test failed."
+                    );
+
+                    console.error(
+                        error
+                    );
+                }
+
+            });
+
+        })();
+    </script>
 
 </body>
 </html>
