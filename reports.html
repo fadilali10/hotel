@@ -4,6 +4,7 @@
 <head>
 
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -20,7 +21,7 @@
 
         /* =====================================================
            STAR HOTELS - REPORTS PAGE
-           ALL CSS INCLUDED IN THIS HTML
+           ALL CSS INCLUDED DIRECTLY IN THIS HTML
         ===================================================== */
 
         :root {
@@ -1491,8 +1492,6 @@
 
     <main class="main">
 
-        <!-- TOPBAR -->
-
         <header class="topbar">
 
             <div class="topbar-left">
@@ -1993,11 +1992,219 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="./js/config.js"></script>
+<script>
+(function () {
+    "use strict";
 
-<script src="./js/supabase.js"></script>
+    /*
+     * STAR HOTELS
+     * INLINE SUPABASE CONFIGURATION
+     *
+     * Do NOT load ./js/config.js here.
+     * This prevents the old hotel.co.in mixed-content
+     * problem on GitHub Pages.
+     */
 
-<script src="./js/reports.js"></script>
+    window.SUPABASE_URL =
+        "https://hrnstfsldgrwkyporytg.supabase.co";
+
+    window.SUPABASE_KEY =
+        "sb_publishable_qRadst_H3W0sWwVKOrl3Eg_jYIbigZi";
+
+    window.STAR_HOTELS_CONFIG_READY = true;
+
+    window.STAR_HOTELS_CONFIG = {
+        supabaseUrl: window.SUPABASE_URL,
+        isReady: true
+    };
+
+    console.log("=================================");
+    console.log("STAR HOTELS - REPORTS CONFIGURATION");
+    console.log("=================================");
+    console.log("✓ SUPABASE_URL loaded");
+    console.log("✓ SUPABASE_KEY loaded");
+    console.log("✓ Supabase configuration is ready.");
+})();
+</script>
+
+
+<!-- =====================================================
+     SUPABASE CLIENT
+===================================================== -->
+
+<script src="https://fadilali10.github.io/hotel/js/supabase.js"></script>
+
+
+<!-- =====================================================
+     REPORTS APPLICATION
+===================================================== -->
+
+<script src="https://fadilali10.github.io/hotel/js/reports.js"></script>
+
+
+<!-- =====================================================
+     FINAL CONNECTION CHECK
+===================================================== -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    window.addEventListener("load", async function () {
+
+        console.log("=================================");
+        console.log("STAR HOTELS - REPORTS CONNECTION CHECK");
+        console.log("=================================");
+
+
+        /* ---------------------------------------------
+           SUPABASE LIBRARY
+        --------------------------------------------- */
+
+        if (
+            typeof window.supabase === "undefined"
+        ) {
+
+            console.error(
+                "❌ Supabase JavaScript library is NOT loaded."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "✓ Supabase JavaScript library loaded."
+        );
+
+
+        /* ---------------------------------------------
+           CONFIGURATION
+        --------------------------------------------- */
+
+        if (
+            !window.SUPABASE_URL ||
+            !window.SUPABASE_KEY
+        ) {
+
+            console.error(
+                "❌ Supabase configuration is missing."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "✓ Supabase configuration loaded."
+        );
+
+
+        /* ---------------------------------------------
+           CLIENT
+        --------------------------------------------- */
+
+        if (
+            !window.supabaseClient
+        ) {
+
+            console.error(
+                "❌ Supabase client was NOT initialized."
+            );
+
+            console.error(
+                "Check js/supabase.js."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "✓ Supabase client initialized."
+        );
+
+
+        /* ---------------------------------------------
+           SESSION / CONNECTION
+        --------------------------------------------- */
+
+        try {
+
+            const result =
+                await window.supabaseClient.auth.getSession();
+
+
+            if (result.error) {
+
+                console.error(
+                    "❌ Supabase connection/auth check failed."
+                );
+
+                console.error(
+                    result.error
+                );
+
+                return;
+            }
+
+
+            console.log(
+                "✓ Supabase connection is working."
+            );
+
+
+            if (
+                result.data &&
+                result.data.session
+            ) {
+
+                console.log(
+                    "✓ User session detected."
+                );
+
+                console.log(
+                    "✓ Reports page is ready."
+                );
+
+            } else {
+
+                console.log(
+                    "ℹ No active session."
+                );
+
+                console.log(
+                    "Please login to use hotel reports."
+                );
+            }
+
+
+            console.log(
+                "================================="
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Supabase connection test failed."
+            );
+
+            console.error(
+                error
+            );
+
+        }
+
+    });
+
+})();
+
+</script>
 
 
 </body>
