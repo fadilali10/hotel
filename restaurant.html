@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,8 +12,6 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet"
     >
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         /* =====================================================
@@ -184,8 +183,7 @@
 
             letter-spacing: 1.3px;
 
-            padding:
-                13px 12px 8px;
+            padding: 13px 12px 8px;
         }
 
         .nav-item {
@@ -220,6 +218,7 @@
         .nav-item.active {
             background: var(--primary);
             color: #ffffff;
+
             box-shadow:
                 0 5px 16px rgba(109, 74, 255, 0.25);
         }
@@ -236,6 +235,7 @@
 
         .sidebar-footer {
             padding: 14px;
+
             border-top: 1px solid
                 rgba(255, 255, 255, 0.06);
         }
@@ -1134,7 +1134,9 @@
             }
         }
     </style>
+
 </head>
+
 
 <body>
 
@@ -1147,79 +1149,136 @@
     <aside class="sidebar" id="sidebar">
 
         <div class="logo">
-            <div class="logo-icon">★</div>
+
+            <div class="logo-icon">
+                ★
+            </div>
 
             <div class="logo-text">
                 <strong>HOTELS</strong>
                 <span></span>
             </div>
+
         </div>
+
 
         <nav class="sidebar-nav">
 
-            <div class="menu-title">MAIN</div>
+            <div class="menu-title">
+                MAIN
+            </div>
 
-            <a href="index.html" class="nav-item">
+
+            <a
+                href="index.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">▦</span>
                 Dashboard
             </a>
 
-            <a href="bookings.html" class="nav-item">
+
+            <a
+                href="bookings.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">▣</span>
                 Bookings
             </a>
 
-            <a href="guests.html" class="nav-item">
+
+            <a
+                href="guests.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">♙</span>
                 Guests
             </a>
 
-            <a href="rooms.html" class="nav-item">
+
+            <a
+                href="rooms.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">▤</span>
                 Rooms
             </a>
 
-            <a href="stays.html" class="nav-item">
+
+            <a
+                href="stays.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">⌂</span>
                 Check-in & Stays
             </a>
 
-            <div class="menu-title">SERVICES</div>
 
-            <a href="restaurant.html"
-               class="nav-item active">
+            <div class="menu-title">
+                SERVICES
+            </div>
+
+
+            <a
+                href="restaurant.html"
+                class="nav-item active"
+            >
                 <span class="nav-icon">♨</span>
                 Restaurant
             </a>
 
-            <a href="orders.html" class="nav-item">
+
+            <a
+                href="orders.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">☷</span>
                 Orders
             </a>
 
-            <a href="billing.html" class="nav-item">
+
+            <a
+                href="billing.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">▤</span>
                 Billing
             </a>
 
-            <a href="invoices.html" class="nav-item">
+
+            <a
+                href="invoices.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">▥</span>
                 Invoices
             </a>
 
-            <div class="menu-title">MANAGEMENT</div>
 
-            <a href="reports.html" class="nav-item">
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+
+            <a
+                href="reports.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">▥</span>
                 Reports
             </a>
 
-            <a href="settings.html" class="nav-item">
+
+            <a
+                href="settings.html"
+                class="nav-item"
+            >
                 <span class="nav-icon">⚙</span>
                 Settings
             </a>
 
         </nav>
+
 
         <div class="sidebar-footer">
 
@@ -1228,8 +1287,15 @@
                 <span class="status-dot"></span>
 
                 <div>
-                    <strong>System Online</strong>
-                    <small>All services running</small>
+
+                    <strong>
+                        System Online
+                    </strong>
+
+                    <small>
+                        All services running
+                    </small>
+
                 </div>
 
             </div>
@@ -1241,8 +1307,8 @@
 
     <div
         id="sidebarBackdrop"
-        class="sidebar-backdrop">
-    </div>
+        class="sidebar-backdrop"
+    ></div>
 
 
     <!-- =====================================================
@@ -1258,13 +1324,22 @@
                 <button
                     id="mobileMenu"
                     class="mobile-menu"
-                    type="button">
+                    type="button"
+                >
                     ☰
                 </button>
 
+
                 <div>
-                    <h1>Restaurant</h1>
-                    <p>Manage restaurant menu and services</p>
+
+                    <h1>
+                        Restaurant
+                    </h1>
+
+                    <p>
+                        Manage restaurant menu and services
+                    </p>
+
                 </div>
 
             </div>
@@ -1274,19 +1349,24 @@
 
                 <a
                     href="settings.html"
-                    class="sidebar-link">
+                    class="sidebar-link"
+                >
                     ⚙
                 </a>
 
+
                 <a
                     href="settings.html"
-                    class="user-profile">
+                    class="user-profile"
+                >
 
                     <div
                         class="avatar"
-                        id="topUserInitial">
+                        id="topUserInitial"
+                    >
                         U
                     </div>
+
 
                     <div class="user-info">
 
@@ -1316,17 +1396,23 @@
             <div class="section-header">
 
                 <div>
-                    <h2>Restaurant Management</h2>
+
+                    <h2>
+                        Restaurant Management
+                    </h2>
 
                     <p>
                         Manage menu items, categories and tables
                     </p>
+
                 </div>
+
 
                 <button
                     id="addMenuItemBtn"
                     class="primary-btn"
-                    type="button">
+                    type="button"
+                >
                     + Add Menu Item
                 </button>
 
@@ -1347,7 +1433,9 @@
 
                     <div class="stat-content">
 
-                        <span>Menu Items</span>
+                        <span>
+                            Menu Items
+                        </span>
 
                         <strong id="menuItemCount">
                             0
@@ -1366,7 +1454,9 @@
 
                     <div class="stat-content">
 
-                        <span>Available Items</span>
+                        <span>
+                            Available Items
+                        </span>
 
                         <strong id="availableMenuItems">
                             0
@@ -1385,7 +1475,9 @@
 
                     <div class="stat-content">
 
-                        <span>Tables</span>
+                        <span>
+                            Tables
+                        </span>
 
                         <strong id="restaurantTableCount">
                             0
@@ -1404,7 +1496,9 @@
 
                     <div class="stat-content">
 
-                        <span>Today's Sales</span>
+                        <span>
+                            Today's Sales
+                        </span>
 
                         <strong id="restaurantSales">
                             ₹0.00
@@ -1432,10 +1526,12 @@
                         placeholder="Search menu items..."
                     >
 
+
                     <button
                         id="restaurantRefresh"
                         class="secondary-btn"
-                        type="button">
+                        type="button"
+                    >
                         ↻ Refresh
                     </button>
 
@@ -1449,14 +1545,31 @@
                         <thead>
 
                             <tr>
-                                <th>Item</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Action</th>
+
+                                <th>
+                                    Item
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Price
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
                             </tr>
 
                         </thead>
+
 
                         <tbody id="menuItemsTableBody">
 
@@ -1494,18 +1607,24 @@
                     <div class="restaurant-card-header">
 
                         <div>
-                            <h3>Restaurant Tables</h3>
+
+                            <h3>
+                                Restaurant Tables
+                            </h3>
 
                             <p>
                                 Manage dining tables
                             </p>
+
                         </div>
 
                     </div>
 
+
                     <div
                         id="restTablesGrid"
-                        class="restaurant-card-body restaurant-list">
+                        class="restaurant-card-body restaurant-list"
+                    >
 
                         <div class="empty-state">
                             Loading tables...
@@ -1523,18 +1642,24 @@
                     <div class="restaurant-card-header">
 
                         <div>
-                            <h3>Food Categories</h3>
+
+                            <h3>
+                                Food Categories
+                            </h3>
 
                             <p>
                                 Active menu categories
                             </p>
+
                         </div>
 
                     </div>
 
+
                     <div
                         id="restCategoriesList"
-                        class="restaurant-card-body restaurant-list">
+                        class="restaurant-card-body restaurant-list"
+                    >
 
                         <div class="empty-state">
                             Loading categories...
@@ -1557,11 +1682,14 @@
 
                 <div class="form-card">
 
-                    <h3>Add Restaurant Table</h3>
+                    <h3>
+                        Add Restaurant Table
+                    </h3>
 
                     <p>
                         Create a new restaurant table.
                     </p>
+
 
                     <form id="restTableForm">
 
@@ -1615,14 +1743,16 @@
                         <button
                             id="restSaveTable"
                             type="submit"
-                            class="primary-btn form-submit">
+                            class="primary-btn form-submit"
+                        >
                             Save Table
                         </button>
 
+
                         <div
                             id="restTableMessage"
-                            class="form-message">
-                        </div>
+                            class="form-message"
+                        ></div>
 
                     </form>
 
@@ -1633,11 +1763,14 @@
 
                 <div class="form-card">
 
-                    <h3>Add Food Category</h3>
+                    <h3>
+                        Add Food Category
+                    </h3>
 
                     <p>
                         Create a category for your menu.
                     </p>
+
 
                     <form id="restCategoryForm">
 
@@ -1674,14 +1807,16 @@
                         <button
                             id="restSaveCategory"
                             type="submit"
-                            class="primary-btn form-submit">
+                            class="primary-btn form-submit"
+                        >
                             Save Category
                         </button>
 
+
                         <div
                             id="restCategoryMessage"
-                            class="form-message">
-                        </div>
+                            class="form-message"
+                        ></div>
 
                     </form>
 
@@ -1692,13 +1827,17 @@
 
                 <div
                     class="form-card"
-                    id="menuItemFormCard">
+                    id="menuItemFormCard"
+                >
 
-                    <h3>Add Menu Item</h3>
+                    <h3>
+                        Add Menu Item
+                    </h3>
 
                     <p>
                         Add a food item to the restaurant menu.
                     </p>
+
 
                     <form id="restMenuForm">
 
@@ -1726,7 +1865,8 @@
 
                             <select
                                 id="restMenuCategory"
-                                required>
+                                required
+                            >
 
                                 <option value="">
                                     Select category
@@ -1772,14 +1912,16 @@
                         <button
                             id="restSaveMenu"
                             type="submit"
-                            class="primary-btn form-submit">
+                            class="primary-btn form-submit"
+                        >
                             Save Food Item
                         </button>
 
+
                         <div
                             id="restMenuMessage"
-                            class="form-message">
-                        </div>
+                            class="form-message"
+                        ></div>
 
                     </form>
 
@@ -1794,9 +1936,244 @@
 </div>
 
 
-<script src="./js/config.js"></script>
-<script src="./js/supabase.js"></script>
-<script src="./js/restaurant.js"></script>
+<!-- =====================================================
+     SUPABASE
+===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+(function () {
+
+    "use strict";
+
+    /*
+     * =====================================================
+     * STAR HOTELS - INLINE SUPABASE CONFIGURATION
+     * =====================================================
+     *
+     * This configuration is intentionally inside the page
+     * to avoid the old hotel.co.in / HTTP mixed-content issue.
+     */
+
+    window.SUPABASE_URL =
+        "https://hrnstfsldgrwkyporytg.supabase.co";
+
+    window.SUPABASE_KEY =
+        "sb_publishable_qRadst_H3W0sWwVKOrl3Eg_jYIbigZi";
+
+
+    window.STAR_HOTELS_CONFIG_READY = true;
+
+
+    window.STAR_HOTELS_CONFIG = {
+
+        supabaseUrl:
+            window.SUPABASE_URL,
+
+        isReady:
+            true
+
+    };
+
+
+    console.log("=================================");
+    console.log("STAR HOTELS - RESTAURANT CONFIG");
+    console.log("=================================");
+
+    console.log("✓ SUPABASE_URL loaded");
+    console.log("✓ SUPABASE_KEY loaded");
+    console.log("✓ Supabase configuration is ready.");
+
+})();
+</script>
+
+
+<!-- =====================================================
+     SUPABASE CLIENT
+===================================================== -->
+
+<script src="https://fadilali10.github.io/hotel/js/supabase.js"></script>
+
+
+<!-- =====================================================
+     RESTAURANT JAVASCRIPT
+===================================================== -->
+
+<script src="https://fadilali10.github.io/hotel/js/restaurant.js"></script>
+
+
+<!-- =====================================================
+     FINAL CONNECTION CHECK
+===================================================== -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    window.addEventListener("load", async function () {
+
+        console.log("=================================");
+        console.log("STAR HOTELS - RESTAURANT CONNECTION");
+        console.log("=================================");
+
+
+        /* -------------------------------------------------
+           CHECK SUPABASE LIBRARY
+        ------------------------------------------------- */
+
+        if (
+            typeof window.supabase ===
+            "undefined"
+        ) {
+
+            console.error(
+                "❌ Supabase JavaScript library is NOT loaded."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "✓ Supabase JavaScript library loaded."
+        );
+
+
+        /* -------------------------------------------------
+           CHECK CONFIG
+        ------------------------------------------------- */
+
+        if (
+            !window.SUPABASE_URL ||
+            !window.SUPABASE_KEY
+        ) {
+
+            console.error(
+                "❌ Supabase configuration is missing."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "✓ Supabase configuration loaded."
+        );
+
+
+        /* -------------------------------------------------
+           CHECK CLIENT
+        ------------------------------------------------- */
+
+        if (
+            !window.supabaseClient
+        ) {
+
+            console.error(
+                "❌ Supabase client was NOT initialized."
+            );
+
+            console.error(
+                "Check js/supabase.js."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "✓ Supabase client initialized."
+        );
+
+
+        /* -------------------------------------------------
+           CHECK CONNECTION
+        ------------------------------------------------- */
+
+        try {
+
+            const result =
+                await window.supabaseClient
+                    .auth
+                    .getSession();
+
+
+            if (result.error) {
+
+                console.error(
+                    "❌ Supabase connection/auth check failed."
+                );
+
+                console.error(
+                    result.error
+                );
+
+                return;
+            }
+
+
+            console.log(
+                "✓ Supabase connection is working."
+            );
+
+
+            /* -------------------------------------------------
+               SESSION
+            ------------------------------------------------- */
+
+            if (
+                result.data &&
+                result.data.session
+            ) {
+
+                console.log(
+                    "✓ User session detected."
+                );
+
+                console.log(
+                    "✓ Restaurant page is ready."
+                );
+
+            } else {
+
+                console.log(
+                    "ℹ No active session."
+                );
+
+                console.log(
+                    "Please login to use restaurant features."
+                );
+
+            }
+
+
+            console.log(
+                "================================="
+            );
+
+        } catch (error) {
+
+            console.error(
+                "❌ Supabase connection test failed."
+            );
+
+            console.error(
+                error
+            );
+
+        }
+
+    });
+
+})();
+
+</script>
+
 
 </body>
 </html>
