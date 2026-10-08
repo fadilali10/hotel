@@ -1402,20 +1402,45 @@
 
 <!-- =========================================================
      STAR HOTELS - JAVASCRIPT
-     IMPORTANT: LOAD IN THIS EXACT ORDER
+     IMPORTANT: CONFIGURATION IS DEFINED HERE FIRST
 ========================================================= -->
 
 <!-- 1. Supabase library -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- 2. Star Hotels configuration -->
-<script src="./js/config.js"></script>
+<!-- 2. Define Supabase configuration directly on this HTTPS page.
+     This avoids the old hotel.co.in HTTP mixed-content request. -->
+<script>
+(function () {
+    "use strict";
 
-<!-- 3. Create the Supabase client -->
-<script src="./js/supabase.js"></script>
+    window.SUPABASE_URL =
+        "https://hrnstfsldgrwkyporytg.supabase.co";
+
+    window.SUPABASE_KEY =
+        "sb_publishable_qRadst_H3W0sWwVKOrl3Eg_jYIbigZi";
+
+    window.STAR_HOTELS_CONFIG_READY = true;
+
+    window.STAR_HOTELS_CONFIG = {
+        supabaseUrl: window.SUPABASE_URL,
+        isReady: true
+    };
+
+    console.log("=================================");
+    console.log("STAR HOTELS - INLINE CONFIGURATION");
+    console.log("=================================");
+    console.log("✓ SUPABASE_URL loaded");
+    console.log("✓ SUPABASE_KEY loaded");
+    console.log("✓ Supabase configuration is ready.");
+})();
+</script>
+
+<!-- 3. Supabase client -->
+<script src="https://fadilali10.github.io/hotel/js/supabase.js"></script>
 
 <!-- 4. Dashboard application -->
-<script src="./js/app.js"></script>
+<script src="https://fadilali10.github.io/hotel/js/app.js"></script>
 
 <!-- 5. Final connection check -->
 <script>
@@ -1423,44 +1448,46 @@
     "use strict";
 
     window.addEventListener("load", async function () {
+
         console.log("=================================");
         console.log("STAR HOTELS - FINAL CONNECTION CHECK");
         console.log("=================================");
 
         if (typeof window.supabase === "undefined") {
-            console.error("❌ Supabase library is NOT loaded.");
+            console.error("❌ Supabase JavaScript library is NOT loaded.");
             return;
         }
 
-        console.log("✓ Supabase library loaded.");
+        console.log("✓ Supabase JavaScript library loaded.");
 
-        if (!window.STAR_HOTELS_CONFIG_READY) {
-            console.error("❌ Star Hotels configuration is NOT ready.");
+        if (!window.SUPABASE_URL || !window.SUPABASE_KEY) {
+            console.error("❌ Supabase configuration is missing.");
             return;
         }
 
-        console.log("✓ Star Hotels configuration loaded.");
+        console.log("✓ Supabase configuration loaded.");
 
         if (!window.supabaseClient) {
-            console.error("❌ Supabase client was NOT created.");
+            console.error("❌ Supabase client was NOT initialized.");
+            console.error("Check js/supabase.js.");
             return;
         }
 
-        console.log("✓ Supabase client created.");
+        console.log("✓ Supabase client initialized.");
 
         try {
-            const { data, error } =
+            const result =
                 await window.supabaseClient.auth.getSession();
 
-            if (error) {
-                console.error("❌ Supabase connection/auth check failed:");
-                console.error(error);
+            if (result.error) {
+                console.error("❌ Supabase connection/auth check failed.");
+                console.error(result.error);
                 return;
             }
 
             console.log("✓ Supabase connection is working.");
 
-            if (data && data.session) {
+            if (result.data && result.data.session) {
                 console.log("✓ User session detected.");
                 console.log("✓ Logged-in dashboard is ready.");
             } else {
@@ -1469,13 +1496,16 @@
             }
 
             console.log("=================================");
+
         } catch (error) {
-            console.error("❌ Supabase connection test failed:");
+            console.error("❌ Supabase connection test failed.");
             console.error(error);
         }
     });
 })();
 </script>
+
+
 
 
 
