@@ -12,13 +12,17 @@
 
     <title>Create Hotel Account</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link
+        rel="stylesheet"
+        href="https://fadilali10.github.io/hotel/css/style.css"
+    >
 
     <style>
 
         body {
             min-height: 100vh;
             background: #f5f6fa;
+
             display: flex;
             align-items: center;
             justify-content: center;
@@ -32,9 +36,13 @@
 
         .auth-card {
             background: white;
+
             border-radius: 18px;
+
             padding: 35px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+
+            box-shadow:
+                0 10px 40px rgba(0,0,0,0.08);
         }
 
         .auth-logo {
@@ -45,6 +53,7 @@
         .auth-logo-icon {
             width: 55px;
             height: 55px;
+
             margin: 0 auto 12px;
 
             background: #6d4aff;
@@ -86,8 +95,10 @@
 
         .form-group label {
             display: block;
+
             font-size: 11px;
             font-weight: 600;
+
             margin-bottom: 7px;
         }
 
@@ -104,6 +115,8 @@
             font-size: 12px;
 
             outline: none;
+
+            box-sizing: border-box;
         }
 
         .form-group input:focus {
@@ -124,6 +137,8 @@
             font-weight: 600;
 
             margin-top: 8px;
+
+            cursor: pointer;
         }
 
         .auth-button:hover {
@@ -137,6 +152,7 @@
 
         .auth-message {
             margin-top: 15px;
+
             padding: 12px;
 
             border-radius: 8px;
@@ -148,18 +164,21 @@
 
         .auth-message.error {
             display: block;
+
             background: #fff0f0;
             color: #c62828;
         }
 
         .auth-message.success {
             display: block;
+
             background: #edfff3;
             color: #16803c;
         }
 
         .auth-footer {
             text-align: center;
+
             margin-top: 20px;
 
             font-size: 11px;
@@ -170,6 +189,10 @@
             color: #6d4aff;
             font-weight: 600;
             text-decoration: none;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
         }
 
     </style>
@@ -191,7 +214,9 @@
 
             <h1>Hotel Management</h1>
 
-            <p>Professional hotel management system</p>
+            <p>
+                Professional hotel management system
+            </p>
 
         </div>
 
@@ -210,12 +235,15 @@
 
             <div class="form-group">
 
-                <label>Hotel Name *</label>
+                <label for="hotelName">
+                    Hotel Name *
+                </label>
 
                 <input
                     type="text"
                     id="hotelName"
                     placeholder="Grand Palace Hotel"
+                    autocomplete="organization"
                     required
                 >
 
@@ -224,12 +252,15 @@
 
             <div class="form-group">
 
-                <label>Owner / Manager Name *</label>
+                <label for="fullName">
+                    Owner / Manager Name *
+                </label>
 
                 <input
                     type="text"
                     id="fullName"
                     placeholder="Your name"
+                    autocomplete="name"
                     required
                 >
 
@@ -238,12 +269,15 @@
 
             <div class="form-group">
 
-                <label>Phone</label>
+                <label for="phone">
+                    Phone
+                </label>
 
                 <input
                     type="tel"
                     id="phone"
                     placeholder="+91 9876543210"
+                    autocomplete="tel"
                 >
 
             </div>
@@ -251,12 +285,15 @@
 
             <div class="form-group">
 
-                <label>Email *</label>
+                <label for="email">
+                    Email *
+                </label>
 
                 <input
                     type="email"
                     id="email"
                     placeholder="manager@hotel.com"
+                    autocomplete="email"
                     required
                 >
 
@@ -265,13 +302,16 @@
 
             <div class="form-group">
 
-                <label>Password *</label>
+                <label for="password">
+                    Password *
+                </label>
 
                 <input
                     type="password"
                     id="password"
                     placeholder="Minimum 6 characters"
                     minlength="6"
+                    autocomplete="new-password"
                     required
                 >
 
@@ -310,13 +350,239 @@
 </div>
 
 
+<!-- =========================================================
+     STAR HOTELS - REGISTRATION JAVASCRIPT
+     HTTPS-SAFE SUPABASE CONFIGURATION
+========================================================= -->
+
+
+<!-- 1. Supabase JavaScript library -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="js/config.js"></script>
 
-<script src="js/supabase.js"></script>
+<!-- 2. Supabase configuration -->
 
-<script src="js/auth.js"></script>
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    /*
+     * IMPORTANT:
+     *
+     * Do NOT load js/config.js here.
+     *
+     * The old config.js request was causing:
+     *
+     * http://hotel.co.in/js/config.js
+     *
+     * GitHub Pages is HTTPS, so Chrome blocked it.
+     *
+     * Configuration is now defined directly here.
+     */
+
+
+    window.SUPABASE_URL =
+        "https://hrnstfsldgrwkyporytg.supabase.co";
+
+
+    window.SUPABASE_KEY =
+        "sb_publishable_qRadst_H3W0sWwVKOrl3Eg_jYIbigZi";
+
+
+    window.STAR_HOTELS_CONFIG_READY = true;
+
+
+    window.STAR_HOTELS_CONFIG = {
+
+        supabaseUrl:
+            window.SUPABASE_URL,
+
+        isReady: true
+
+    };
+
+
+    console.log("=================================");
+    console.log("STAR HOTELS - REGISTER CONFIGURATION");
+    console.log("=================================");
+
+    console.log("✓ SUPABASE_URL loaded");
+    console.log("✓ SUPABASE_KEY loaded");
+    console.log("✓ Supabase configuration is ready.");
+
+})();
+
+</script>
+
+
+<!-- 3. Create Supabase client -->
+
+<script src="https://fadilali10.github.io/hotel/js/supabase.js"></script>
+
+
+<!-- 4. Authentication / registration -->
+
+<script src="https://fadilali10.github.io/hotel/js/auth.js"></script>
+
+
+<!-- 5. Final connection check -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    window.addEventListener("load", async function () {
+
+        console.log("=================================");
+        console.log("STAR HOTELS - REGISTER CONNECTION CHECK");
+        console.log("=================================");
+
+
+        /*
+         * Check Supabase library
+         */
+
+        if (typeof window.supabase === "undefined") {
+
+            console.error(
+                "❌ Supabase JavaScript library is NOT loaded."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "✓ Supabase JavaScript library loaded."
+        );
+
+
+        /*
+         * Check configuration
+         */
+
+        if (
+            !window.SUPABASE_URL ||
+            !window.SUPABASE_KEY
+        ) {
+
+            console.error(
+                "❌ Supabase configuration is missing."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "✓ Supabase configuration loaded."
+        );
+
+
+        /*
+         * Check client
+         */
+
+        if (!window.supabaseClient) {
+
+            console.error(
+                "❌ Supabase client was NOT initialized."
+            );
+
+            console.error(
+                "Please check js/supabase.js."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "✓ Supabase client initialized."
+        );
+
+
+        /*
+         * Test connection
+         */
+
+        try {
+
+            const result =
+                await window.supabaseClient.auth.getSession();
+
+
+            if (result.error) {
+
+                console.error(
+                    "❌ Supabase connection/auth check failed."
+                );
+
+                console.error(
+                    result.error
+                );
+
+                return;
+            }
+
+
+            console.log(
+                "✓ Supabase connection is working."
+            );
+
+
+            if (
+                result.data &&
+                result.data.session
+            ) {
+
+                console.log(
+                    "✓ Existing user session detected."
+                );
+
+            } else {
+
+                console.log(
+                    "ℹ No active session."
+                );
+
+                console.log(
+                    "Ready to create a new hotel account."
+                );
+
+            }
+
+
+            console.log(
+                "================================="
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "❌ Supabase connection test failed."
+            );
+
+            console.error(
+                error
+            );
+
+        }
+
+    });
+
+})();
+
+</script>
+
 
 </body>
 
