@@ -1802,11 +1802,187 @@
 
 <!-- =========================================================
      JAVASCRIPT
+     HTTPS CONFIGURATION
 ========================================================== -->
 
-<script src="./js/config.js"></script>
-<script src="./js/supabase.js"></script>
-<script src="./js/settings.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    /*
+     * STAR HOTELS
+     * Supabase configuration
+     *
+     * This is intentionally kept inline so GitHub Pages
+     * does not try to load config.js through the old
+     * hotel.co.in address.
+     */
+
+    window.SUPABASE_URL =
+        "https://hrnstfsldgrwkyporytg.supabase.co";
+
+    window.SUPABASE_KEY =
+        "sb_publishable_qRadst_H3W0sWwVKOrl3Eg_jYIbigZi";
+
+    window.STAR_HOTELS_CONFIG_READY = true;
+
+    window.STAR_HOTELS_CONFIG = {
+        supabaseUrl: window.SUPABASE_URL,
+        isReady: true
+    };
+
+    console.log("=================================");
+    console.log("STAR HOTELS - SETTINGS CONFIG");
+    console.log("=================================");
+    console.log("✓ SUPABASE_URL loaded");
+    console.log("✓ SUPABASE_KEY loaded");
+    console.log("✓ Supabase configuration is ready.");
+})();
+</script>
+
+
+<!-- Supabase client initialization -->
+
+<script src="https://fadilali10.github.io/hotel/js/supabase.js"></script>
+
+
+<!-- Settings page logic -->
+
+<script src="https://fadilali10.github.io/hotel/js/settings.js"></script>
+
+
+<!-- Final connection check -->
+
+<script>
+(function () {
+    "use strict";
+
+    window.addEventListener("load", async function () {
+
+        console.log("=================================");
+        console.log("STAR HOTELS - SETTINGS CONNECTION CHECK");
+        console.log("=================================");
+
+        /* Check Supabase CDN */
+
+        if (typeof window.supabase === "undefined") {
+
+            console.error(
+                "❌ Supabase JavaScript library is NOT loaded."
+            );
+
+            return;
+        }
+
+        console.log(
+            "✓ Supabase JavaScript library loaded."
+        );
+
+
+        /* Check configuration */
+
+        if (
+            !window.SUPABASE_URL ||
+            !window.SUPABASE_KEY
+        ) {
+
+            console.error(
+                "❌ Supabase configuration is missing."
+            );
+
+            return;
+        }
+
+        console.log(
+            "✓ Supabase configuration loaded."
+        );
+
+
+        /* Check Supabase client */
+
+        if (!window.supabaseClient) {
+
+            console.error(
+                "❌ Supabase client was NOT initialized."
+            );
+
+            console.error(
+                "Check js/supabase.js."
+            );
+
+            return;
+        }
+
+        console.log(
+            "✓ Supabase client initialized."
+        );
+
+
+        /* Test authentication/session */
+
+        try {
+
+            const result =
+                await window.supabaseClient.auth.getSession();
+
+
+            if (result.error) {
+
+                console.error(
+                    "❌ Supabase connection/auth check failed."
+                );
+
+                console.error(result.error);
+
+                return;
+            }
+
+
+            console.log(
+                "✓ Supabase connection is working."
+            );
+
+
+            if (
+                result.data &&
+                result.data.session
+            ) {
+
+                console.log(
+                    "✓ User session detected."
+                );
+
+                console.log(
+                    "✓ Settings page is ready."
+                );
+
+            } else {
+
+                console.log(
+                    "ℹ No active session."
+                );
+
+                console.log(
+                    "Please login to use hotel settings."
+                );
+            }
+
+
+            console.log("=================================");
+
+        } catch (error) {
+
+            console.error(
+                "❌ Supabase connection test failed."
+            );
+
+            console.error(error);
+        }
+
+    });
+
+})();
+</script>
 
 </body>
 </html>
