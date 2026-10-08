@@ -1,173 +1,1409 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
 
+<head>
+
+    <meta charset="UTF-8">
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Guests - Star Hotels</title>
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
+    <title>Guests - Hotels</title>
 
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet"
     >
 
-    <!-- Existing Star Hotels CSS -->
-    <link
-        rel="stylesheet"
-        href="./css/style.css"
-    >
+    <!-- =========================================================
+         SUPABASE
+    ========================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <style>
+
+        /* =========================================================
+           RESET
+        ========================================================= */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: #f7f7fb;
+            color: #24212f;
+            font-size: 13px;
+        }
+
+        body.drawer-open {
+            overflow: hidden;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+
+        /* =========================================================
+           APP
+        ========================================================= */
+
+        .app {
+            min-height: 100vh;
+        }
+
+
+        /* =========================================================
+           SIDEBAR
+        ========================================================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 255px;
+            background: #17151f;
+            color: #fff;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .logo {
+            height: 72px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #6d4aff;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .logo-text strong {
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .logo-text span {
+            color: #aaa5b5;
+            font-size: 9px;
+            letter-spacing: 2.2px;
+            margin-top: 3px;
+        }
+
+
+        /* =========================================================
+           SIDEBAR NAV
+        ========================================================== */
+
+        .sidebar-nav {
+            padding: 18px 12px;
+            flex: 1;
+        }
+
+        .menu-title {
+            color: #777181;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            padding: 13px 12px 8px;
+        }
+
+        .nav-item {
+            min-height: 42px;
+            padding: 0 12px;
+            margin-bottom: 3px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #aaa6b4;
+            font-size: 12px;
+            font-weight: 500;
+            transition: 0.15s ease;
+        }
+
+        .nav-item:hover {
+            background: #24212f;
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: #6d4aff;
+            color: #fff;
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+
+        /* =========================================================
+           SIDEBAR FOOTER
+        ========================================================== */
+
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .hotel-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px;
+            background: #211e2a;
+            border-radius: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #21a366;
+            box-shadow: 0 0 0 4px rgba(33,163,102,0.12);
+            flex-shrink: 0;
+        }
+
+        .hotel-status div {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .hotel-status strong {
+            font-size: 10px;
+            color: #fff;
+        }
+
+        .hotel-status small {
+            font-size: 9px;
+            color: #817c8c;
+        }
+
+
+        /* =========================================================
+           MAIN
+        ========================================================== */
+
+        .main {
+            margin-left: 255px;
+            min-height: 100vh;
+        }
+
+
+        /* =========================================================
+           TOPBAR
+        ========================================================== */
+
+        .topbar {
+            height: 72px;
+            background: #fff;
+            border-bottom: 1px solid #e9e7ef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .topbar-left h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #24212f;
+            margin-bottom: 3px;
+        }
+
+        .topbar-left p {
+            color: #96929f;
+            font-size: 11px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .sidebar-link {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #e9e7ef;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #747181;
+            font-size: 16px;
+            background: #fff;
+        }
+
+        .sidebar-link:hover {
+            background: #f5f4f8;
+            color: #6d4aff;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 4px 7px 4px 4px;
+            border-radius: 8px;
+        }
+
+        .user-profile:hover {
+            background: #f7f7fb;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #eeeaff;
+            color: #6d4aff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .user-info strong {
+            font-size: 11px;
+            color: #24212f;
+        }
+
+        .user-info span {
+            font-size: 9px;
+            color: #96929f;
+        }
+
+        .mobile-menu {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border: 1px solid #e9e7ef;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 18px;
+            color: #24212f;
+        }
+
+
+        /* =========================================================
+           CONTENT
+        ========================================================== */
+
+        .content {
+            padding: 28px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .section-header p {
+            color: #96929f;
+            font-size: 11px;
+        }
+
+
+        /* =========================================================
+           BUTTONS
+        ========================================================== */
+
+        .primary-btn {
+            border: 0;
+            background: #6d4aff;
+            color: #fff;
+            min-height: 38px;
+            padding: 0 16px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 600;
+            transition: 0.15s ease;
+        }
+
+        .primary-btn:hover {
+            background: #5436d6;
+        }
+
+        .primary-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            border: 1px solid #e2e0e8;
+            background: #fff;
+            color: #45414f;
+            min-height: 38px;
+            padding: 0 16px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .secondary-btn:hover {
+            background: #f7f7fb;
+        }
+
+
+        /* =========================================================
+           STATS
+        ========================================================== */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border: 1px solid #e9e7ef;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            box-shadow: 0 2px 8px rgba(36,33,47,0.03);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.purple {
+            background: #f0ebff;
+            color: #8b5cf6;
+        }
+
+        .stat-icon.green {
+            background: #eaf8f0;
+            color: #21a366;
+        }
+
+        .stat-icon.blue {
+            background: #edf3ff;
+            color: #3d7eff;
+        }
+
+        .stat-icon.orange {
+            background: #fff5df;
+            color: #f59e0b;
+        }
+
+        .stat-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-content span {
+            color: #96929f;
+            font-size: 10px;
+        }
+
+        .stat-content strong {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+
+        /* =========================================================
+           CARD
+        ========================================================== */
+
+        .table-card {
+            background: #fff;
+            border: 1px solid #e9e7ef;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(36,33,47,0.03);
+        }
+
+        .card-header {
+            padding: 17px 20px;
+            border-bottom: 1px solid #e9e7ef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-header h3 {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .card-header p {
+            color: #96929f;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+
+        /* =========================================================
+           SEARCH / FILTERS
+        ========================================================== */
+
+        .filter-bar {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9e7ef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 430px;
+            height: 38px;
+            padding: 0 13px;
+            border: 1px solid #e2e0e8;
+            border-radius: 7px;
+            background: #fff;
+            outline: none;
+            font-size: 11px;
+            color: #24212f;
+        }
+
+        .filter-select {
+            height: 38px;
+            min-width: 140px;
+            padding: 0 11px;
+            border: 1px solid #e2e0e8;
+            border-radius: 7px;
+            background: #fff;
+            outline: none;
+            font-size: 11px;
+            color: #24212f;
+        }
+
+        .search-input:focus,
+        .filter-select:focus {
+            border-color: #6d4aff;
+            box-shadow: 0 0 0 3px rgba(109,74,255,0.08);
+        }
+
+        .filter-result {
+            margin-left: auto;
+            color: #96929f;
+            font-size: 10px;
+        }
+
+
+        /* =========================================================
+           TABLE
+        ========================================================== */
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        .data-table th {
+            background: #fafafd;
+            color: #747181;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 700;
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9e7ef;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 13px 15px;
+            border-bottom: 1px solid #f0eef4;
+            font-size: 11px;
+            color: #45414f;
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:hover {
+            background: #faf9fd;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .data-table td strong {
+            color: #24212f;
+            font-weight: 600;
+        }
+
+        .table-primary-text {
+            color: #24212f;
+            font-weight: 500;
+        }
+
+        .table-secondary-text {
+            color: #747181;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+
+        /* =========================================================
+           GUEST NAME
+        ========================================================== */
+
+        .guest-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .guest-avatar-small {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #eeeaff;
+            color: #6d4aff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .guest-name-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .guest-name-info strong {
+            font-size: 11px;
+        }
+
+        .guest-name-info small {
+            font-size: 9px;
+            color: #96929f;
+        }
+
+
+        /* =========================================================
+           ID CELL
+        ========================================================== */
+
+        .id-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .id-cell strong {
+            font-size: 10px;
+        }
+
+        .id-cell small {
+            color: #96929f;
+            font-size: 9px;
+        }
+
+
+        /* =========================================================
+           ACTION BUTTONS
+        ========================================================== */
+
+        .guest-action-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .table-action {
+            border: 1px solid #e2e0e8;
+            background: #fff;
+            min-height: 28px;
+            padding: 0 9px;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .table-action.edit {
+            color: #6d4aff;
+        }
+
+        .table-action.edit:hover {
+            background: #f0ebff;
+            border-color: #dcd2ff;
+        }
+
+        .table-action.delete {
+            color: #ef4444;
+        }
+
+        .table-action.delete:hover {
+            background: #fff0f0;
+            border-color: #ffd8d8;
+        }
+
+
+        /* =========================================================
+           EMPTY / LOADING
+        ========================================================== */
+
+        .guest-empty {
+            text-align: center;
+            padding: 55px 20px !important;
+            color: #96929f !important;
+        }
+
+        .guest-empty strong {
+            display: block;
+            margin-top: 8px;
+            color: #45414f;
+            font-size: 12px;
+        }
+
+        .guest-empty span {
+            display: block;
+            margin-top: 4px;
+            color: #96929f;
+            font-size: 10px;
+        }
+
+        .guest-table-empty-icon {
+            width: 44px;
+            height: 44px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background: #f0ebff;
+            color: #6d4aff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .table-loading {
+            text-align: center;
+            padding: 50px 20px !important;
+            color: #96929f !important;
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            margin: 0 auto 10px;
+            border: 3px solid #eeeaff;
+            border-top-color: #6d4aff;
+            border-radius: 50%;
+            animation: guestSpin 0.8s linear infinite;
+        }
+
+        @keyframes guestSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+
+        /* =========================================================
+           DRAWER
+        ========================================================== */
+
+        .guest-drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(20,18,28,0.45);
+            z-index: 1090;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.2s ease;
+        }
+
+        .guest-drawer-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .guest-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 480px;
+            max-width: 100%;
+            background: #fff;
+            z-index: 1100;
+            transform: translateX(100%);
+            transition: transform 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -8px 0 30px rgba(36,33,47,0.12);
+        }
+
+        .guest-drawer.show {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            min-height: 72px;
+            padding: 0 22px;
+            border-bottom: 1px solid #e9e7ef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .drawer-header h3 {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .drawer-header p {
+            margin-top: 3px;
+            color: #96929f;
+            font-size: 10px;
+        }
+
+        .drawer-close {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #e2e0e8;
+            border-radius: 7px;
+            background: #fff;
+            color: #747181;
+            font-size: 18px;
+        }
+
+        .drawer-close:hover {
+            background: #f7f7fb;
+            color: #24212f;
+        }
+
+        .drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px;
+        }
+
+        .form-section-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #6d4aff;
+            font-weight: 700;
+            margin-bottom: 13px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 10px;
+            color: #747181;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 39px;
+            padding: 0 11px;
+            border: 1px solid #e2e0e8;
+            border-radius: 7px;
+            outline: none;
+            background: #fff;
+            color: #24212f;
+            font-size: 11px;
+        }
+
+        textarea.form-control {
+            height: 85px;
+            padding: 10px 11px;
+            resize: vertical;
+        }
+
+        .form-control:focus {
+            border-color: #6d4aff;
+            box-shadow: 0 0 0 3px rgba(109,74,255,0.08);
+        }
+
+        .drawer-footer {
+            min-height: 72px;
+            padding: 14px 22px;
+            border-top: 1px solid #e9e7ef;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 9px;
+            flex-shrink: 0;
+        }
+
+
+        /* =========================================================
+           TOAST
+        ========================================================== */
+
+        .star-toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 2000;
+            min-width: 260px;
+            max-width: 420px;
+            padding: 13px 15px;
+            border-radius: 9px;
+            background: #24212f;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(36,33,47,0.18);
+            font-size: 11px;
+            animation: toastIn 0.2s ease;
+        }
+
+        .star-toast.success {
+            background: #21a366;
+        }
+
+        .star-toast.hide {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: 0.25s ease;
+        }
+
+        .toast-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.18);
+            font-weight: 700;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =========================================================
+           MOBILE SIDEBAR
+        ========================================================== */
+
+        .sidebar-backdrop {
+            display: none;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================== */
+
+        @media (max-width: 1100px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+
+        @media (max-width: 768px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.45);
+                z-index: 999;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .mobile-menu {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .topbar-left h1 {
+                font-size: 16px;
+            }
+
+            .topbar-left p {
+                display: none;
+            }
+
+            .user-info,
+            .sidebar-link {
+                display: none;
+            }
+
+            .content {
+                padding: 18px 14px;
+            }
+
+            .section-header {
+                align-items: flex-start;
+            }
+
+            .section-header h2 {
+                font-size: 18px;
+            }
+
+            .filter-bar {
+                padding: 12px;
+            }
+
+            .search-input {
+                max-width: none;
+                flex: 1 1 100%;
+            }
+
+            .filter-result {
+                margin-left: 0;
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .guest-drawer {
+                width: 100%;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+        }
+
+
+        @media (max-width: 480px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+            }
+
+            .section-header .primary-btn {
+                width: 100%;
+            }
+
+            .topbar {
+                height: 64px;
+            }
+
+            .topbar-left h1 {
+                font-size: 14px;
+            }
+
+            .content {
+                padding: 14px 10px;
+            }
+
+            .card-header {
+                padding: 14px;
+            }
+
+            .guest-action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+        }
+
+
+        /* =========================================================
+           PRINT
+        ========================================================== */
+
+        @media print {
+
+            .sidebar,
+            .topbar,
+            .section-header,
+            .filter-bar,
+            .sidebar-backdrop,
+            .guest-drawer,
+            .guest-drawer-overlay {
+                display: none !important;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .content {
+                padding: 0;
+            }
+
+            .table-card {
+                border: 0;
+                box-shadow: none;
+            }
+
+        }
+
+    </style>
+
 </head>
 
+
 <body>
+
+<div class="app">
+
 
     <!-- =========================================================
          SIDEBAR
     ========================================================== -->
 
-    <aside class="sidebar" id="sidebar">
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
 
-        <div class="sidebar-logo">
+        <div class="logo">
+
             <div class="logo-icon">
                 ★
             </div>
 
-            <div>
-                <div class="logo-title">
-                    Star Hotels
-                </div>
+            <div class="logo-text">
 
-                <div class="logo-subtitle">
-                    Hotel Management
-                </div>
+                <strong>
+                    HOTELS
+                </strong>
+
+                <span></span>
+
             </div>
+
         </div>
 
 
         <nav class="sidebar-nav">
 
+            <div class="menu-title">
+                MAIN
+            </div>
+
+
             <a
-                href="./index.html"
+                href="index.html"
                 class="nav-item"
             >
-                <span class="nav-icon">⌂</span>
-                <span>Dashboard</span>
+                <span class="nav-icon">
+                    ▦
+                </span>
+                Dashboard
             </a>
 
 
             <a
-                href="./bookings.html"
+                href="bookings.html"
                 class="nav-item"
             >
-                <span class="nav-icon">▣</span>
-                <span>Bookings</span>
+                <span class="nav-icon">
+                    ▣
+                </span>
+                Bookings
             </a>
 
 
             <a
-                href="./guests.html"
+                href="guests.html"
                 class="nav-item active"
             >
-                <span class="nav-icon">♙</span>
-                <span>Guests</span>
+                <span class="nav-icon">
+                    ♙
+                </span>
+                Guests
             </a>
 
 
             <a
-                href="./rooms.html"
+                href="rooms.html"
                 class="nav-item"
             >
-                <span class="nav-icon">▤</span>
-                <span>Rooms</span>
+                <span class="nav-icon">
+                    ▤
+                </span>
+                Rooms
             </a>
 
 
             <a
-                href="./stays.html"
+                href="stays.html"
                 class="nav-item"
             >
-                <span class="nav-icon">⌂</span>
-                <span>Stays</span>
+                <span class="nav-icon">
+                    ⌂
+                </span>
+                Check-in & Stays
+            </a>
+
+
+            <div class="menu-title">
+                SERVICES
+            </div>
+
+
+            <a
+                href="restaurant.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">
+                    ♨
+                </span>
+                Restaurant
             </a>
 
 
             <a
-                href="./restaurant.html"
+                href="orders.html"
                 class="nav-item"
             >
-                <span class="nav-icon">☕</span>
-                <span>Restaurant</span>
+                <span class="nav-icon">
+                    ☷
+                </span>
+                Orders
             </a>
 
 
             <a
-                href="./orders.html"
+                href="billing.html"
                 class="nav-item"
             >
-                <span class="nav-icon">☷</span>
-                <span>Orders</span>
+                <span class="nav-icon">
+                    ▤
+                </span>
+                Billing
             </a>
 
 
             <a
-                href="./billing.html"
+                href="invoices.html"
                 class="nav-item"
             >
-                <span class="nav-icon">₹</span>
-                <span>Billing</span>
+                <span class="nav-icon">
+                    ▥
+                </span>
+                Invoices
+            </a>
+
+
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+
+            <a
+                href="reports.html"
+                class="nav-item"
+            >
+                <span class="nav-icon">
+                    ▥
+                </span>
+                Reports
             </a>
 
 
             <a
-                href="./invoices.html"
+                href="settings.html"
                 class="nav-item"
             >
-                <span class="nav-icon">▤</span>
-                <span>Invoices</span>
-            </a>
-
-
-            <a
-                href="./reports.html"
-                class="nav-item"
-            >
-                <span class="nav-icon">▥</span>
-                <span>Reports</span>
-            </a>
-
-
-            <a
-                href="./settings.html"
-                class="nav-item"
-            >
-                <span class="nav-icon">⚙</span>
-                <span>Settings</span>
+                <span class="nav-icon">
+                    ⚙
+                </span>
+                Settings
             </a>
 
         </nav>
 
+
+        <div class="sidebar-footer">
+
+            <div class="hotel-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+
+                    <strong>
+                        System Online
+                    </strong>
+
+                    <small>
+                        All services running
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </aside>
 
 
+    <div
+        id="sidebarBackdrop"
+        class="sidebar-backdrop"
+    ></div>
+
+
     <!-- =========================================================
-         MAIN CONTENT
+         MAIN
     ========================================================== -->
 
-    <main class="main-content">
+    <main class="main">
+
 
         <!-- =====================================================
              TOPBAR
@@ -175,57 +1411,70 @@
 
         <header class="topbar">
 
-            <button
-                type="button"
-                class="mobile-menu-btn"
-                id="mobileMenu"
-                aria-label="Open menu"
-            >
-                ☰
-            </button>
-
-
             <div class="topbar-left">
-                <h1>
-                    Guests
-                </h1>
 
-                <p>
-                    Manage hotel guests and their information
-                </p>
+                <button
+                    id="mobileMenu"
+                    class="mobile-menu"
+                    type="button"
+                    aria-label="Open menu"
+                >
+                    ☰
+                </button>
+
+
+                <div>
+
+                    <h1>
+                        Guests
+                    </h1>
+
+                    <p>
+                        Manage guest profiles and information
+                    </p>
+
+                </div>
+
             </div>
 
 
             <div class="topbar-right">
 
-                <div class="top-user">
+                <a
+                    href="settings.html"
+                    class="sidebar-link"
+                    title="Settings"
+                >
+                    ⚙
+                </a>
+
+
+                <a
+                    href="settings.html"
+                    class="user-profile"
+                >
 
                     <div
-                        class="top-user-avatar"
+                        class="avatar"
                         id="topUserInitial"
                     >
                         U
                     </div>
 
-                    <div class="top-user-info">
 
-                        <div
-                            class="top-user-name"
-                            id="topUserName"
-                        >
+                    <div class="user-info">
+
+                        <strong id="topUserName">
                             User
-                        </div>
+                        </strong>
 
-                        <div
-                            class="top-hotel-name"
-                            id="topHotelName"
-                        >
-                            Star Hotels
-                        </div>
+                        <span id="topHotelName">
+                            Hotel Manager
+                        </span>
 
                     </div>
 
-                </div>
+                </a>
 
             </div>
 
@@ -233,30 +1482,35 @@
 
 
         <!-- =====================================================
-             PAGE CONTENT
+             CONTENT
         ====================================================== -->
 
-        <section class="page-content">
+        <section class="content">
 
-            <!-- Page Heading -->
 
-            <div class="page-header">
+            <!-- =================================================
+                 PAGE HEADER
+            ================================================== -->
+
+            <div class="section-header">
 
                 <div>
+
                     <h2>
                         Guest Management
                     </h2>
 
                     <p>
-                        Add, edit and manage your hotel guests.
+                        Create, update and manage guest profiles
                     </p>
+
                 </div>
 
 
                 <button
-                    type="button"
-                    class="primary-button"
                     id="addGuestBtn"
+                    type="button"
+                    class="primary-btn"
                 >
                     + Add Guest
                 </button>
@@ -265,29 +1519,27 @@
 
 
             <!-- =================================================
-                 STAT CARDS
+                 STATS
             ================================================== -->
 
             <div class="stats-grid">
 
+
                 <div class="stat-card">
 
-                    <div class="stat-card-icon">
-                        👥
+                    <div class="stat-icon purple">
+                        ♙
                     </div>
 
-                    <div class="stat-card-content">
+                    <div class="stat-content">
 
-                        <div class="stat-card-label">
+                        <span>
                             Total Guests
-                        </div>
+                        </span>
 
-                        <div
-                            class="stat-card-value"
-                            id="totalGuestsCount"
-                        >
+                        <strong id="totalGuestsCount">
                             0
-                        </div>
+                        </strong>
 
                     </div>
 
@@ -296,22 +1548,19 @@
 
                 <div class="stat-card">
 
-                    <div class="stat-card-icon">
-                        📱
+                    <div class="stat-icon green">
+                        ☎
                     </div>
 
-                    <div class="stat-card-content">
+                    <div class="stat-content">
 
-                        <div class="stat-card-label">
-                            Guests With Phone
-                        </div>
+                        <span>
+                            With Phone
+                        </span>
 
-                        <div
-                            class="stat-card-value"
-                            id="guestsWithPhoneCount"
-                        >
+                        <strong id="guestsWithPhoneCount">
                             0
-                        </div>
+                        </strong>
 
                     </div>
 
@@ -320,22 +1569,19 @@
 
                 <div class="stat-card">
 
-                    <div class="stat-card-icon">
+                    <div class="stat-icon blue">
                         ✉
                     </div>
 
-                    <div class="stat-card-content">
+                    <div class="stat-content">
 
-                        <div class="stat-card-label">
-                            Guests With Email
-                        </div>
+                        <span>
+                            With Email
+                        </span>
 
-                        <div
-                            class="stat-card-value"
-                            id="guestsWithEmailCount"
-                        >
+                        <strong id="guestsWithEmailCount">
                             0
-                        </div>
+                        </strong>
 
                     </div>
 
@@ -344,22 +1590,19 @@
 
                 <div class="stat-card">
 
-                    <div class="stat-card-icon">
-                        🇮🇳
+                    <div class="stat-icon orange">
+                        IN
                     </div>
 
-                    <div class="stat-card-content">
+                    <div class="stat-content">
 
-                        <div class="stat-card-label">
+                        <span>
                             Indian Guests
-                        </div>
+                        </span>
 
-                        <div
-                            class="stat-card-value"
-                            id="indianGuestsCount"
-                        >
+                        <strong id="indianGuestsCount">
                             0
-                        </div>
+                        </strong>
 
                     </div>
 
@@ -369,85 +1612,95 @@
 
 
             <!-- =================================================
-                 GUEST TABLE CARD
+                 GUEST TABLE
             ================================================== -->
 
-            <div class="content-card">
+            <div class="table-card">
 
-                <!-- Filters -->
 
-                <div class="table-toolbar">
+                <div class="card-header">
 
-                    <div class="search-box">
+                    <div>
 
-                        <span class="search-icon">
-                            🔍
-                        </span>
+                        <h3>
+                            Guest Directory
+                        </h3>
 
-                        <input
-                            type="text"
-                            id="guestSearch"
-                            placeholder="Search guests by name, phone or email..."
-                            autocomplete="off"
-                        >
+                        <p>
+                            All guests registered in your hotel
+                        </p>
 
                     </div>
 
 
-                    <div class="filter-group">
-
-                        <select
-                            id="guestGenderFilter"
-                        >
-                            <option value="">
-                                All Genders
-                            </option>
-
-                            <option value="Male">
-                                Male
-                            </option>
-
-                            <option value="Female">
-                                Female
-                            </option>
-
-                            <option value="Other">
-                                Other
-                            </option>
-                        </select>
-
-
-                        <button
-                            type="button"
-                            class="secondary-button"
-                            id="clearGuestFilters"
-                        >
-                            Clear
-                        </button>
-
-                    </div>
+                    <button
+                        id="emptyAddGuestBtn"
+                        type="button"
+                        class="primary-btn small-btn"
+                    >
+                        + Add Guest
+                    </button>
 
                 </div>
 
 
-                <!-- Table Header -->
+                <!-- FILTERS -->
 
-                <div class="table-header-row">
+                <div class="filter-bar">
 
-                    <div>
-                        <strong>Guests</strong>
-                    </div>
+                    <input
+                        type="text"
+                        id="guestSearch"
+                        class="search-input"
+                        placeholder="Search guest, phone, email, city or ID..."
+                        autocomplete="off"
+                    >
 
-                    <div>
-                        <span id="guestResultCount">
-                            0 guests
-                        </span>
-                    </div>
+
+                    <select
+                        id="guestGenderFilter"
+                        class="filter-select"
+                    >
+
+                        <option value="">
+                            All genders
+                        </option>
+
+                        <option value="Male">
+                            Male
+                        </option>
+
+                        <option value="Female">
+                            Female
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+
+                    <button
+                        id="clearGuestFilters"
+                        type="button"
+                        class="secondary-btn"
+                    >
+                        Clear
+                    </button>
+
+
+                    <span
+                        id="guestResultCount"
+                        class="filter-result"
+                    >
+                        0 guests
+                    </span>
 
                 </div>
 
 
-                <!-- Guest Table -->
+                <!-- TABLE -->
 
                 <div class="table-responsive">
 
@@ -470,18 +1723,14 @@
                                 </th>
 
                                 <th>
-                                    Gender
-                                </th>
-
-                                <th>
-                                    Nationality
-                                </th>
-
-                                <th>
                                     ID
                                 </th>
 
                                 <th>
+                                    City
+                                </th>
+
+                                <th class="text-right">
                                     Actions
                                 </th>
 
@@ -492,7 +1741,20 @@
 
                         <tbody id="guestsTableBody">
 
-                            <!-- Guests are loaded by guests.js -->
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="table-loading"
+                                >
+
+                                    <div class="loading-spinner"></div>
+
+                                    Loading guests...
+
+                                </td>
+
+                            </tr>
 
                         </tbody>
 
@@ -501,697 +1763,662 @@
                 </div>
 
 
-                <!-- Empty State -->
-
                 <div
-                    class="empty-state"
                     id="guestEmptyState"
-                    style="display: none;"
-                >
-
-                    <div class="empty-state-icon">
-                        👥
-                    </div>
-
-                    <h3>
-                        No guests found
-                    </h3>
-
-                    <p>
-                        There are no guests matching your current search or filters.
-                    </p>
-
-                    <button
-                        type="button"
-                        class="primary-button"
-                        id="emptyAddGuestBtn"
-                    >
-                        + Add Guest
-                    </button>
-
-                </div>
+                    class="hidden"
+                ></div>
 
             </div>
+
 
         </section>
 
     </main>
 
-
-    <!-- =========================================================
-         GUEST DRAWER OVERLAY
-    ========================================================== -->
-
-    <div
-        class="drawer-overlay"
-        id="guestDrawerOverlay"
-    ></div>
+</div>
 
 
-    <!-- =========================================================
-         GUEST DRAWER
-    ========================================================== -->
+<!-- =========================================================
+     GUEST DRAWER OVERLAY
+========================================================== -->
 
-    <aside
-        class="side-drawer"
-        id="guestDrawer"
-    >
+<div
+    id="guestDrawerOverlay"
+    class="guest-drawer-overlay"
+></div>
 
-        <div class="drawer-header">
 
-            <div>
+<!-- =========================================================
+     GUEST DRAWER
+========================================================== -->
 
-                <h2 id="guestDrawerTitle">
-                    Add Guest
-                </h2>
+<aside
+    id="guestDrawer"
+    class="guest-drawer"
+    aria-hidden="true"
+>
 
-                <p>
-                    Enter guest information
-                </p>
+
+    <div class="drawer-header">
+
+        <div>
+
+            <h3 id="guestDrawerTitle">
+                Add Guest
+            </h3>
+
+            <p>
+                Enter guest information
+            </p>
+
+        </div>
+
+
+        <button
+            id="closeGuestDrawer"
+            type="button"
+            class="drawer-close"
+            aria-label="Close"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <div class="drawer-body">
+
+
+        <!-- =====================================================
+             BASIC INFORMATION
+        ====================================================== -->
+
+        <div class="form-section-title">
+            Basic Information
+        </div>
+
+
+        <div class="form-grid">
+
+            <input
+                type="hidden"
+                id="guestId"
+            >
+
+
+            <div class="form-group full">
+
+                <label for="guestName">
+                    Full Name *
+                </label>
+
+                <input
+                    type="text"
+                    id="guestName"
+                    class="form-control"
+                    placeholder="Enter guest full name"
+                    autocomplete="name"
+                >
 
             </div>
 
 
-            <button
-                type="button"
-                class="drawer-close"
-                id="closeGuestDrawer"
-                aria-label="Close"
-            >
-                ×
-            </button>
+            <div class="form-group">
+
+                <label for="guestPhone">
+                    Phone
+                </label>
+
+                <input
+                    type="tel"
+                    id="guestPhone"
+                    class="form-control"
+                    placeholder="Phone number"
+                    autocomplete="tel"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="guestEmail">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="guestEmail"
+                    class="form-control"
+                    placeholder="Email address"
+                    autocomplete="email"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="guestGender">
+                    Gender
+                </label>
+
+                <select
+                    id="guestGender"
+                    class="form-control"
+                >
+
+                    <option value="">
+                        Select gender
+                    </option>
+
+                    <option value="Male">
+                        Male
+                    </option>
+
+                    <option value="Female">
+                        Female
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="guestDateOfBirth">
+                    Date of Birth
+                </label>
+
+                <input
+                    type="date"
+                    id="guestDateOfBirth"
+                    class="form-control"
+                >
+
+            </div>
 
         </div>
 
 
         <!-- =====================================================
-             GUEST FORM
+             IDENTITY
         ====================================================== -->
 
-        <form
-            id="guestForm"
-            autocomplete="off"
-        >
-
-            <!-- Hidden Guest ID -->
-
-            <input
-                type="hidden"
-                id="guestId"
-                name="guestId"
-            >
+        <div class="form-section-title">
+            Identity
+        </div>
 
 
-            <!-- =================================================
-                 BASIC INFORMATION
-            ================================================== -->
+        <div class="form-grid">
 
-            <div class="form-section">
+            <div class="form-group">
 
-                <div class="form-section-title">
-                    Basic Information
-                </div>
+                <label for="guestIdType">
+                    ID Type
+                </label>
 
+                <select
+                    id="guestIdType"
+                    class="form-control"
+                >
 
-                <div class="form-grid">
+                    <option value="">
+                        Select ID type
+                    </option>
 
-                    <!-- Name -->
+                    <option value="Aadhaar">
+                        Aadhaar
+                    </option>
 
-                    <div class="form-group full-width">
+                    <option value="Passport">
+                        Passport
+                    </option>
 
-                        <label for="guestName">
-                            Full Name
-                            <span class="required">*</span>
-                        </label>
+                    <option value="Driving Licence">
+                        Driving Licence
+                    </option>
 
-                        <input
-                            type="text"
-                            id="guestName"
-                            name="guestName"
-                            placeholder="Enter guest full name"
-                            required
-                        >
+                    <option value="Voter ID">
+                        Voter ID
+                    </option>
 
-                    </div>
+                    <option value="PAN">
+                        PAN
+                    </option>
 
+                    <option value="Other">
+                        Other
+                    </option>
 
-                    <!-- Phone -->
-
-                    <div class="form-group">
-
-                        <label for="guestPhone">
-                            Phone
-                        </label>
-
-                        <input
-                            type="tel"
-                            id="guestPhone"
-                            name="guestPhone"
-                            placeholder="Enter phone number"
-                        >
-
-                    </div>
-
-
-                    <!-- Email -->
-
-                    <div class="form-group">
-
-                        <label for="guestEmail">
-                            Email
-                        </label>
-
-                        <input
-                            type="email"
-                            id="guestEmail"
-                            name="guestEmail"
-                            placeholder="Enter email address"
-                        >
-
-                    </div>
-
-
-                    <!-- Gender -->
-
-                    <div class="form-group">
-
-                        <label for="guestGender">
-                            Gender
-                        </label>
-
-                        <select
-                            id="guestGender"
-                            name="guestGender"
-                        >
-
-                            <option value="">
-                                Select gender
-                            </option>
-
-                            <option value="Male">
-                                Male
-                            </option>
-
-                            <option value="Female">
-                                Female
-                            </option>
-
-                            <option value="Other">
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Date of Birth -->
-
-                    <div class="form-group">
-
-                        <label for="guestDateOfBirth">
-                            Date of Birth
-                        </label>
-
-                        <input
-                            type="date"
-                            id="guestDateOfBirth"
-                            name="guestDateOfBirth"
-                        >
-
-                    </div>
-
-                </div>
+                </select>
 
             </div>
 
 
-            <!-- =================================================
-                 IDENTITY INFORMATION
-            ================================================== -->
+            <div class="form-group">
 
-            <div class="form-section">
+                <label for="guestIdNumber">
+                    ID Number
+                </label>
 
-                <div class="form-section-title">
-                    Identity Information
-                </div>
-
-
-                <div class="form-grid">
-
-                    <!-- ID Type -->
-
-                    <div class="form-group">
-
-                        <label for="guestIdType">
-                            ID Type
-                        </label>
-
-                        <select
-                            id="guestIdType"
-                            name="guestIdType"
-                        >
-
-                            <option value="">
-                                Select ID type
-                            </option>
-
-                            <option value="Aadhaar">
-                                Aadhaar
-                            </option>
-
-                            <option value="Passport">
-                                Passport
-                            </option>
-
-                            <option value="Driving License">
-                                Driving License
-                            </option>
-
-                            <option value="Voter ID">
-                                Voter ID
-                            </option>
-
-                            <option value="PAN Card">
-                                PAN Card
-                            </option>
-
-                            <option value="Other">
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- ID Number -->
-
-                    <div class="form-group">
-
-                        <label for="guestIdNumber">
-                            ID Number
-                        </label>
-
-                        <input
-                            type="text"
-                            id="guestIdNumber"
-                            name="guestIdNumber"
-                            placeholder="Enter ID number"
-                        >
-
-                    </div>
-
-
-                    <!-- Nationality -->
-
-                    <div class="form-group full-width">
-
-                        <label for="guestNationality">
-                            Nationality
-                        </label>
-
-                        <input
-                            type="text"
-                            id="guestNationality"
-                            name="guestNationality"
-                            placeholder="e.g. Indian"
-                        >
-
-                    </div>
-
-                </div>
+                <input
+                    type="text"
+                    id="guestIdNumber"
+                    class="form-control"
+                    placeholder="ID number"
+                >
 
             </div>
 
 
-            <!-- =================================================
-                 ADDRESS
-            ================================================== -->
+            <div class="form-group">
 
-            <div class="form-section">
+                <label for="guestNationality">
+                    Nationality
+                </label>
 
-                <div class="form-section-title">
+                <input
+                    type="text"
+                    id="guestNationality"
+                    class="form-control"
+                    value="Indian"
+                    placeholder="Nationality"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             ADDRESS
+        ====================================================== -->
+
+        <div class="form-section-title">
+            Address
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="form-group full">
+
+                <label for="guestAddress">
                     Address
-                </div>
+                </label>
 
-
-                <div class="form-grid">
-
-                    <!-- Address -->
-
-                    <div class="form-group full-width">
-
-                        <label for="guestAddress">
-                            Address
-                        </label>
-
-                        <textarea
-                            id="guestAddress"
-                            name="guestAddress"
-                            rows="3"
-                            placeholder="Enter address"
-                        ></textarea>
-
-                    </div>
-
-
-                    <!-- City -->
-
-                    <div class="form-group">
-
-                        <label for="guestCity">
-                            City
-                        </label>
-
-                        <input
-                            type="text"
-                            id="guestCity"
-                            name="guestCity"
-                            placeholder="Enter city"
-                        >
-
-                    </div>
-
-
-                    <!-- State -->
-
-                    <div class="form-group">
-
-                        <label for="guestState">
-                            State
-                        </label>
-
-                        <input
-                            type="text"
-                            id="guestState"
-                            name="guestState"
-                            placeholder="Enter state"
-                        >
-
-                    </div>
-
-
-                    <!-- Country -->
-
-                    <div class="form-group full-width">
-
-                        <label for="guestCountry">
-                            Country
-                        </label>
-
-                        <input
-                            type="text"
-                            id="guestCountry"
-                            name="guestCountry"
-                            value="India"
-                            placeholder="Enter country"
-                        >
-
-                    </div>
-
-                </div>
+                <textarea
+                    id="guestAddress"
+                    class="form-control"
+                    placeholder="Street / house address"
+                ></textarea>
 
             </div>
 
 
-            <!-- =================================================
-                 NOTES
-            ================================================== -->
+            <div class="form-group">
 
-            <div class="form-section">
+                <label for="guestCity">
+                    City
+                </label>
 
-                <div class="form-section-title">
-                    Notes
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="guestNotes">
-                        Additional Notes
-                    </label>
-
-                    <textarea
-                        id="guestNotes"
-                        name="guestNotes"
-                        rows="4"
-                        placeholder="Enter any additional information about the guest"
-                    ></textarea>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 FORM FOOTER
-            ================================================== -->
-
-            <div class="drawer-footer">
-
-                <button
-                    type="button"
-                    class="secondary-button"
-                    id="cancelGuestButton"
+                <input
+                    type="text"
+                    id="guestCity"
+                    class="form-control"
+                    placeholder="City"
                 >
-                    Cancel
-                </button>
-
-
-                <button
-                    type="submit"
-                    class="primary-button"
-                    id="saveGuestButton"
-                >
-                    Save Guest
-                </button>
 
             </div>
 
-        </form>
 
-    </aside>
+            <div class="form-group">
 
+                <label for="guestState">
+                    State
+                </label>
 
-    <!-- =========================================================
-         SUPABASE
-    ========================================================== -->
+                <input
+                    type="text"
+                    id="guestState"
+                    class="form-control"
+                    placeholder="State"
+                >
 
-    <!--
-        IMPORTANT:
-        Do NOT use ./js/config.js here.
-
-        GitHub Pages previously tried to load:
-        http://hotel.co.in/js/config.js
-
-        That caused a Mixed Content error.
-
-        The configuration is now loaded directly using HTTPS.
-    -->
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+            </div>
 
 
-    <!-- =========================================================
-         STAR HOTELS INLINE SUPABASE CONFIGURATION
-    ========================================================== -->
+            <div class="form-group">
 
-    <script>
-        (function () {
-            "use strict";
+                <label for="guestCountry">
+                    Country
+                </label>
 
-            window.SUPABASE_URL =
-                "https://hrnstfsldgrwkyporytg.supabase.co";
+                <input
+                    type="text"
+                    id="guestCountry"
+                    class="form-control"
+                    value="India"
+                    placeholder="Country"
+                >
 
-            window.SUPABASE_KEY =
-                "sb_publishable_qRadst_H3W0sWwVKOrl3Eg_jYIbigZi";
+            </div>
 
-            window.STAR_HOTELS_CONFIG_READY = true;
-
-            window.STAR_HOTELS_CONFIG = {
-                supabaseUrl: window.SUPABASE_URL,
-                isReady: true
-            };
-
-            console.log("=================================");
-            console.log("STAR HOTELS - GUESTS CONFIGURATION");
-            console.log("=================================");
-
-            console.log("✓ SUPABASE_URL loaded");
-            console.log("✓ SUPABASE_KEY loaded");
-            console.log("✓ Supabase configuration is ready.");
-        })();
-    </script>
+        </div>
 
 
-    <!-- =========================================================
-         SUPABASE CLIENT
-    ========================================================== -->
+        <!-- =====================================================
+             NOTES
+        ====================================================== -->
 
-    <script src="https://fadilali10.github.io/hotel/js/supabase.js"></script>
-
-
-    <!-- =========================================================
-         GUESTS JAVASCRIPT
-    ========================================================== -->
-
-    <script src="https://fadilali10.github.io/hotel/js/guests.js"></script>
+        <div class="form-section-title">
+            Notes
+        </div>
 
 
-    <!-- =========================================================
-         FINAL CONNECTION CHECK
-    ========================================================== -->
+        <div class="form-grid">
 
-    <script>
-        (function () {
-            "use strict";
+            <div class="form-group full">
 
-            window.addEventListener("load", async function () {
+                <label for="guestNotes">
+                    Additional Notes
+                </label>
 
-                console.log("=================================");
-                console.log("STAR HOTELS - GUESTS CONNECTION CHECK");
-                console.log("=================================");
+                <textarea
+                    id="guestNotes"
+                    class="form-control"
+                    placeholder="Any additional guest information..."
+                ></textarea>
+
+            </div>
+
+        </div>
+
+    </div>
 
 
-                /* -----------------------------------------------
-                   CHECK SUPABASE LIBRARY
-                ------------------------------------------------ */
+    <!-- =====================================================
+         DRAWER FOOTER
+    ====================================================== -->
 
-                if (typeof window.supabase === "undefined") {
+    <div class="drawer-footer">
+
+        <button
+            id="cancelGuestButton"
+            type="button"
+            class="secondary-btn"
+        >
+            Cancel
+        </button>
+
+
+        <button
+            id="saveGuestButton"
+            type="button"
+            class="primary-btn"
+        >
+            Save Guest
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- =========================================================
+     INLINE SUPABASE CONFIGURATION
+
+     IMPORTANT:
+     Do NOT use ./js/config.js
+========================================================== -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    window.SUPABASE_URL =
+        "https://hrnstfsldgrwkyporytg.supabase.co";
+
+
+    window.SUPABASE_KEY =
+        "sb_publishable_qRadst_H3W0sWwVKOrl3Eg_jYIbigZi";
+
+
+    window.STAR_HOTELS_CONFIG_READY = true;
+
+
+    window.STAR_HOTELS_CONFIG = {
+
+        supabaseUrl:
+            window.SUPABASE_URL,
+
+        isReady:
+            true
+
+    };
+
+
+    console.log(
+        "================================="
+    );
+
+    console.log(
+        "STAR HOTELS - GUESTS CONFIGURATION"
+    );
+
+    console.log(
+        "================================="
+    );
+
+    console.log(
+        "✓ SUPABASE_URL loaded"
+    );
+
+    console.log(
+        "✓ SUPABASE_KEY loaded"
+    );
+
+    console.log(
+        "✓ Supabase configuration is ready."
+    );
+
+})();
+
+</script>
+
+
+<!-- =========================================================
+     SUPABASE INITIALIZATION
+
+     Absolute HTTPS path is intentional.
+========================================================== -->
+
+<script src="https://fadilali10.github.io/hotel/js/supabase.js"></script>
+
+
+<!-- =========================================================
+     GUESTS MODULE
+========================================================== -->
+
+<script src="https://fadilali10.github.io/hotel/js/guests.js"></script>
+
+
+<!-- =========================================================
+     CONNECTION CHECK
+========================================================== -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    window.addEventListener(
+        "load",
+        async function () {
+
+            console.log(
+                "================================="
+            );
+
+            console.log(
+                "STAR HOTELS - GUESTS CONNECTION CHECK"
+            );
+
+            console.log(
+                "================================="
+            );
+
+
+            if (
+                typeof window.supabase ===
+                "undefined"
+            ) {
+
+                console.error(
+                    "❌ Supabase JavaScript library is NOT loaded."
+                );
+
+                return;
+
+            }
+
+
+            console.log(
+                "✓ Supabase JavaScript library loaded."
+            );
+
+
+            if (
+                !window.SUPABASE_URL ||
+                !window.SUPABASE_KEY
+            ) {
+
+                console.error(
+                    "❌ Supabase configuration is missing."
+                );
+
+                return;
+
+            }
+
+
+            console.log(
+                "✓ Supabase configuration loaded."
+            );
+
+
+            if (
+                !window.supabaseClient
+            ) {
+
+                console.error(
+                    "❌ Supabase client was NOT initialized."
+                );
+
+                console.error(
+                    "Check js/supabase.js."
+                );
+
+                return;
+
+            }
+
+
+            console.log(
+                "✓ Supabase client initialized."
+            );
+
+
+            try {
+
+                const result =
+                    await window.supabaseClient
+                        .auth
+                        .getSession();
+
+
+                if (result.error) {
 
                     console.error(
-                        "❌ Supabase JavaScript library is NOT loaded."
+                        "❌ Supabase connection/auth check failed."
+                    );
+
+                    console.error(
+                        result.error
                     );
 
                     return;
+
                 }
 
+
                 console.log(
-                    "✓ Supabase JavaScript library loaded."
+                    "✓ Supabase connection is working."
                 );
 
-
-                /* -----------------------------------------------
-                   CHECK CONFIGURATION
-                ------------------------------------------------ */
 
                 if (
-                    !window.SUPABASE_URL ||
-                    !window.SUPABASE_KEY
+                    result.data &&
+                    result.data.session
                 ) {
 
-                    console.error(
-                        "❌ Supabase configuration is missing."
+                    console.log(
+                        "✓ User session detected."
                     );
 
-                    return;
+                    console.log(
+                        "✓ Guests page is ready."
+                    );
+
+                } else {
+
+                    console.log(
+                        "ℹ No active session."
+                    );
+
+                    console.log(
+                        "Please login to use hotel management features."
+                    );
+
                 }
 
+
                 console.log(
-                    "✓ Supabase configuration loaded."
+                    "================================="
                 );
 
 
-                /* -----------------------------------------------
-                   CHECK SUPABASE CLIENT
-                ------------------------------------------------ */
+            } catch (error) {
 
-                if (!window.supabaseClient) {
-
-                    console.error(
-                        "❌ Supabase client was NOT initialized."
-                    );
-
-                    console.error(
-                        "Check js/supabase.js."
-                    );
-
-                    return;
-                }
-
-                console.log(
-                    "✓ Supabase client initialized."
+                console.error(
+                    "❌ Supabase connection test failed."
                 );
 
+                console.error(
+                    error
+                );
 
-                /* -----------------------------------------------
-                   CHECK AUTH / CONNECTION
-                ------------------------------------------------ */
+            }
 
-                try {
+        }
+    );
 
-                    const result =
-                        await window.supabaseClient.auth.getSession();
+})();
 
+</script>
 
-                    if (result.error) {
-
-                        console.error(
-                            "❌ Supabase connection/auth check failed."
-                        );
-
-                        console.error(
-                            result.error
-                        );
-
-                        return;
-                    }
-
-
-                    console.log(
-                        "✓ Supabase connection is working."
-                    );
-
-
-                    /* -------------------------------------------
-                       SESSION CHECK
-                    -------------------------------------------- */
-
-                    if (
-                        result.data &&
-                        result.data.session
-                    ) {
-
-                        console.log(
-                            "✓ User session detected."
-                        );
-
-                        console.log(
-                            "✓ Guests page is ready."
-                        );
-
-                    } else {
-
-                        console.log(
-                            "ℹ No active session."
-                        );
-
-                        console.log(
-                            "Please login to use guest management."
-                        );
-                    }
-
-
-                    console.log(
-                        "================================="
-                    );
-
-                } catch (error) {
-
-                    console.error(
-                        "❌ Supabase connection test failed."
-                    );
-
-                    console.error(
-                        error
-                    );
-                }
-
-            });
-
-        })();
-    </script>
 
 </body>
+
 </html>
