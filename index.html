@@ -43,11 +43,6 @@
     >
 
 
-    <!-- =====================================================
-         SUPABASE
-    ====================================================== -->
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 </head>
 
@@ -1406,14 +1401,83 @@
 
 
 <!-- =========================================================
-     SCRIPTS
+     STAR HOTELS - JAVASCRIPT
+     IMPORTANT: LOAD IN THIS EXACT ORDER
 ========================================================= -->
 
+<!-- 1. Supabase library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- 2. Star Hotels configuration -->
 <script src="./js/config.js"></script>
 
+<!-- 3. Create the Supabase client -->
 <script src="./js/supabase.js"></script>
 
+<!-- 4. Dashboard application -->
 <script src="./js/app.js"></script>
+
+<!-- 5. Final connection check -->
+<script>
+(function () {
+    "use strict";
+
+    window.addEventListener("load", async function () {
+        console.log("=================================");
+        console.log("STAR HOTELS - FINAL CONNECTION CHECK");
+        console.log("=================================");
+
+        if (typeof window.supabase === "undefined") {
+            console.error("❌ Supabase library is NOT loaded.");
+            return;
+        }
+
+        console.log("✓ Supabase library loaded.");
+
+        if (!window.STAR_HOTELS_CONFIG_READY) {
+            console.error("❌ Star Hotels configuration is NOT ready.");
+            return;
+        }
+
+        console.log("✓ Star Hotels configuration loaded.");
+
+        if (!window.supabaseClient) {
+            console.error("❌ Supabase client was NOT created.");
+            return;
+        }
+
+        console.log("✓ Supabase client created.");
+
+        try {
+            const { data, error } =
+                await window.supabaseClient.auth.getSession();
+
+            if (error) {
+                console.error("❌ Supabase connection/auth check failed:");
+                console.error(error);
+                return;
+            }
+
+            console.log("✓ Supabase connection is working.");
+
+            if (data && data.session) {
+                console.log("✓ User session detected.");
+                console.log("✓ Logged-in dashboard is ready.");
+            } else {
+                console.log("ℹ No active session.");
+                console.log("Please login to use hotel management features.");
+            }
+
+            console.log("=================================");
+        } catch (error) {
+            console.error("❌ Supabase connection test failed:");
+            console.error(error);
+        }
+    });
+})();
+</script>
+
+
 
 
 </body>
